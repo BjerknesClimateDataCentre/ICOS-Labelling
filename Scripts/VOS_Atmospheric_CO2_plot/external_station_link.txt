@@ -1,0 +1,5 @@
+find station code here: 
+https://www.esrl.noaa.gov/gmd/dv/site/map.html
+
+replace ICE with station code in this link:
+https://www.esrl.noaa.gov/gmd/dv/iadv/graph.php?code=ICE&program=ccgg&type=ts
