@@ -13,13 +13,15 @@
 
 plot_SST <- TRUE                      # Core for VOS and FOS
 plot_eqTemp <- FALSE                   # Core for VOS
-plot_sal <- TRUE                     # Core for FOS
-plot_eqPress <- FALSE                  # Core for VOS
-plot_xCO2sw <- FALSE                   # xCO2 or pCO2 is core for VOS and FOS
-plot_pCO2sw <- TRUE
+plot_sal <- FALSE                     # Core for FOS
+plot_eqPress <- TRUE                  # Core for VOS
+plot_xCO2sw <- TRUE                   # xCO2 or pCO2 is core for VOS and FOS
+plot_pCO2sw <- FALSE
 plot_DepthPressure <- FALSE           # Pressure (depth) is plotted for FOS, but in another script. The reason we need to know this here is for the plot lettering
 
-letter_location <- "topright"      # Alternatives are "bottomright", "bottomleft", "topleft", "topright"
+letter_location <- "bottomright"      # Alternatives are "bottomright", "bottomleft", "topleft", "topright"
+
+fix_xaxis <- TRUE                     # Set to true if the xaxis only shows year and you want ticks for months instead
 
 #}
 
@@ -98,7 +100,17 @@ for (file_loop in 1:length(input_files)) {
     }    
     png(output_file_name)
     par(mar=c(5,5,2,2))
-    tryCatch(plot(dates, data[["Intake.Temperature"]], ylab = expression(paste("Sea Surface Temperature [",degree,"C]")), xlab = "Time", ylim = SST_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {}) 
+    
+    # Adjust x-axis if requested in the unput
+    if (fix_xaxis==FALSE) {
+      tryCatch(plot(dates, data[["Intake.Temperature"]], ylab = expression(paste("Sea Surface Temperature [",degree,"C]")), xlab = "Time", ylim = SST_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {}) 
+    } else {
+      tryCatch(plot(dates, data[["Intake.Temperature"]], ylab = expression(paste("Sea Surface Temperature [",degree,"C]")), xlab = "Time", ylim = SST_ylims, cex.lab=1.5, cex.axis=1.3, xaxt='n'), error=function(e) {}) 
+      ticks.at <- seq(min(dates), max(dates), by = "months")
+      ticks.lab <- format(ticks.at, format = "%b")
+      axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
+    }
+    
     legend(letter_location, letters[count], bty="n", cex=2.5)
     dev.off()
   }
@@ -131,7 +143,18 @@ for (file_loop in 1:length(input_files)) {
     }  
     png(output_file_name)
     par(mar=c(5,5,2,2))
-    tryCatch(plot(dates, data[["Equilibrator.Temperature"]], ylab = expression(paste("Equilibrator Temperature [",degree,"C]")), xlab = "Time", ylim = eqTemp_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {})  
+     
+    
+    # Adjust x-axis if requested in the unput
+    if (fix_xaxis==FALSE) {
+      tryCatch(plot(dates, data[["Equilibrator.Temperature"]], ylab = expression(paste("Equilibrator Temperature [",degree,"C]")), xlab = "Time", ylim = eqTemp_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {}) 
+    } else {
+      tryCatch(plot(dates, data[["Equilibrator.Temperature"]], ylab = expression(paste("Equilibrator Temperature [",degree,"C]")), xlab = "Time", ylim = eqTemp_ylims, cex.lab=1.5,cex.axis=1.3,  xaxt='n' ), error=function(e) {}) 
+      ticks.at <- seq(min(dates), max(dates), by = "months")
+      ticks.lab <- format(ticks.at, format = "%b")
+      axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
+    }
+    
     legend(letter_location, letters[count], bty="n", cex=2.5)
     dev.off()
   }
@@ -163,7 +186,17 @@ for (file_loop in 1:length(input_files)) {
    }
   png(output_file_name)
   par(mar=c(5,5,2,2))
-  tryCatch(plot(dates, data[["Salinity"]], ylab = "Salinity [PSU]", xlab = "Time", ylim = sal_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+  
+  # Adjust x-axis if requested in the unput
+  if (fix_xaxis==FALSE) {
+    tryCatch(plot(dates, data[["Salinity"]], ylab = "Salinity [PSU]", xlab = "Time", ylim = sal_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+  } else {
+    tryCatch(plot(dates, data[["Salinity"]], ylab = "Salinity [PSU]", xlab = "Time", ylim = sal_ylims, cex.lab=1.5,cex.axis=1.3,  xaxt='n' ), error=function(e) {})
+    ticks.at <- seq(min(dates), max(dates), by = "months")
+    ticks.lab <- format(ticks.at, format = "%b")
+    axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
+  }
+  
   legend(letter_location, letters[count], bty="n", cex=2.5)
   dev.off()
   }
@@ -196,7 +229,17 @@ for (file_loop in 1:length(input_files)) {
     }
   png(output_file_name)
   par(mar=c(5,5,2,2))
-  tryCatch(plot(dates, data[["Equilibrator.Pressure"]], ylab = "Equilibrator Pressure [mbar]", xlab = "Time", ylim = eqPress_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {}) 
+  
+  # Adjust x-axis if requested in the unput
+  if (fix_xaxis==FALSE) {
+    tryCatch(plot(dates, data[["Equilibrator.Pressure"]], ylab = "Equilibrator Pressure [mbar]", xlab = "Time", ylim = eqPress_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {}) 
+  } else {
+    tryCatch(plot(dates, data[["Equilibrator.Pressure"]], ylab = "Equilibrator Pressure [mbar]", xlab = "Time", ylim = eqPress_ylims, cex.lab=1.5,cex.axis=1.3, xaxt ='n'), error=function(e) {}) 
+    ticks.at <- seq(min(dates), max(dates), by = "months")
+    ticks.lab <- format(ticks.at, format = "%b")
+    axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
+  }
+  
   legend(letter_location, letters[count], bty="n", cex=2.5)
   dev.off()
   }
@@ -234,7 +277,17 @@ for (file_loop in 1:length(input_files)) {
     }
    png(output_file_name)
    par(mar=c(5,5,2,2))
-   tryCatch(plot(dates, data[["CO2..measured."]], ylab = expression("Sea Surface xCO"[2]*" [ppm]"), xlab = "Time", ylim = xCO2_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+   
+   # Adjust x-axis if requested in the input
+   if (fix_xaxis==FALSE) {
+     tryCatch(plot(dates, data[["CO2..measured."]], ylab = expression("Sea Surface xCO"[2]*" [ppm]"), xlab = "Time", ylim = xCO2_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+   } else {
+     tryCatch(plot(dates, data[["CO2..measured."]], ylab = expression("Sea Surface xCO"[2]*" [ppm]"), xlab = "Time", ylim = xCO2_ylims, cex.lab=1.5,cex.axis=1.3, xaxt='n'), error=function(e) {})
+     ticks.at <- seq(min(dates), max(dates), by = "months")
+     ticks.lab <- format(ticks.at, format = "%b")
+     axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
+   }
+   
    legend(letter_location, letters[count], bty="n", cex=2.5)
    dev.off()
   }
@@ -268,9 +321,18 @@ for (file_loop in 1:length(input_files)) {
    png(output_file_name)
    par(mar=c(5,5,2,2))
    #tryCatch(plot(dates, data[["CO2..measured."]], ylab = expression(paste("Sea Surface pCO"[2]*" [",mu,"atm]")), xlab = "Time", ylim =  pCO2_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {})
-   tryCatch(plot(dates, data[["CO2..measured."]], ylab = expression(paste("Sea Surface pCO"[2]*" [ppm]")), xlab = "Time", ylim =  pCO2_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+   
+   # Adjust x-axis if requested in the input
+   if (fix_xaxis==FALSE) {
+     tryCatch(plot(dates, data[["CO2..measured."]], ylab = expression(paste("Sea Surface pCO"[2]*" [ppm]")), xlab = "Time", ylim =  pCO2_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+   } else {
+     tryCatch(plot(dates, data[["CO2..measured."]], ylab = expression(paste("Sea Surface pCO"[2]*" [ppm]")), xlab = "Time", ylim =  pCO2_ylims, cex.lab=1.5,cex.axis=1.3, xaxt='n'), error=function(e) {})
+     ticks.at <- seq(min(dates), max(dates), by = "months")
+     ticks.lab <- format(ticks.at, format = "%b")
+     axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
+   }
+   
    legend(letter_location, letters[count], bty="n", cex=2.5)
-   #legend("bottomright", "d)", bty="n", cex=2.5)
    dev.off()
   }
   # If manually edit the axis ranges, give number of outliers not plotted in console

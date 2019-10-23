@@ -35,7 +35,8 @@ for (file_loop in 1:length(input_files)) {
 		messages <- as.character(data[["Automatic.QC.Message"]][row])
 
   
-    if (nchar(messages) > 0) {
+		#if (length(messages) > 0) {
+	 if (nchar(messages) > 0) {
 			message_rows <- message_rows + 1
 			message_list <- unlist(strsplit(messages, ";"))
 

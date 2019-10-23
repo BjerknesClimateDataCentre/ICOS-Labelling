@@ -10,10 +10,10 @@
 # Chose which parameters to plot. All core parameters must be plotted if they exist and make sense (do not plot constants).
 plot_SST <- TRUE                     # Core for VOS and FOS
 plot_eqTemp <- FALSE                   # Core for VOS
-plot_sal <- TRUE                     # Core for FOS
-plot_eqPress <- FALSE                  # Core for VOS
-plot_xCO2sw <- FALSE                   # xCO2 or pCO2 is core for VOS and FOS
-plot_pCO2sw <- TRUE
+plot_sal <- FALSE                     # Core for FOS
+plot_eqPress <- TRUE                  # Core for VOS
+plot_xCO2sw <- TRUE                   # xCO2 or pCO2 is core for VOS and FOS
+plot_pCO2sw <- FALSE
 plot_DepthPressure <- FALSE           # Pressure (depth) is plotted for FOS, but in another script. The reason we need to know this here is for the lettering
 
 

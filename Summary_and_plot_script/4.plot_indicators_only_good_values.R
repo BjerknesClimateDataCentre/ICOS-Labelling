@@ -5,12 +5,12 @@
 #-------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------
 # Input parameters:
-if (!input_from_main) {
+#if (!input_from_main) {
 
 letter_location2 <- "topleft"
 deltaT_letter <- "a)"               # Set to "a)" for report and "b)" for executive summary 
 
-}
+#}
 #-----------------
 # Consider to change these axis ranges after viewing plots.
 
@@ -64,8 +64,11 @@ dates <- as.POSIXlt(data[["Date"]], "%Y-%m-%d %H:%M:%S", tz="UTC")
 data$dates <- dates 
   
 # Make subset of data where only flag 2 are included.
-data_sub <- subset(data, Automatic.QC.Flag==2)
+data_sub <- subset(data, Automatic.QC.Flag==2)#
+#data_sub2 <- data_sub
 
+#data_sub$fCO2[data_sub$fCO2>600] <- NA 
+#data_sub$CO2..measured.[data_sub$CO2..measured.>600] <- NA 
 
 #-----------------------------------------------------------------
 ## TEMPERATURE PLOTS (if eqTemp is measured)

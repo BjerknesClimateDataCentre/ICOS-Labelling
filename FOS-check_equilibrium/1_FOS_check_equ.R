@@ -9,19 +9,21 @@ Sys.setlocale("LC_ALL", "English");
 ### The script has some input parameters:
 
 
-sepp <- "\t"
-CO2_col <- c(34)                        # This is for xCO2 or pCO2
-additional_CO2_col <- NA            # Use if are more than one co2 in raw file (xCO2 AND pCO2). Assign as NA if not relevant
-date_col <- c(24)
-time_col <- c(25)
-dt_format <- "%Y-%m-%d %H:%M:%S"  
+sepp <- "\t"                            # or ","
+CO2_col <- c(11)                       # This is for xCO2 or pCO2
+additional_CO2_col <- NA               # Use if are more than one co2 in raw file (xCO2 AND pCO2). Assign as NA if not relevant
+date_col <- c(3,4,5)
+time_col <- c(6,7,8)
+dt_format <- "%Y %m %d %H %M %S"     # Or e.g. "%Y-%m-%dT%H:%M:%S" or "%Y %m %d %H %M %S"
 
-cycle_length <- 5                       # Approximate time between 2 measurements cycles (in hours)
+cycle_length <- 12                       # Approximate time between 2 measurements cycles (in hours)
+
+
 
 
 #-----------------
 # Do not change these
-step <- 200                             # How many measuments to plot in each window
+step <- 2000                           # How many measuments to plot in each window, usually 50
 nn <- 5                                 # How many plots
 
 #------------------------------------------------------------------------------
@@ -86,7 +88,8 @@ for (i in 1:length(location)) {
 }
 
 mtext('Time', side = 1, outer = TRUE, line = 2, cex=1.5)
-mtext(expression("pCO"[2]*" ["*mu*"atm]"), side = 2, outer = TRUE, line = 2, cex=1.5)
+#mtext(expression("pCO"[2]*" ["*mu*"atm]"), side = 2, outer = TRUE, line = 2, cex=1.5)
+mtext(expression("xCO"[2]*" [ppm]"), side = 2, outer = TRUE, line = 2, cex=1.5)
 mtext('a)', side = 2, outer=TRUE, line = 2, cex=2.5, at=1, adj=1, las=2)
 dev.off()
 
@@ -124,12 +127,23 @@ while (done==0) {
   loop <- loop+1
 }
 
+
+
 # make plot
 png(paste(output_dir, "/", "2_one_cycle_", "plot.png", sep=""))
 par(mar=c(5,5,2,2))
-plot(df$date.time[beg2:ending2], df[[CO2_col]][beg2:ending2], ylab=expression("pCO"[2]*" ["*mu*"atm]"), xlab="Time", cex.lab=1.5,cex.axis=1.3, xaxt = "n")
-axis(1, tick=FALSE, df$date.time[beg2:ending2], format(df$date.time[beg2:ending2],"%Y-%m-%d %H:%M:%S"), cex.axis=1.3)
-legend("bottomright", "b)", bty="n", cex=2.5) 
+plot(df$date.time[beg2:ending2], df[[CO2_col]][beg2:ending2], 
+#    ylab=expression("pCO"[2]*" ["*mu*"atm]"), xlab="Time", 
+     ylab=expression("xCO"[2]*" [ppm]"), xlab="Time", 
+#    ylim = c(300,360),
+     ylim=c(min(df[[CO2_col]][beg2:ending2])-5, max(df[[CO2_col]][beg2:ending2])+5),
+     cex.lab=1.5,cex.axis=1.3, xaxt = "n")
+axis(1, tick=FALSE, df$date.time[beg2:ending2], 
+     format(df$date.time[beg2:ending2],"%Y-%m-%d \n %H:%M:%S"), 
+     cex.axis=1.0)
+#mtext('b)', side = 2, outer=TRUE, line = 2, cex=2.5, at=1, adj=1, las=2)
+
+legend("topleft", "b)", bty="n", cex=2.5) 
 dev.off()
 
 

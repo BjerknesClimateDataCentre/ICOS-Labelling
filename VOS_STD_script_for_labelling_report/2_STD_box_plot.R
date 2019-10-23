@@ -17,8 +17,8 @@
 ##-----------------------------------------------------------------------------
 
 # Remove old figure produced by this script from the output directory
-image <- paste("output/",list.files("output", pattern="raw.jpg$",), sep="")
-file.remove(image)
+#image <- paste("output/",list.files("output", pattern="raw.jpg$"), sep="")
+#file.remove(image)
 
 
 input_dir<- "input"
@@ -78,15 +78,46 @@ for (i in 1:length(std_names)) {
 out_file <- paste(output_dir, "/", input_file, sep="")
 
 # Make output path and filename 
-filename <- paste((paste((sub("^([^.]*).*", "\\1", out_file)), sep="_")), "jpg", sep=".")
+filename1 <- paste(output_dir,"/STD_boxplots_",timestamp(),"_",appendtext,".png", sep="")
+#filename2 <- paste(output_dir,"/STD_boxplots_aft20180502_",timestamp(),"_",appendtext,".png", sep="")
+#filename <- paste((paste((sub("^([^.]*).*", "\\1", out_file)), sep="_")), "jpg", sep=".")
 
 # Make the plot:
-jpeg(filename)
-
-
-boxplot(df_list[[1]]$diff, df_list[[2]]$diff, df_list[[3]]$diff, df_list[[4]]$diff, names = std_names, outline=FALSE, boxcol = c("green", "blue", "red", "purple"), medcol = c("green", "blue", "red", "purple"), ylab="Calibration anomaly [ppm]")
+png(filename1, width=1600,height=1600, res=300)
+boxplot(df_list[[1]]$diff, 
+        df_list[[2]]$diff, 
+        df_list[[3]]$diff,
+        df_list[[4]]$diff, 
+        names = std_names, outline=FALSE, 
+        boxcol = c("green", "blue", "red", "purple"), 
+        medcol = c("green", "blue", "red", "purple"), 
+        ylab="Calibration anomaly [ppm]")
 abline(h=0)
-
 dev.off()
 
 
+# ## This was only valid for GO Sars
+# # Make the plot:
+# png(filename1, width=1600,height=1600, res=300)
+# boxplot(df_list[[1]]$diff[df_list[[1]]$date.time <= as.POSIXct("2017-05-02 00:00:00 UTC")], 
+#         df_list[[2]]$diff[df_list[[2]]$date.time <= as.POSIXct("2017-05-02 00:00:00 UTC")], 
+#         df_list[[3]]$diff[df_list[[3]]$date.time <= as.POSIXct("2017-05-02 00:00:00 UTC")],
+#         df_list[[4]]$diff[df_list[[4]]$date.time <= as.POSIXct("2017-05-02 00:00:00 UTC")], 
+#         names = std_names, outline=FALSE, 
+#         boxcol = c("green", "blue", "red", "purple"), 
+#         medcol = c("green", "blue", "red", "purple"), 
+#         ylab="Calibration anomaly [ppm]")
+# abline(h=0)
+# dev.off()
+# 
+# png(filename2, width=1600,height=1600, res=300)
+# boxplot(df_list[[1]]$diff[df_list[[1]]$date.time > as.POSIXct("2017-05-02 00:00:00 UTC")], 
+#         df_list[[2]]$diff[df_list[[2]]$date.time > as.POSIXct("2017-05-02 00:00:00 UTC")], 
+#         df_list[[3]]$diff[df_list[[3]]$date.time > as.POSIXct("2017-05-02 00:00:00 UTC")],
+#         df_list[[4]]$diff[df_list[[4]]$date.time > as.POSIXct("2017-05-02 00:00:00 UTC")], 
+#         names = std_names, outline=FALSE, 
+#         boxcol = c("green", "blue", "red", "purple"), 
+#         medcol = c("green", "blue", "red", "purple"), 
+#         ylab="Calibration anomaly [ppm]")
+# abline(h=0)
+# dev.off()

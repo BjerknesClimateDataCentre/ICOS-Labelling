@@ -18,9 +18,6 @@
 
 ##-----------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------
-# Set working directory to file location
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
 # Input params to be assigned:
 
 # Which ID_name (look in json file) is used for the parameters we wish to extract
@@ -29,21 +26,22 @@ lon_col <- "gprmc_longitude"
 sst_col <- "sbe37po_temp"
 press_col <- "sbe37po_press"
 cond_col <- "sbe37po_cond"
-co2_col <- "pco2_2_CO2"
+co2_col <- "pco2_3_CO2"
 
 
 other <- c(oxy="sbe37po_oxy")         # Make this "other-varaible" to allow for easy addition of other IDs
                                       # in the future 
 
-              
-zeroing_col <- "pco2_2_instrumentZero"
+
+zeroing <- "no"                         # "yes" if want to remove zeroing measurements
+#zeroing_col <- "pco2_3_instrumentZero"  # Can be ignored if zeroing is not done
 
 
 # What is the limiting parameter (lowest frequency)
 trigger <- co2_col
 
 # Make variable with all params (including position) in the prefered order
-all_params <- c(lat_col, lon_col, sst_col, press_col, cond_col, co2_col, zeroing_col, other[[1]])   # Replaced "order"
+all_params <- c(lat_col, lon_col, sst_col, press_col, cond_col, co2_col, other[[1]])   # Replaced "order"
 
 # What is the maximum allowed time offset between measurements?
 max_time_ofset <- 2700 # in seconds
@@ -122,7 +120,7 @@ in_file <- paste(input_dir, "/", input_files[file_loop], sep="")     # When turn
 
 
 # Import tag details for MIRAMARE station
-tags_file <- fromJSON(paste(readLines("tag_details/Tag_details_E2M3A_pCO2-2.json"),collapse=""))
+tags_file <- fromJSON(paste(readLines("tag_details/Tag_details_E2M3A_pCO2-3.json"),collapse=""))
 
 # Import functions file... (not created yet)
 
@@ -313,7 +311,7 @@ na_logical <- na_vector == 1
 new_df<- new_df[na_logical,]
 
 
-
+if (zeroing=="yes") {
 output_new_df <- paste("output/2.chosen_cols_with_zeroing_",input_files[file_loop], sep="")
 write.table(new_df, file = output_new_df, sep ="\t", row.names=FALSE)
 
@@ -326,8 +324,8 @@ count <- 2
 
 for (h in 1:nrow(new_df)){
   
-  if (!is.na(new_df$pco2_2_instrumentZero[h])){
-    zero_timestamp[count] <- new_df$pco2_2_instrumentZero[h]
+  if (!is.na(new_df$pco2cv_instrumentZero[h])){
+    zero_timestamp[count] <- new_df$pco2cv_instrumentZero[h]
     zero_timstamp_diff <- zero_timestamp[count] - zero_timestamp[count-1]
     if (zero_timstamp_diff != 0) {
       new_df$delete_col[h] <- 1
@@ -339,9 +337,9 @@ for (h in 1:nrow(new_df)){
 
 # REmove the rows with zeroing co2
 new_df <- subset(new_df, new_df$delete_col==0)
-# Remove the dummy columns
-new_df <- new_df[,1:(ncol(new_df)-1)]
-
+# Remove the 2 dummy columns
+new_df <- new_df[,1:7]
+}
 
 output_new_df <- paste("output/2.5.chosen_cols_",input_files[file_loop], sep="")
 write.table(new_df, file = output_new_df, sep ="\t", row.names=FALSE)

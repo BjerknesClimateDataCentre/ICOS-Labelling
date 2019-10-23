@@ -1,31 +1,55 @@
-########################################################################################
+######################################################################################
 ### Function for creating STD anomaly plots to be used for the labellign step 2 reports
 ###########################
 ### FOR VOS only
 
 
 
-### Run the script in a directory which contains an input folder and an output folder.
-### The Input folder needs to contain raw data file(s) (they need to have the same format and standards).
-### Output folder will one plot (per file) showing the standard measurements anomalies.
+### Run the script in a directory which contains an input folder and an output
+### folder. The Input folder needs to contain raw data file(s) (they need to
+### have the same format and standards). Output folder will one plot (per file)
+### showing the standard measurements anomalies.
 
 
-#-------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------
+
 # Input params to be assigned:
+# Clear plots
+if (!is.null(dev.list()))
+  dev.off()
+# Clean workspace
+rm(list = ls())
 
+
+# Append timestamp to output produced, also free text (?)
+timestamp <- function() {
+  as.character(as.POSIXct(date(), tz = "UTC", format = "%a %b %d %H:%M:%S %Y"),
+               format = "%Y%m%dT%H%M%S")
+}
+sink.reset <- function() {
+  for (i in seq_len(sink.number())) {
+    sink(NULL)
+  }
+}
+#
+
+sink.reset()
+#
+if (!exists("input_from_main")) {
+  input_from_main <- FALSE
+}
 if (!input_from_main) {
 
-date_col <-1
-time_col <- 1
-dt_format <- "%d/%m/%Y %H:%M:%S"            # e.g. "%d/%m/%y %H:%M:%S"
-run_type_col <- 3
-CO2_col <- 12
-CO2_name <- "CO2_PHYS"
-std_val_col <- 10
-std_val_name <- "STD"
+date_col <-3
+time_col <- 4
+dt_format <- "%d/%m/%y"            # e.g. "%d/%m/%y %H:%M:%S"
+run_type_col <- 1
+CO2_col <- 8
+CO2_name <- "CO2.um.m"
+std_val_col <- 6
+std_val_name <- "std.val"
 std_names <- c("STD1","STD2","STD3","STD4")
-
+appendtext <- "PS"
 }
 
 ##-------------
@@ -42,19 +66,20 @@ questionable_max <- 5
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 # Remove old figure produced by this script from the output directory
-image <- paste("output/",list.files("output", pattern="time.jpg$",), sep="")
-file.remove(image)
+#image <- paste("output/",list.files("output", pattern="time.png$"), sep="")
+#file.remove(image)
 
 
-Sys.setlocale("LC_ALL", "English"); 
+#Sys.setlocale("LC_ALL", "English"); 
+input_dir<- "input"
+output_dir<-"./output"
 
 # Write output to file
-table_info_file <- paste("output", "/", "STD_graphs_table_info.txt", sep="")
-sink(table_info_file)
+table_info_file <- paste(output_dir, "/", "STD_graphs_table_info_",
+                         timestamp(),"_",appendtext,".txt", sep="")
+#sink(table_info_file)
+outtextfile <- file(table_info_file, open = "wt")
 
-  input_dir<- "input"
-  output_dir<-"output"
-  
   # List all files in input directory
   input_files <- list.files(input_dir)
  
@@ -64,14 +89,16 @@ sink(table_info_file)
      
 	    # Get the path to file and read the data 
 	    in_file <- paste(input_dir, "/", input_files[file_loop], sep="")
-	    data <- read.table(in_file,header=T, sep = "\t", strip.white=TRUE, fileEncoding="UTF8")
+	    data <- read.table(in_file,header=T, sep = "\t", 
+	                       strip.white=TRUE, fileEncoding="UTF8", na.strings="NaN")
 	    
-	    # Identify date and time
-	    # (The if statement is related to whether there are one or two date/time columns in raw file)
+	    # Identify date and time (The if statement is related to whether there are
+	    # one or two date/time columns in raw file)
 	    if (date_col == time_col) {
 	        date.time <- as.POSIXct(data[,date_col], tz="UTC", format=dt_format)
 	    } else {
-	        date.time <- as.POSIXct(paste(data[,date_col], data[,time_col]), tz="UTC", format=dt_format)          
+	        date.time <- as.POSIXct(paste(data[,date_col], data[,time_col]), 
+	                                tz="UTC", format=dt_format)          
 	    }
 	    
 	    # Add the date time column to the data frame
@@ -81,13 +108,17 @@ sink(table_info_file)
 	    out_file <- paste(output_dir, "/", input_files[file_loop], sep="")
 	    
 	    # Make output path and filename 
-	    filename <- paste((paste((sub("^([^.]*).*", "\\1", out_file)),"time", sep="_")), "png", sep=".")
+	    filename <- paste(output_dir,"/STD_drift_",
+	                      timestamp(),"_",appendtext,".png", sep="")
+	    #filename <- paste((paste((sub("^([^.]*).*", "\\1", out_file)),"time",
+	    #sep="_")), "png", sep=".")
 	      
 	    # Make the plot:
-	    png(filename)#, width=1000)
+	    png(filename, width=1600,height=1600, res=300)#, width=1000)
           
         
-        # Extract data needed for plotting (those in cols) from each standard and store as separate list elements 
+        # Extract data needed for plotting (those in cols) from each standard
+        # and store as separate list elements
         df_list <- list()
         cols <- c(ncol(data), run_type_col, CO2_col, std_val_col)
         
@@ -96,36 +127,61 @@ sink(table_info_file)
 	        type <- std_names[i]
 	        data_sub <- data[data[,run_type_col]==type,cols]   
 	        data_sub$diff <- data_sub[[CO2_name]] - data_sub[[std_val_name]]
-          data_sub$seconds <- as.numeric(data_sub$date.time)                   # Needed when making linear model to consider trend
-	        df_list[[i]] <- data_sub
-	     
+	        # Needed when making linear model to consider trend
+	        data_sub$seconds <- as.numeric(data_sub$date.time)                   
+          df_list[[i]] <- data_sub
 	    }
 	             
 
-      # Make plots 
+      # Make plots + Calculate slope, p value...
 	    par(mfrow=c(4,1))
-      par(oma = c(4, 4, 0, 0)) # make room (i.e. the 4's) for the overall x and y axis titles
-      par(mar = c(2, 2, 1, 1)) # make the plots be closer together
+	    # make room (i.e. the 4's) for the overall x and y axis titles
+      par(oma = c(4, 4, 0, 0))
+      # make the plots be closer together
+      par(mar = c(2, 2, 1, 1)) 
     	    
 	    #plot_name <-paste((sub("^([^.]*).*", "\\1", input_files[file_loop])), sep="_")
 	    color <- c("green", "blue", "red", "purple")
       zeros <- rep(0, length(data$date.time))
-  
-      
-
       
     for (k in 1:length(std_names)) {
-      plot (df_list[[k]]$date.time, df_list[[k]]$diff, col=color[k], ylab="", xlab="", type="p", ylim = c(ymin,ymax))
+      plot (df_list[[k]]$date.time, df_list[[k]]$diff, col=color[k], 
+            ylab="", xlab="", type="p", ylim = c(ymin,ymax))
       abline(h=0)
       #lines(data$date.time, zeros, col="black", lwd=1) 
       legend("topleft", legend = std_names[k])
-      good_df <- subset(df_list[[k]], df_list[[k]]$diff < ymax & df_list[[k]]$diff > ymin)
-      abline(lm(diff~seconds, good_df), col="red")
+  
+      #    ## APPLIES ONLY TO GO.SARS!!!
+      # if (k == 2 | k == 3){
+      #   df_list1 <- df_list[[k]]
+      #   df_list1 <- df_list1[df_list1$date.time <= as.POSIXct("2017-05-02 00:00:00 UTC"),]
+      #   good_df1 <- subset(df_list1, 
+      #                     df_list1$diff < ymax & df_list1$diff > ymin)
+      #   f <- lm(diff~seconds, good_df1)
+      #   X <- good_df1$seconds
+      #   Y <- predict(f)
+      #   lines(x=X, y=Y, col="orange")
+      #   #abline(lm(diff~seconds, good_df1), col="red")
+      #   
+      #   df_list2 <- df_list[[k]]
+      #   df_list2 <- df_list2[df_list2$date.time > as.POSIXct("2017-05-02 00:00:00 UTC"),]
+      #   good_df2 <- subset(df_list2, 
+      #                     df_list2$diff < ymax & df_list2$diff > ymin)
+      #   f <- lm(diff~seconds, good_df2)
+      #   X <- good_df2$seconds
+      #   Y <- predict(f)
+      #   lines(x=X, y=Y, col="orange")      }
+      # else {
+      good_df <- subset(df_list[[k]], 
+                        df_list[[k]]$diff < ymax & df_list[[k]]$diff > ymin)
+      abline(lm(diff~seconds, good_df), col="orange")
+      #}
 		  }
       mtext('Time', side = 1, outer = TRUE, line = 2)
       mtext('Calibration anomaly [ppm]', side = 2, outer = TRUE, line = 2)
     
-	    #legend("topleft", legend = c("STD1", "STD2", "STD3", "STD4", "Base line"), pch, col=c(color,"black"), lwd=c(2,2,2,2,2))
+	    #legend("topleft", legend = c("STD1", "STD2", "STD3", "STD4", "Base line"),
+	    #pch, col=c(color,"black"), lwd=c(2,2,2,2,2))
 	    dev.off()
     
     
@@ -143,7 +199,8 @@ sink(table_info_file)
       percent <- round((outliers/total_meas)*100, 2)
       
       # Write to screnn
-      cat("Number of outliers for ", std_names[l], " is ", outliers, " (", percent , "%).", "\n", sep="")    
+      writeLines( paste("Number of outliers for ", std_names[l], " is ", 
+          outliers, " (", percent , "%).", "\n", sep=""), outtextfile)    
       outlier_count[l]<-outliers
       
     }
@@ -153,32 +210,79 @@ sink(table_info_file)
     
     
     # Make linear model for trend lines and find out if trends are significant
-    cat("\n")
-    slope <- rep(0, length(std_names))
-    p_val <- rep(0, length(std_names))
-    total_change <- rep(0, length(std_names))
+    writeLines(c("\n"),outtextfile)
+    slope <- matrix(0L, nrow=length(std_names),ncol=2)
+    p_val <- matrix(0L, nrow=length(std_names),ncol=2)
+    total_change <- matrix(0L, nrow=length(std_names),ncol=2)
     
-    for (m in 1:length(std_names)) { 
-      good_df <- subset(df_list[[m]], df_list[[m]]$diff < ymax & df_list[[m]]$diff > ymin)
+    for (m in 1:length(std_names)) {
+      # if (m == 2 | m == 3){
+      #   good_df1 <- subset(df_list[[m]], 
+      #                     df_list[[m]]$diff < ymax & df_list[[m]]$diff > ymin &
+      #                       df_list[[m]]$date.time<= as.POSIXct("2017-05-02 00:00:00 UTC"))
+      #   lin_mod <- lm(diff~seconds, good_df1)
+      #   slope[m,1] <- summary(lin_mod)$coefficients[2,1]
+      #   p_val[m,1] <- summary(lin_mod)$coefficients[2,4]
+      #   
+      #   total_seconds <- (good_df1$seconds[length(good_df1$seconds)]) - 
+      #     (good_df1$seconds[1])
+      #   total_change[m,1] <- slope[m,1]*total_seconds
+      #   
+      #   if(p_val[m,1] < 0.05) {
+      #     writeLines(paste(std_names[m], " changes by ", round(total_change[m,1],2),
+      #                      " ppm (significant - ", round(p_val[m,1],3),").","\n", sep =""), outtextfile)
+      #   } else {
+      #     writeLines(paste(std_names[m], " changes by ", round(total_change[m,1],2),
+      #                      " ppm (not significant - ", round(p_val[m,1],3),").","\n", sep=""), outtextfile)
+      #   }
+      #   
+      #   good_df2 <- subset(df_list[[m]], 
+      #                     df_list[[m]]$diff < ymax & df_list[[m]]$diff > ymin &
+      #                       df_list[[m]]$date.time > as.POSIXct("2017-05-02 00:00:00 UTC"))
+      #   lin_mod <- lm(diff~seconds, good_df2)
+      #   slope[m,2] <- summary(lin_mod)$coefficients[2,1]
+      #   p_val[m,2] <- summary(lin_mod)$coefficients[2,4]
+      #   
+      #   total_seconds <- (good_df2$seconds[length(good_df2$seconds)]) - 
+      #     (good_df2$seconds[1])
+      #   total_change[m,2] <- slope[m,2]*total_seconds
+      #   
+      #   if(p_val[m,2] < 0.05) {
+      #     writeLines(paste(std_names[m], " changes by ", round(total_change[m,2],2),
+      #                      " ppm (significant - ", round(p_val[m,2],3),").","\n", sep =""), outtextfile)
+      #   } else {
+      #     writeLines(paste(std_names[m], " changes by ", round(total_change[m,2],2),
+      #                      " ppm (not significant - ", round(p_val[m,2],3),").","\n", sep=""), outtextfile)
+      #   }
+      # }
+      # 
+      #else {
+      good_df <- subset(df_list[[m]], 
+                        df_list[[m]]$diff < ymax & df_list[[m]]$diff > ymin)
       lin_mod <- lm(diff~seconds, good_df)
-      slope[m] <- summary(lin_mod)$coefficients[2,1]
-      p_val[m] <- summary(lin_mod)$coefficients[2,4]
+      slope[m,1] <- summary(lin_mod)$coefficients[2,1]
+      p_val[m,1] <- summary(lin_mod)$coefficients[2,4]
       
-      total_seconds <- (good_df$seconds[length(good_df$seconds)]) - (good_df$seconds[1])
-      total_change[m] <- slope[m]*total_seconds
+      total_seconds <- (good_df$seconds[length(good_df$seconds)]) - 
+        (good_df$seconds[1])
+      total_change[m,1] <- slope[m,1]*total_seconds
       
-      if(p_val[m] < 0.05) {
-        cat(std_names[m], " changes by ", round(total_change[m],2), " ppm (significant - ", round(p_val[m],3),").","\n", sep ="")
+      if(p_val[m,1] < 0.05) {
+        writeLines(paste(std_names[m], " changes by ", round(total_change[m,1],2),
+            " ppm (significant - ", round(p_val[m,1],3),").","\n", sep =""), outtextfile)
       } else {
-        cat(std_names[m], " changes by ", round(total_change[m],2), " ppm (not significant - ", round(p_val[m],3),").","\n", sep="")
+        writeLines(paste(std_names[m], " changes by ", round(total_change[m,1],2),
+            " ppm (not significant - ", round(p_val[m,1],3),").","\n", sep=""), outtextfile)
       }
+#      }
     }
     
     
  
     
-    # loop though the list (each STD) and could how many values are ouside the questionable and bad range
-    cat("\n")
+    # loop though the list (each STD) and could how many values are ouside the
+    # questionable and bad range
+    writeLines(c("\n"),outtextfile)
     good <- rep(0, length(std_names))
     questionable <- rep(0, length(std_names))
     bad <- rep(0, length(std_names)) 
@@ -186,27 +290,32 @@ sink(table_info_file)
     
     for (n in 1:length(std_names)){
     good[n] <- sum(df_list[[n]]$diff > good_min & df_list[[n]]$diff < good_max)
-    bad[n] <- sum(df_list[[n]]$diff < questionable_min, df_list[[n]]$diff > questionable_max)
-    questionable[n] <- sum(df_list[[n]]$diff < good_min & df_list[[n]]$diff > questionable_min, df_list[[n]]$diff > good_max & df_list[[n]]$diff < questionable_max)
+    bad[n] <- sum(df_list[[n]]$diff < questionable_min, 
+                  df_list[[n]]$diff > questionable_max)
+    questionable[n] <- sum(df_list[[n]]$diff < good_min & 
+                             df_list[[n]]$diff > questionable_min, 
+                           df_list[[n]]$diff > good_max &
+                             df_list[[n]]$diff < questionable_max)
     total[n] <- length(df_list[[n]]$diff)
     
-    cat(std_names[n]," - G: ", good[n], " (", round((good[n]/total[n])*100,2), "%), Q: ", questionable[n], " (", round((questionable[n]/total[n])*100,2), "%), B: ", bad[n], " (", round((bad[n]/total[n])*100,2), "%).", "\n", sep="")                  
+    writeLines(paste(std_names[n]," - G: ", good[n], " (", round((good[n]/total[n])*100,2),
+        "%), Q: ", questionable[n], " (", round((questionable[n]/total[n])*100,2),
+        "%), B: ", bad[n], " (", round((bad[n]/total[n])*100,2), "%).", "\n", sep=""),
+        outtextfile)
     
     }
     
+  
     
-    
-    
-    
-    
-  	}
+    	}
 
 
-
-sink()
+close(outtextfile)
+#sink()
 
 
 # TESTING While making linear models and calculating trend lines 
+
 #plot (df_list[[1]]$date.time, df_list[[1]]$diff, ylim = c(ymin,ymax))
 #good_df <- subset(df_list[[1]], df_list[[1]]$diff < 5 & df_list[[1]]$diff > -5)
 #abline(lm(diff~seconds, good_df), col="red")
