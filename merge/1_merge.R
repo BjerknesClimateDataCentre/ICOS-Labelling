@@ -1,141 +1,146 @@
 #####################################################################################
-### Function for checking if equilibrium is reached for the raw FOS data
+### SCRIPT FOR MERGING TWO DATASETS
 ###########################
 
 Sys.setlocale("LC_ALL", "English"); 
 
 ##-----------------------------------------------------------------------------
-
-### Input parameters:
-
+### INPUT PARAMETERS
 
 
-max_time_diff <- 5               # In hours (usually use 5 unless get told something else)
+# Name of files to merge (the 'main' file is the "most important one"- all rows are kept in
+# the output merged file e.g. the co2 file, while the sst rows are added if there is a match
+file_main <- "KW40_dat.txt_wDOY.txt"  
+file_toAdd <- "KW40_ENV_DShip.dat_wDOY.txt"
 
-time_col_file1 <- c(2)              # The format must be day of year. If other format add this to script.
-time_col_file2 <- c(2)              # File 1 and File 2 are defined alfabetically
+# Specify the separator
+main_sepp <- "\t"
+toAdd_sepp <- "\t"      # e.g. "\t"
 
-file1_colName <- "_1m"             # What should be added to the columns in order 
-file2_colName <- "_30m"              # to separate between the two files afterwards.
+# The files must contain the date and time in DOY format (if does not: use the 'convert_to_doy' script) 
+# Specify the column storing the DOY
+doy_col_main <- c(1)           
+doy_col_toAdd <- c(1)             
 
-file1_sepp <- ","
-file2_sepp <- ","
+# What should be added to the columns in order to spearate their sorce file ('_' needed)
+main_colName <- ""          
+toAdd_colName <- ""       
+
+# Maximum allowed time difference in hours (usually use 5)
+max_time_diff <- 2/(60)     
+
+# The output file name
+out_put_file_name <- "Polarstern_2019_KW40.txt"
+
+# Columns which are not numbers (any text and date/time columns) need to be specified so that 
+# these are not converted to numbers in the outputfile. Use many cols in array if needed.
+main_char_cols <-  c(2,4,5,6,7)   
+toAdd_char_cols <- c(2)
+
 
 
 ##-----------------------------------------------------------------------------
-
-# Import data to merge and store in data frames
+# Import data to merge, and store in separate data frames
 input_dir<-"input"
 output_dir<-"output"
 
-input_files <- list.files(input_dir)
+in_main <- paste(input_dir, "/", file_main, sep="")
+in_toAdd <- paste(input_dir, "/", file_toAdd, sep="")
 
-in_file <- paste(input_dir, "/", input_files[1], sep="")
-in_file2 <- paste(input_dir, "/", input_files[2], sep="")
+df_main <- read.table(in_main,header=T, sep=main_sepp, fileEncoding="UTF8")
+df_toAdd <- read.table(in_toAdd,header=T, sep=toAdd_sepp, fileEncoding="UTF8")
 
-df_1 <- read.table(in_file,header=T, sep=file1_sepp, fileEncoding="UTF8")
-df_2 <- read.table(in_file2,header=T, sep=file2_sepp, fileEncoding="UTF8")
 
 
 #----------
+# Check if date is chronological (DOY shoyld not decrease!).
+# If it is non-chronological, this needs to be fixed before can run this merge script!
 
-# Fix date and time 
-#date.time_1m <- as.POSIXct(df_1m$date.time, tz="UTC", format="%Y-%m-%d %H:%M:%S" )
-#df_1m$date.time <- date.time_1m
+# Main file:
+for (g in 1:(nrow(df_main)-1)) {
+  main_doy_diff <- df_main[g+1,doy_col_main] - df_main[g,doy_col_main]
+  if (main_doy_diff < 0) {
+    stop("Main file does not have chronological DOY")
+  }
+}
 
-#date.time_30m <- as.POSIXct(df_30m$date.time, tz="UTC", format="%Y-%m-%d %H:%M:%S" )
-#df_30m$date.time <- date.time_30m
+# ToAdd file:
+for (h in 1:(nrow(df_toAdd)-1)) {
+  toAdd_doy_diff <- df_toAdd[h+1,doy_col_toAdd] - df_toAdd[h,doy_col_toAdd]
+  if (toAdd_doy_diff < 0) {
+    stop(cat("ToAdd file does not have chronological DOY. Stop at row ",h,sep=""))
+  }
+}
+
+
+#----------
+# Change the class of the date and time columns (and other non-numeric cols) so that they are not changed to numbers in the output file
+
+for (i in 1:length (main_char_cols)){
+  df_main[,main_char_cols[i]] <- as.character(df_main[,main_char_cols[i]])
+}
+
+for (j in 1:length (toAdd_char_cols)){
+  df_toAdd[,toAdd_char_cols[j]] <- as.character(df_toAdd[,toAdd_char_cols[j]])
+}
 
 
 #------------
-
-# Create new empty data frame with enough space (cols) for both datasets.
-nCol_new_df <- ncol(df_1) + ncol(df_2)
+# Create new empty data frame with number of columns equal the sum of columns in the two datasets
+nCol_new_df <- ncol(df_main) + ncol(df_toAdd)
 new_df <- data.frame(matrix(ncol=nCol_new_df,nrow=0))
-colname_1 <- paste(colnames(df_1),file1_colName,sep="")
-colname_2 <- paste(colnames(df_2),file2_colName,sep="")
+colname_1 <- paste(colnames(df_main),main_colName,sep="")
+colname_2 <- paste(colnames(df_toAdd),toAdd_colName,sep="")
 colnames(new_df) <- c(colname_1, colname_2)
 
+# Divide with 24 to get the same unit on the max hour and the doy (max hour is in hour, while doy is the day of year).
+max_time_diff <- max_time_diff/24
 
-# USe a while loop to merge the two datasets. 
-row_count_1 <- 1
-row_count_2 <- 1
-row_count_new <- 1
+# Define counter for df_toAdd
+df_toAdd_row_count <- 1
 
-data_1_finished <- 0
-data_2_finished <- 0
+# Set start value for the while loop inside the for loop
+df_toAdd_finished <- 0
 
-time_diff <- max_time_diff/24
-
-state <- "find_match"
-
-dummy_match_count <- 0
-
-#------------
-while (data_1_finished == 0 && data_2_finished == 0) {
+for (k in 1:nrow(df_main)) {
   
-  current_time_1 <- df_1[row_count_1, time_col_file1]
-  current_time_2 <- df_2[row_count_2, time_col_file2]
+  # Calculate the current diff, BUT only if there are more rows left in toAdd file. 
+  if (df_toAdd_finished == 0) {
+  current_diff <- abs(df_main[k,doy_col_main] - df_toAdd[df_toAdd_row_count,doy_col_toAdd])
+  } else {
+    current_diff <- 999
+  }
   
-  #------------ 
-  # FIND MATCH
-  if (state == "find_match") {
+  found_best_match <- 0  
+  while (found_best_match == 0 && df_toAdd_finished == 0) {
+    next_diff <- abs(df_main[k,doy_col_main] - df_toAdd[df_toAdd_row_count + 1 ,doy_col_toAdd])
     
-    # Compare the current file1 time with the current file2 time has 3 outcomes:
-    # Outcome 1: file2 time is more than the acepted number of hours EARLIER -> start loop again and compare with next file2 row
-    if (current_time_1 - current_time_2 > time_diff) {
-      row_count_2 <- row_count_2 + 1
+    # If the next difference is smaller (a better match) or equal, we need to keep comapring with the next row.
+    if (current_diff >= next_diff) {
+      current_diff <- next_diff 
+      df_toAdd_row_count <- df_toAdd_row_count + 1 
     
-    # Outcome 2: file2 time is more than the acepted number of hours LATER -> jump to next row in file1 data
-    } else if (current_time_2 - current_time_1 > time_diff) {
-      row_count_1 <- row_count_1 + 1
-      
-    # Outcome 3: file2 time is between 5 hours earlier and 5 hours later than file1 time -> we have a timestamp match
-    } else { 
-      state <- "write_match"
+    # If the next difference is larger (a worse match) we have found the best match (row number: df_toAdd_row_count)
+    } else {
+      found_best_match <- 1
     }
-  
+    
+    # Close the while loop if df_toAdd has no more rows
+    if (df_toAdd_row_count >= nrow(df_toAdd)) {
+      df_toAdd_finished <- 1
+    }
   }
   
-  #------------
-  # WRITE MATCH
-  if(state == "write_match") {
-  
-    new_df[row_count_new,] <- c(df_1[row_count_1,], df_2[row_count_2,])
-
-    # Increase all row counts and change state back to find match
-    row_count_1 <- row_count_1 + 1
-    row_count_2 <- row_count_2 + 1
-    row_count_new <- row_count_new + 1
-    state <- "find_match"
+  # Write the df_main row. Add the df_toAdd row if there is an acceptable match, add NaN if not.
+  if (current_diff <= max_time_diff) {
+    new_df[k,] <- c(df_main[k,], df_toAdd[df_toAdd_row_count,])
+  } else {
+    new_df[k,] <- c(df_main[k,], rep("NaN",ncol(df_toAdd)))
   } 
-  
-  
-  # Stop loop if fall of data frames
-  if(row_count_1 > nrow(df_1)) {
-    data_1_finished <- 1
-  }
-  if(row_count_2 > nrow(df_2)) {
-    data_2_finished <- 1
-  }
   
 }
 
 
-out_file <- paste(output_dir, "/", "merged.txt", sep="")
-write.table(new_df, file=out_file, row.names=FALSE, fileEncoding="UTF8", sep="\t")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Write the new merged data frame
+out_file <- paste(output_dir, "/", out_put_file_name, sep="")
+write.table(new_df, file=out_file, quote=FALSE, row.names=FALSE, fileEncoding="UTF8", sep="\t")

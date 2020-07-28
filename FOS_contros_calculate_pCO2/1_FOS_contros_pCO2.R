@@ -14,28 +14,29 @@
 
 sepp <- "\t"                                      # File separator used
 
-date_col <-c(2)
-time_col <- c(3)
-dt_format <- "%d.%m.%Y %H:%M:%S"                  # e.g. "%d/%m/%y %H:%M:%S"
+date_col <-c(1)
+time_col <- c(2)
+dt_format <- "%Y-%m-%d %H:%M:%S"                  # e.g. "%d/%m/%y %H:%M:%S"
 
-runtime_col_name <- "Runtime"
+runtime_col_name <- "Runtime_sec"
 start_runtime <- 0                                # Is this always 0?
-end_runtime <- 3984112                            # Need to get the start and end runtime from PI.
+end_runtime <- ????                            # Need to get the start and end runtime from PI.
 
 skip <- 3                                      # How many zero rows to skip before averaging (PI used 3)
 
 
-# The following is found in calibration sheets:
-k1_pre <- 5.152979e-02                            
-k2_pre <- 1.995406e-06
-k3_pre <- 1.895986e-10
+# The following is found in calibration sheets (the 'pre' from the calibration before the measurements, and the
+# 'post' from the calibration after the measurements):
+k1_pre <- 5.789870e-02
+k2_pre <- 1.031659e-06
+k3_pre <- 2.750357e-10
 
-k1_post <- 5.353990e-02
-k2_post <- 1.639035e-06
-k3_post <- 2.372609e-10
+k1_post <- 5.042788e-02
+k2_post <- 2.628951e-06
+k3_post <- 1.397107e-10
 
-fTsensor <- 9849.55                         
-FF <- 62256                                 
+fTsensor <- 9849.41                 # From pre sheet
+FF <- 62256
 
 p0 <- 1013.25
 T0 <- 273.15

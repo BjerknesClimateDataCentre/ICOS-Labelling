@@ -1,5 +1,5 @@
 ########################################################################
-#### This script runs all Scripts in folder "Summary_and_plot_script"
+#### This script runs all Scripts in folder "STD"
 ##############
 
 
@@ -7,14 +7,14 @@
 #-----------------------------------------------------------------------
 # Input parameters
 
-date_col <-1
-time_col <- 1
-dt_format <- "%d/%m/%Y %H:%M:%S"            # e.g. "%d/%m/%y %H:%M:%S"
-run_type_col <- 3
-CO2_col <- 12
-CO2_name <- "CO2_PHYS"
-std_val_col <- 10
-std_val_name <- "STD"
+date_col <-4
+time_col <- 5
+dt_format <- "%d/%m/%y%H:%M:%S"            # e.g. "%d/%m/%y %H:%M:%S"
+run_type_col <- 2
+CO2_col <- 9
+CO2_name <- "CO2"
+std_val_col <- 7
+std_val_name <- "updated_std_val"
 std_names <- c("STD1","STD2","STD3","STD4")
 
 
