@@ -7,9 +7,9 @@ Sys.setlocale("LC_ALL", "English");
 ##-----------------------------------------------------------------------------
 
 ### Input parameters:
-date_col <- c(1)
-time_col <- c(1)
-date_format <- "%d/%m/%Y %H:%M:%S"
+date_col <- c(7)
+time_col <- c(7)
+date_format <- "%Y-%m-%d %H:%M"
 
 file_sepp <- "\t"
 
