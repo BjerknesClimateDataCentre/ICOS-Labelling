@@ -28,34 +28,34 @@ output_dir<-"output"
 input_file <- list.files(input_dir)
 
 # Get the path to file and read the data 
-in_file <- paste(input_dir, "/", input_file, sep="")
-data <- read.table(in_file,header=T, sep = "\t", strip.white=TRUE, fileEncoding="UTF8")
+#in_file <- paste(input_dir, "/", input_file, sep="")
+#data <- read.table(in_file,header=T, sep = "\t", strip.white=TRUE, fileEncoding="UTF8")
 
 
 
 # Identify date and time
 # (The if statement is related to whether there are one or two date/time columns in raw file)
-if (date_col == time_col) {
-  date.time <- as.POSIXct(data[,date_col], tz="UTC", format=dt_format)
-} else {
-  date.time <- as.POSIXct(paste(data[,date_col], data[,time_col]), tz="UTC", format=dt_format)          
-}
+#if (date_col == time_col) {
+#  date.time <- as.POSIXct(data[,date_col], tz="UTC", format=dt_format)
+#} else {
+#  date.time <- as.POSIXct(paste(data[,date_col], data[,time_col]), tz="UTC", format=dt_format)          
+#}
 
 # Add the date time column to the data frame
-data$date.time <- date.time
+#data$date.time <- date.time
 
 
 # Extract data needed for plotting (those in cols) from each standard and store as separate list elements 
-df_list <- list()
-cols <- c(ncol(data), run_type_col, CO2_col, std_val_col)
+#df_list <- list()
+#cols <- c(ncol(data), run_type_col, CO2_col, std_val_col)
 
-for (i in 1:length(std_names)) {                                                                                            
-  type <- std_names[i]
-  data_sub <- data[data[,run_type_col]==type,cols]   
-  data_sub$diff <- data_sub[[CO2_name]] - data_sub[[std_val_name]]     
-  df_list[[i]] <- data_sub
-  
-}
+#for (i in 1:length(std_names)) {                                                                                            
+#  type <- std_names[i]
+#  data_sub <- data[data[,run_type_col]==type,cols]   
+#  data_sub$diff <- data_sub[[CO2_name]] - data_sub[[std_val_name]]     
+#  df_list[[i]] <- data_sub
+#  
+#}
 
 # Find the max and min y-values for the plots
 #diffs <-list()    
@@ -88,7 +88,7 @@ boxplot(df_list[[1]]$diff,
         df_list[[2]]$diff, 
         df_list[[3]]$diff,
         df_list[[4]]$diff, 
-        names = std_names, outline=FALSE, 
+        names = legend_names, outline=FALSE, 
         boxcol = c("green", "blue", "red", "purple"), 
         medcol = c("green", "blue", "red", "purple"), 
         ylab="Calibration anomaly [ppm]")
