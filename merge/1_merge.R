@@ -10,8 +10,8 @@ Sys.setlocale("LC_ALL", "English");
 
 # Name of files to merge (the 'main' file is the "most important one"- all rows are kept in
 # the output merged file e.g. the co2 file, while the sst rows are added if there is a match
-file_main <- "KW40_dat.txt_wDOY.txt"  
-file_toAdd <- "KW40_ENV_DShip.dat_wDOY.txt"
+file_main <- "34FM20200815-ICOS OTC Labelling_losGatos_wDOY_2020.txt"  
+file_toAdd <- "mea_all_stdval_wDOY_2020.txt"
 
 # Specify the separator
 main_sepp <- "\t"
@@ -22,19 +22,19 @@ toAdd_sepp <- "\t"      # e.g. "\t"
 doy_col_main <- c(1)           
 doy_col_toAdd <- c(1)             
 
-# What should be added to the columns in order to spearate their sorce file ('_' needed)
-main_colName <- ""          
-toAdd_colName <- ""       
+# What should be added to the columns in order to separate their source file ('_' needed)
+main_colName <- "_FromProcessedFile"          
+toAdd_colName <- "_FromRawFile"       
 
 # Maximum allowed time difference in hours (usually use 5)
-max_time_diff <- 2/(60)     
+max_time_diff <- 1/(60)     
 
 # The output file name
-out_put_file_name <- "Polarstern_2019_KW40.txt"
+out_put_file_name <- "Finnmaid_merged_raw_and_processed.txt"
 
 # Columns which are not numbers (any text and date/time columns) need to be specified so that 
 # these are not converted to numbers in the outputfile. Use many cols in array if needed.
-main_char_cols <-  c(2,4,5,6,7)   
+main_char_cols <-  c(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)   
 toAdd_char_cols <- c(2)
 
 
@@ -53,25 +53,32 @@ df_toAdd <- read.table(in_toAdd,header=T, sep=toAdd_sepp, fileEncoding="UTF8")
 
 
 #----------
-# Check if date is chronological (DOY shoyld not decrease!).
+# Check if date is chronological (DOY should not decrease!).
 # If it is non-chronological, this needs to be fixed before can run this merge script!
 
 # Main file:
 for (g in 1:(nrow(df_main)-1)) {
   main_doy_diff <- df_main[g+1,doy_col_main] - df_main[g,doy_col_main]
   if (main_doy_diff < 0) {
-    stop("Main file does not have chronological DOY")
+    stop("\nMain file does not have chronological DOY")
   }
+  percent <- round((g/nrow(df_main))*100,0)
+  cat("\rProgress - main file chronology test: ", percent, "%")
 }
+cat("\n")
 
 # ToAdd file:
 for (h in 1:(nrow(df_toAdd)-1)) {
   toAdd_doy_diff <- df_toAdd[h+1,doy_col_toAdd] - df_toAdd[h,doy_col_toAdd]
   if (toAdd_doy_diff < 0) {
-    stop(cat("ToAdd file does not have chronological DOY. Stop at row ",h,sep=""))
+    stop(cat("\nToAdd file does not have chronological DOY. Stop at row ",h,sep=""))
   }
+  percent <- round((h/nrow(df_toAdd))*100,0)
+  cat("\rProgress - ToAdd file chronology test: ", percent,"%")
 }
 
+cat("\nBoth files are chronological!")
+cat("\n")
 
 #----------
 # Change the class of the date and time columns (and other non-numeric cols) so that they are not changed to numbers in the output file
@@ -86,9 +93,10 @@ for (j in 1:length (toAdd_char_cols)){
 
 
 #------------
+
 # Create new empty data frame with number of columns equal the sum of columns in the two datasets
 nCol_new_df <- ncol(df_main) + ncol(df_toAdd)
-new_df <- data.frame(matrix(ncol=nCol_new_df,nrow=0))
+new_df <- data.frame(matrix(ncol=nCol_new_df,nrow=nrow(df_main)+nrow(df_toAdd)))
 colname_1 <- paste(colnames(df_main),main_colName,sep="")
 colname_2 <- paste(colnames(df_toAdd),toAdd_colName,sep="")
 colnames(new_df) <- c(colname_1, colname_2)
@@ -106,7 +114,7 @@ for (k in 1:nrow(df_main)) {
   
   # Calculate the current diff, BUT only if there are more rows left in toAdd file. 
   if (df_toAdd_finished == 0) {
-  current_diff <- abs(df_main[k,doy_col_main] - df_toAdd[df_toAdd_row_count,doy_col_toAdd])
+    current_diff <- abs(df_main[k,doy_col_main] - df_toAdd[df_toAdd_row_count,doy_col_toAdd])
   } else {
     current_diff <- 999
   }
@@ -134,11 +142,14 @@ for (k in 1:nrow(df_main)) {
   # Write the df_main row. Add the df_toAdd row if there is an acceptable match, add NaN if not.
   if (current_diff <= max_time_diff) {
     new_df[k,] <- c(df_main[k,], df_toAdd[df_toAdd_row_count,])
+    percent <- round((k/nrow(df_main))*100,0)
+    cat("\rProgress - merge: ", percent,"%", ". (At row nr", k, ").")
   } else {
     new_df[k,] <- c(df_main[k,], rep("NaN",ncol(df_toAdd)))
   } 
   
 }
+cat("\nMerge complete!")
 
 
 # Write the new merged data frame
