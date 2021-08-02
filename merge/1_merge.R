@@ -41,47 +41,41 @@ output_filename <- "Finnmaid_merged_raw_and_processed.txt"
 ##-----------------------------------------------------------------------------
 # Import data to merge, and store in separate data frames
 library(readr)
-#library(dplyr)
+library(dplyr)
 #library(fuzzyjoin)
 
 ##-----------------------------------------------------------------------------
-# Import data to merge, and store in separate data frames
+# Import data and store in separate tibles
 
 filepath_pri <- paste("input/", filename_pri, sep="")
-filepath_sec <- paste("output/", filename_sec, sep="")
+filepath_sec <- paste("input/", filename_sec, sep="")
 
 df_pri <- read_tsv(filepath_pri)
-df_sec <- read_tsv(filepath_sec,header=T, sep=toAdd_sepp, fileEncoding="UTF8")
-
+df_sec <- read_tsv(filepath_sec)
 
 #----------
-# Check if date is chronological (DOY should not decrease!).
-# If it is non-chronological, this needs to be fixed before can run this merge script!
+# Chronology check. 
 
-# Main file:
-#for (g in 1:(nrow(df_main)-1)) {
-#  main_doy_diff <- df_main[g+1,doy_col_main] - df_main[g,doy_col_main]
-#  if (main_doy_diff < 0) {
-#    stop("\nMain file does not have chronological DOY")
-#  }
-#  percent <- round((g/nrow(df_main))*100,0)
-#  cat("\rProgress - main file chronology test: ", percent, "%")
-#}
-#cat("\n")
+# Find number of non-chronological rows and write result to console. Non chornology
+# needs to be fixed manually before can continue sctipt.
 
-# ToAdd file:
-#for (h in 1:(nrow(df_toAdd)-1)) {
-#  toAdd_doy_diff <- df_toAdd[h+1,doy_col_toAdd] - df_toAdd[h,doy_col_toAdd]
-#  if (toAdd_doy_diff < 0) {
-#    stop(cat("\nToAdd file does not have chronological DOY. Stop at row ",h,sep=""))
-#  }
-#  percent <- round((h/nrow(df_toAdd))*100,0)
-#  cat("\rProgress - ToAdd file chronology test: ", percent,"%")
-#}
+# Primary file:
+n_non_chron_pri <- sum(diff(df_pri$DOY) < 0)
+if (n_non_chron_pri != 0) {
+  non_chron_row_pri <- which(diff(df_pri$DOY) < 0)
+  cat("Primary file: Row(s) not in chronologic order:","\n",non_chron_row_pri,"\n")
+  stop()
+}
 
-#cat("\nBoth files are chronological!")
-#cat("\n")
+# Secondary file:
+n_non_chron_sec <- sum(diff(df_sec$DOY) < 0)
+if (n_non_chron_sec != 0) {
+  non_chron_row_sec <- which(diff(df_sec$DOY) < 0)
+  cat("Secondary file: Row(s) not in chronologic order:","\n",non_chron_row_sec,"\n")
+  stop()
+}
 
+cat("Both files are in chronological order!","\n")
 
 
 #----------
