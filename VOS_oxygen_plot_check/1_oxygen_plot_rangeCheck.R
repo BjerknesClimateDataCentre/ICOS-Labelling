@@ -9,24 +9,27 @@
 # Input params to be assigned:
 #if (!input_from_main) {
 
-date_col <-c(20)
-time_col <- c(21)
-dt_format <- "%d.%m.%Y %H:%M:%S"            # e.g. "%d/%m/%y %H:%M:%S"
-o2_col <- 52
-o2_col_name <- 'O2_sss_uM'
+date_col <-c(4)
+time_col <- c(5)
+dt_format <- "%d/%m/%y %H:%M:%S"            # e.g. "%d/%m/%y %H:%M:%S"
+o2_col <- 41
+o2_col_name <- 'Oxygen'
 
 letter <- "g)"                            # Letter to use in plot (depends on how many other measurement plots)
-position <- "bottomleft"                    # Depends on letter position of the other measurement plots
+position <- "topleft"                    # Depends on letter position of the other measurement plots
 
 specify_axis_label <- FALSE               # If true it only shows the last and first month in the plot
                                            # This was nessecary for some Polarstern data, but usualy set to FALSE!
 
-QC_rows_old <- 318              # How many rows got QC message from QuinCamilla (see output from summary script)
+QC_rows_old <-     143          # How many rows got QC message from QuinCamilla (see output from summary script)
 QuinCe_timelag <- 0             # This sctipt compares dates in QuinCamilla exported files and raw files. QuinCamilla changes the time zone. 
                                 # We therefore need to know the time difference (in hours).
 
 add_sat <- TRUE                  # Add saturation to the plot (with second y-axis)
-sat_col_name <- 'Saturation_go'
+sat_col_name <- 'Saturation'
+
+remove_missing <- TRUE          # Set to true if there is a value that indicates missing data that should be excluded from the plot and range checks
+missing_value <- c(0)
 
 #Run type to keep:
 #run_type <- 'EQU'
@@ -36,11 +39,14 @@ sat_col_name <- 'Saturation_go'
 
 #-----------------------
 # Set to NA but can be changed after viewing plots.
-o2_ylim_min <- NA
-o2_ylim_max <- NA
+o2_ylim_min <- 0
+o2_ylim_max <- 550
+
+sat_ylim_min <- 0
+sat_ylim_max <- 300
 
 #-----------------------
-# Do not change these:
+# Do not change these (these are the quality range limits):
 oxygen_min <- 50
 oxygen_max <- 400
 
@@ -93,16 +99,30 @@ df$date.time <- date.time
 
 # ON HOLD!
 
+# Remove rows where missing values are a number (e.g. 0, so that does not mess up 
+# the plots and)
+if (remove_missing){
+  df_all <- df
+  df <- subset(df, df[[o2_col_name]] != missing_value)
+}
+
+
 
 #------------------------------------------------------------------------------
 ## PLOT OXYGEN VS TIME
 
-if(is.numeric(o2_ylim_min)) {
+if (is.numeric(o2_ylim_min)) {
   output_file_name <- paste(output_dir, "/", "1.oxygen_", "plot_own-range.png", sep="")
   o2_ylims <- c(o2_ylim_min, o2_ylim_max)
 } else {
   output_file_name <- paste(output_dir, "/", "1.oxygen_", "plot.png", sep="")
   o2_ylims <- c(min(na.omit(df[[o2_col_name]])),max(na.omit(df[[o2_col_name]])))	 
+}
+
+if (is.numeric(sat_ylim_min)){
+  sat_ylims <- c(sat_ylim_min, sat_ylim_max)
+} else {
+  sat_ylims <- c(min(na.omit(df[[sat_col_name]])),max(na.omit(df[[sat_col_name]])))
 }
 
 png(output_file_name)
@@ -113,15 +133,15 @@ if (specify_axis_label == TRUE) {
   ticks.lab <- format(ticks.at, format = "%b")
   axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
 } else {
-  plot (df$date.time, df[[o2_col_name]], xlab="Time", ylab = expression("O"[2]*" ["*mu*"mol/l]"), ylim = o2_ylims , cex.lab=1.5,cex.axis=1.3)
+  plot (df$date.time, df[[o2_col_name]], xlab="Time", ylab = expression("O"[2]*" ["*mu*"mol/l]"), ylim = o2_ylims , cex.lab = 1.5,cex.axis=1.3)
 }
 # Add O2 sat to plot
 if (add_sat == TRUE){
   par(new = TRUE)
-  plot(df$date.time, df[[sat_col_name]] , xaxt = "n", yaxt = "n", ylab = "", xlab = "", col = "red")
+  plot(df$date.time, df[[sat_col_name]] , xaxt = "n", yaxt = "n", ylab = "", xlab = "", col = "red", ylim = sat_ylims, pch = 20)
   axis(side = 4, cex.axis=1.3)
   mtext("Saturation", side = 4, line=2.5, cex=1.5)
-  legend("topright", c("Concentration", "Saturation"), pch=c(1,1), col = c("black", "red"), cex=1.2)
+  legend("topright", c("Concentration", "Saturation"), pch=c(1,20), col = c("black", "red"), cex=1.2)
 }
 
 legend(position, letter, bty="n", cex=2.5)
