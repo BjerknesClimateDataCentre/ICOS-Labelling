@@ -40,23 +40,31 @@ if (!exists("input_from_main")) {
 }
 if (!input_from_main) {
 
-date_col <-4
-time_col <- 5
+date_col <-c(4)
+time_col <- c(5)
 dt_format <- "%d/%m/%y %H:%M:%S"            # e.g. "%d/%m/%y %H:%M:%S"
+
 run_type_col <- 2
-CO2_col <- 14
-CO2_name <- "CO2_um_pr_m"
 std_val_col <- 11
-std_val_name <- "std_val"
-std_names <- c("STD1","STD2","STD3","STD4")
-appendtext <- "KPH"
+std_val_name <- "std.val"
+std_names <- c("STD1","STD2","STD3", "STD4")
+legend_names <- c("STD 1","STD 2","STD 3", "STD 4")
+
+CO2_col <- 14
+CO2_name <- "CO2.um.m"
+
+flushing <- FALSE
+remove_flush <- c(7)       # Number of rows to remove per gas measurement due to flushing
+
+appendtext <- "CanOA"
 }
 
 ##-------------
-# Do not change these:
-ymin <- -2
+# Axis plot range (start out with -2 and 2 and adjust if needed):
+ymin <- -5
 ymax <- 2
 
+# DO NOT CHANGE THESE
 good_min <- -2
 good_max <- 2
 questionable_min <- -5
@@ -85,12 +93,13 @@ outtextfile <- file(table_info_file, open = "wt")
  
   
   # Loop through the input files
-  	for (file_loop in 1:length(input_files)) {
+  # for (file_loop in 1:length(input_files)) {
      
-	    # Get the path to file and read the data 
+  	   file_loop <- 1
+	    
+  	  # Get the path to file and read the data 
 	    in_file <- paste(input_dir, "/", input_files[file_loop], sep="")
-	    data <- read.table(in_file,header=T, sep = "\t", 
-	                       strip.white=TRUE, fileEncoding="UTF8", na.strings="NaN")
+	    data <- read.table(in_file,header=T, sep = "\t", strip.white=TRUE, fileEncoding="UTF8", na.strings="NaN")
 	    
 	    # Identify date and time (The if statement is related to whether there are
 	    # one or two date/time columns in raw file)
@@ -125,8 +134,24 @@ outtextfile <- file(table_info_file, open = "wt")
         for (i in 1:length(std_names)) {                                                                                              
 	      
 	        type <- std_names[i]
-	        data_sub <- data[data[,run_type_col]==type,cols]   
-	        data_sub$diff <- data_sub[[CO2_name]] - data_sub[[std_val_name]]
+	        data_sub <- data[data[,run_type_col]==type,cols] 
+	       
+	        # Remove x number of measurements taken when stull flushing
+	        if (flushing == TRUE){
+	          data_sub$flush <- 0
+	          data_sub$flush[1:remove_flush] <- 1
+	          for (ii in remove_flush:length(data_sub[,1])) {
+	            timediff <- abs( difftime(data_sub[(ii-1),1], data_sub[ii,1],units="secs"))
+	            if (timediff > 3600){
+	              for (iii in 0:(remove_flush-1)){ 
+	              data_sub$flush[ii + iii] <- 1
+	              }
+	            } 
+	          }
+	          data_sub <- data_sub[data_sub$flush == 0,]
+	        }
+	        
+	        data_sub$diff <- as.numeric(data_sub[[CO2_name]]) - as.numeric(data_sub[[std_val_name]])
 	        # Needed when making linear model to consider trend
 	        data_sub$seconds <- as.numeric(data_sub$date.time)                   
           df_list[[i]] <- data_sub
@@ -134,7 +159,7 @@ outtextfile <- file(table_info_file, open = "wt")
 	             
 
       # Make plots + Calculate slope, p value...
-	    par(mfrow=c(4,1))
+	    par(mfrow=c(length(std_names),1))
 	    # make room (i.e. the 4's) for the overall x and y axis titles
       par(oma = c(4, 4, 0, 0))
       # make the plots be closer together
@@ -149,7 +174,7 @@ outtextfile <- file(table_info_file, open = "wt")
             ylab="", xlab="", type="p", ylim = c(ymin,ymax))
       abline(h=0)
       #lines(data$date.time, zeros, col="black", lwd=1) 
-      legend("topleft", legend = std_names[k])
+      legend("topright", legend = legend_names[k])
   
       #    ## APPLIES ONLY TO GO.SARS!!!
       # if (k == 2 | k == 3){
@@ -203,7 +228,7 @@ outtextfile <- file(table_info_file, open = "wt")
           outliers, " (", percent , "%).", "\n", sep=""), outtextfile)    
       outlier_count[l]<-outliers
       
-    }
+    #}
     #cat("\n", "The total number of outliers are ", sum(outlier_count),"\n", sep="")
     
     
@@ -342,12 +367,12 @@ close(outtextfile)
 
 #------------------------------------------------------------
 # Additional STD4 plot for Polarstern
-png('output/STD4.png', width=1600,height=1600, res=300)#, width=1000)
+#png('output/STD4.png', width=1600,height=1600, res=300)#, width=1000)
 
-std4_df <-data[data[,run_type_col]=='STD4',cols]   
-std4_df$diff <- std4_df[[CO2_name]] - std4_df[[std_val_name]]
+#std4_df <-data[data[,run_type_col]=='STD4',cols]   
+#std4_df$diff <- std4_df[[CO2_name]] - std4_df[[std_val_name]]
 
-plot (std4_df$date.time, std4_df$diff, col=color[4], ylab="Calibration anomaly [ppm]", xlab="Time", type="p")
-abline(h=0)
+#plot (std4_df$date.time, std4_df$diff, col=color[4], ylab="Calibration anomaly [ppm]", xlab="Time", type="p")
+#abline(h=0)
 
-dev.off()
+#dev.off()
