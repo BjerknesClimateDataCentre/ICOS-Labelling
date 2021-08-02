@@ -1,5 +1,5 @@
 ##################
-## CREATE A SUMMARY OF QC MESSAGES FROM QUINCAMILLA
+## CREATE A SUMMARY OF QC MESSAGES FROM QUINCE
 ## For VOS and FOS
 
 #-------------------------------------------------------------------------------------------
@@ -25,14 +25,14 @@ for (file_loop in 1:length(input_files)) {
 	cat("\r", input_files[file_loop], "               ")
 	in_file <- paste(INPUT_DIR, "/", input_files[file_loop], sep="")
 	data <- read.csv(in_file,header=T, fileEncoding="UTF8")
-
+	
 	# Get the message counts
 	message_names <- vector(mode="character", length=0)
 	message_counts <- vector(mode="numeric", length=0)
 	message_rows <- 0
 
 	for (row in 1:nrow(data)) {
-		messages <- as.character(data[["Automatic.QC.Message"]][row])
+		messages <- as.character(data[["fCO2..uatm..QC.Comment"]][row])
 
   
 		#if (length(messages) > 0) {
