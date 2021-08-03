@@ -65,25 +65,19 @@ df_sec <- read_tsv(filepath_sec)
 # CHRONOLOGY CHECK
 #-------------------------------------------------------------------------------
 
-# Check chronology in primary file:
-n_non_chron_pri <- sum(diff(df_pri$DOY) < 0)
-if (n_non_chron_pri != 0) {
-  non_chron_row_pri <- which(diff(df_pri$DOY) < 0)
-  cat("Error: Primary file row(s) not in chronologic order:",
-      "\n",non_chron_row_pri,"\n")
-  stop()
+# Create function which stops script if the date time are not chronological
+chron_check <- function(DOY_col, filetype) {
+  row_not_chron <- which(diff(DOY_col) < 0)
+  if (length(row_not_chron) != 0) {
+    stop("Error: These row(s) from ", as.character(filetype),
+                " are not in chronologic order:","\n",
+                list(row_not_chron),"\n")
+  }
 }
 
-# Check chronology in secondary file:
-n_non_chron_sec <- sum(diff(df_sec$DOY) < 0)
-if (n_non_chron_sec != 0) {
-  non_chron_row_sec <- which(diff(df_sec$DOY) < 0)
-  cat("Error: Secondary file row(s) not in chronologic order:",
-      "\n",non_chron_row_sec,"\n")
-  stop()
-}
-
-cat("Both files are in chronological order!","\n")
+# Run check on both datasets
+chron_check(df_pri$DOY, 'Primary')
+chron_check(df_sec$DOY, 'Secondary')
 
 
 #-------------------------------------------------------------------------------
