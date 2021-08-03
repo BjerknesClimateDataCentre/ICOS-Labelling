@@ -14,6 +14,7 @@ plot_sal <- FALSE                     # Core for FOS
 plot_eqPress <- TRUE                  # Core for VOS
 plot_xCO2sw <- TRUE                   # xCO2 or pCO2 is core for VOS and FOS
 plot_pCO2sw <- FALSE
+
 plot_DepthPressure <- FALSE           # Pressure (depth) is plotted for FOS, but in another script. The reason we need to know this here is for the lettering
 
 

@@ -28,6 +28,7 @@ output_dir <- "output"
 
 if (!exists("input_from_main")) {input_from_main <- FALSE}
 
+
 #-----------------
 # Consider to change these axis ranges after viewing plots.
 
@@ -35,6 +36,7 @@ stdPlot_ylim_min <- NA
 stdPlot_ylim_max <- NA
 atm_co2_max <- 500
 atm_co2_min <- 300
+
 
 ##-----------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------
@@ -45,6 +47,7 @@ atm_co2_min <- 300
 #  image <- paste("output", "/", images[image_loop], sep="")
 #  file.remove(image)
 #}
+
 
 
 library(ggplot2)
@@ -98,6 +101,7 @@ dev.off()
 
 # Print number of means outside of ylim plotting area 
 outlier_tot <- sum(df_mean_std$mean > stdPlot_ylims[2], df_mean_std$mean < stdPlot_ylims[1], na.rm=T)
+
 outlier_percent <- round((outlier_tot/(nrow(df_mean_std)))*100,2)
 cat("\n","Plot 1: number of outliers are ", outlier_tot, " (", outlier_percent, "%).", sep="")
 
@@ -119,6 +123,7 @@ par(mar=c(5,5,2,2))
 h <- hist(std.dev, breaks=5, 
           xlab = "Standard deviation [ppm]", ylab= "Atmospheric sequences", 
           cex.lab=1.5, cex.axis=1.3, main = "", xaxt="n")
+
 axis(1,at=seq(0,2.5,0.5), labels=c(0,0.5,1,1.5,">2", ""), cex.axis=1.3)
 legend("topright", "b)", bty="n", cex=2.5)
 dev.off()

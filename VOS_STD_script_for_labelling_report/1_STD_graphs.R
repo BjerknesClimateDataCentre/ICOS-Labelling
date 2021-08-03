@@ -1,4 +1,5 @@
 ######################################################################################
+
 ### Function for creating STD anomaly plots to be used for the labellign step 2 reports
 ###########################
 ### FOR VOS only
@@ -65,6 +66,7 @@ ymin <- -5
 ymax <- 2
 
 # DO NOT CHANGE THESE
+
 good_min <- -2
 good_max <- 2
 questionable_min <- -5
@@ -88,6 +90,7 @@ table_info_file <- paste(output_dir, "/", "STD_graphs_table_info_",
 #sink(table_info_file)
 outtextfile <- file(table_info_file, open = "wt")
 
+
   # List all files in input directory
   input_files <- list.files(input_dir)
  
@@ -108,6 +111,7 @@ outtextfile <- file(table_info_file, open = "wt")
 	    } else {
 	        date.time <- as.POSIXct(paste(data[,date_col], data[,time_col]), 
 	                                tz="UTC", format=dt_format)          
+
 	    }
 	    
 	    # Add the date time column to the data frame
@@ -128,6 +132,7 @@ outtextfile <- file(table_info_file, open = "wt")
         
         # Extract data needed for plotting (those in cols) from each standard
         # and store as separate list elements
+
         df_list <- list()
         cols <- c(ncol(data), run_type_col, CO2_col, std_val_col)
         
@@ -164,10 +169,12 @@ outtextfile <- file(table_info_file, open = "wt")
       par(oma = c(4, 4, 0, 0))
       # make the plots be closer together
       par(mar = c(2, 2, 1, 1)) 
+
     	    
 	    #plot_name <-paste((sub("^([^.]*).*", "\\1", input_files[file_loop])), sep="_")
 	    color <- c("green", "blue", "red", "purple")
       zeros <- rep(0, length(data$date.time))
+
       
     for (k in 1:length(std_names)) {
       plot (df_list[[k]]$date.time, df_list[[k]]$diff, col=color[k], 
@@ -201,12 +208,14 @@ outtextfile <- file(table_info_file, open = "wt")
                         df_list[[k]]$diff < ymax & df_list[[k]]$diff > ymin)
       abline(lm(diff~seconds, good_df), col="orange")
       #}
+
 		  }
       mtext('Time', side = 1, outer = TRUE, line = 2)
       mtext('Calibration anomaly [ppm]', side = 2, outer = TRUE, line = 2)
     
 	    #legend("topleft", legend = c("STD1", "STD2", "STD3", "STD4", "Base line"),
 	    #pch, col=c(color,"black"), lwd=c(2,2,2,2,2))
+
 	    dev.off()
     
     
@@ -224,11 +233,13 @@ outtextfile <- file(table_info_file, open = "wt")
       percent <- round((outliers/total_meas)*100, 2)
       
       # Write to screnn
+
       writeLines( paste("Number of outliers for ", std_names[l], " is ", 
           outliers, " (", percent , "%).", "\n", sep=""), outtextfile)    
       outlier_count[l]<-outliers
       
     #}
+
     #cat("\n", "The total number of outliers are ", sum(outlier_count),"\n", sep="")
     
     
@@ -300,6 +311,7 @@ outtextfile <- file(table_info_file, open = "wt")
             " ppm (not significant - ", round(p_val[m,1],3),").","\n", sep=""), outtextfile)
       }
 #      }
+
     }
     
     
@@ -308,6 +320,7 @@ outtextfile <- file(table_info_file, open = "wt")
     # loop though the list (each STD) and could how many values are ouside the
     # questionable and bad range
     writeLines(c("\n"),outtextfile)
+
     good <- rep(0, length(std_names))
     questionable <- rep(0, length(std_names))
     bad <- rep(0, length(std_names)) 
@@ -340,6 +353,7 @@ close(outtextfile)
 
 
 # TESTING While making linear models and calculating trend lines 
+
 
 #plot (df_list[[1]]$date.time, df_list[[1]]$diff, ylim = c(ymin,ymax))
 #good_df <- subset(df_list[[1]], df_list[[1]]$diff < 5 & df_list[[1]]$diff > -5)
@@ -376,3 +390,4 @@ close(outtextfile)
 #abline(h=0)
 
 #dev.off()
+

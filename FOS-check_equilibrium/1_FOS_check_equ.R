@@ -9,6 +9,7 @@ Sys.setlocale("LC_ALL", "English");
 ### The script has some input parameters:
 
 
+
 sepp <- "\t"                            # or ","
 CO2_col <- c(7)                       # This is for xCO2 or pCO2
 additional_CO2_col <- NA               # Use if are more than one co2 in raw file (xCO2 AND pCO2). Assign as NA if not relevant
@@ -21,9 +22,12 @@ cycle_length <- 12                       # Approximate time between 2 measuremen
 
 
 
+
 #-----------------
 # Do not change these
+
 step <- 50                          # How many measuments to plot in each window, usually 50
+
 nn <- 5                                 # How many plots
 
 #------------------------------------------------------------------------------
@@ -88,8 +92,10 @@ for (i in 1:length(location)) {
 }
 
 mtext('Time', side = 1, outer = TRUE, line = 2, cex=1.5)
+
 #mtext(expression("pCO"[2]*" ["*mu*"atm]"), side = 2, outer = TRUE, line = 2, cex=1.5)
 mtext(expression("xCO"[2]*" [ppm]"), side = 2, outer = TRUE, line = 2, cex=1.5)
+
 mtext('a)', side = 2, outer=TRUE, line = 2, cex=2.5, at=1, adj=1, las=2)
 dev.off()
 
@@ -108,9 +114,11 @@ loop <- 0
 while (done==0) {
   
   this_diff <- abs(difftime(df$date.time[dummy_beg+loop], df$date.time[dummy_beg+loop+1], unit ="sec"))
+
   if (is.na(this_diff)){
     this_diff <- 0
   }
+
   if(this_diff > time_limit){
     beg2 <- dummy_beg + loop + 1
     done <- 1
@@ -147,6 +155,7 @@ axis(1, tick=FALSE, df$date.time[beg2:ending2],
 #mtext('b)', side = 2, outer=TRUE, line = 2, cex=2.5, at=1, adj=1, las=2)
 
 legend("topleft", "b)", bty="n", cex=2.5) 
+
 dev.off()
 
 

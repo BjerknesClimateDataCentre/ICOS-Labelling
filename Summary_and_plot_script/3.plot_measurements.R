@@ -34,6 +34,7 @@ xco2_colname <- 'CO2.um.m..umol.mol.1.'   # The column name of the raw xco2 is w
 
 
 
+
 #-----------------s
 # Consider to change axis ranges after viewing plots.
 # If these are NA, axis max and min are data max and min, as long as these are higher/lower than questionable range.
@@ -55,6 +56,7 @@ eqPress_ylim_max <- 1035
 
 xCO2_ylim_min <- 330                        # xCO2 80:1200
 xCO2_ylim_max <- 465
+
 
 pCO2_ylim_min <- NA                          # pCO2 80:1200
 pCO2_ylim_max <- NA
@@ -91,6 +93,7 @@ input_files <- list.files(INPUT_DIR, pattern="csv$")
 
   
 
+
   # Create lettering counter
   letters <- c("a)", "b)", "c)", "d)", "e)", "f)")
   count <- 0
@@ -103,6 +106,7 @@ input_files <- list.files(INPUT_DIR, pattern="csv$")
       output_file_name <- paste(OUTPUT_DIR, "/", "1.Intake_temp_", "plot_own-range.png", sep="")
       SST_ylims <- c(SST_ylim_min,SST_ylim_max)
     } else if ((max(na.omit(data[["Temp..degC....C."]])) > 50) || (min(na.omit(data[["Temp..degC....C."]])) < -10)) {
+
       output_file_name <- paste(OUTPUT_DIR, "/", "1.Intake_temp_", "plot_bad-range.png", sep="")
       SST_ylims <- c(-10,50)
     } else {
@@ -122,17 +126,20 @@ input_files <- list.files(INPUT_DIR, pattern="csv$")
       axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
     }
     
+
     legend(letter_location, letters[count], bty="n", cex=2.5)
     dev.off()
   }
   # If manually edit the axis ranges, give number of outliers not plotted in console
   if(!is.na(SST_ylim_min)) {
     outlier_SST_min <- sum(na.omit(data$Temp..degC....C.) < SST_ylim_min)
+
     percent_outlier_SST_min <- round((outlier_SST_min/nrow(data))*100,2)
     cat("\n", "Number of SST lower than ", SST_ylim_min, ": ", outlier_SST_min, " (", percent_outlier_SST_min, "%)", sep="")
   }
   if(!is.na(SST_ylim_max)) {
     outlier_SST_max <- sum(na.omit(data$Temp..degC....C.) > SST_ylim_max)
+
     percent_outlier_SST_max <- round((outlier_SST_max/nrow(data))*100,2)
     cat("\n", "Number of SST higher than ", SST_ylim_max, ": ", outlier_SST_max, " (", percent_outlier_SST_max, "%)", sep="")
   }
@@ -166,17 +173,20 @@ input_files <- list.files(INPUT_DIR, pattern="csv$")
       axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
     }
     
+
     legend(letter_location, letters[count], bty="n", cex=2.5)
     dev.off()
   }
   # If manually edit the axis ranges, give number of outliers not plotted in console
   if(!is.na(eqTemp_ylim_min)) {
     outlier_eqTemp_min <- sum(na.omit(data$Temperature.of.Equilibration..degC....C.) < eqTemp_ylim_min)
+
     percent_outlier_eqTemp_min <- round((outlier_eqTemp_min/nrow(data))*100,2)
     cat("\n", "Number of eqTemp lower than ", eqTemp_ylim_min, ": ", outlier_eqTemp_min, " (", percent_outlier_eqTemp_min, "%)", sep="")
   }
   if(!is.na(eqTemp_ylim_max)) {
     outlier_eqTemp_max <- sum(na.omit(data$Temperature.of.Equilibration..degC....C.) > eqTemp_ylim_max)
+
     percent_outlier_eqTemp_max <- round((outlier_eqTemp_max/nrow(data))*100,2)
     cat("\n", "Number of eqTemp higher than ", eqTemp_ylim_max, ": ", outlier_eqTemp_max, " (", percent_outlier_eqTemp_max, "%)", sep="")
   }
@@ -208,17 +218,20 @@ input_files <- list.files(INPUT_DIR, pattern="csv$")
     axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
   }
   
+
   legend(letter_location, letters[count], bty="n", cex=2.5)
   dev.off()
   }
   # If manually edit the axis ranges, give number of outliers not plotted in console
   if(!is.na(sal_ylim_min)) {
     outlier_sal_min <- sum(na.omit(data$P_sal..psu...psu.) < sal_ylim_min)
+
     percent_outlier_sal_min <- round((outlier_sal_min/nrow(data))*100,2)
     cat("\n", "Number of salinity lower than ", sal_ylim_min, ": ", outlier_sal_min, " (", percent_outlier_sal_min, "%)", sep="")
   }
   if(!is.na(sal_ylim_max)) {
     outlier_sal_max <- sum(na.omit(data$P_sal..psu...psu.) > sal_ylim_max)
+
     percent_outlier_sal_max <- round((outlier_sal_max/nrow(data))*100,2)
     cat("\n", "Number of salinity higher than ", sal_ylim_max, ": ", outlier_sal_max, " (", percent_outlier_sal_max, "%)", sep="")
   }
@@ -232,6 +245,7 @@ input_files <- list.files(INPUT_DIR, pattern="csv$")
       output_file_name <- paste(OUTPUT_DIR, "/", "4.Equil_press", "plot_own-range.png", sep="")
       eqPress_ylims <- c(eqPress_ylim_min,eqPress_ylim_max)
   } else if ((max(na.omit(data[["Pressure.in.Equilibrator..hPa."]])) > 1250) || (min(na.omit(data[["Pressure.in.Equilibrator..hPa."]])) < 750)) {
+
       output_file_name <- paste(OUTPUT_DIR, "/", "4.Equil_press", "plot_bad-range.png", sep="")
       eqPress_ylims <- c(750,1250)
    } else {
@@ -251,17 +265,20 @@ input_files <- list.files(INPUT_DIR, pattern="csv$")
     axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
   }
   
+
   legend(letter_location, letters[count], bty="n", cex=2.5)
   dev.off()
   }
   # If manually edit the axis ranges, give number of outliers not plotted in console
   if(!is.na(eqPress_ylim_min)) {
     outlier_eqPress_min <- sum(na.omit(data$Pressure.in.Equilibrator..hPa.) < eqPress_ylim_min)
+
     percent_outlier_eqPress_min <- round((outlier_eqPress_min/nrow(data))*100,2)
     cat("\n", "Number of eqPress lower than ", eqPress_ylim_min, ": ", outlier_eqPress_min, " (", percent_outlier_eqPress_min, "%)", sep="")
   }
   if(!is.na(eqPress_ylim_max)) {
     outlier_eqPress_max <- sum(na.omit(data$Pressure.in.Equilibrator..hPa.) > eqPress_ylim_max)
+
     percent_outlier_eqPress_max <- round((outlier_eqPress_max/nrow(data))*100,2)
     cat("\n", "Number of eqPress higher than ", eqPress_ylim_max, ": ", outlier_eqPress_max, " (", percent_outlier_eqPress_max, "%)", sep="")
   }
@@ -280,6 +297,7 @@ input_files <- list.files(INPUT_DIR, pattern="csv$")
       output_file_name <- paste(OUTPUT_DIR, "/", "5.CO2_measured_", "plot_own-range.png", sep="")
       xCO2_ylims <- c(xCO2_ylim_min, xCO2_ylim_max)
    } else if ((max(na.omit(data[[xco2_colname]])) > 1200) || (min(na.omit(data[[xco2_colname]])) < 80)) {
+
       output_file_name <- paste(OUTPUT_DIR, "/", "5.CO2_measured_", "plot_questionable-range.png", sep="")
       xCO2_ylims <- c(80,1200)
    } else {
@@ -299,17 +317,20 @@ input_files <- list.files(INPUT_DIR, pattern="csv$")
      axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
    }
    
+
    legend(letter_location, letters[count], bty="n", cex=2.5)
    dev.off()
   }
   # If manually edit the axis ranges, give number of outliers not plotted in console
   if(!is.na(xCO2_ylim_min)) {
     outlier_xCO2_min <- sum(na.omit(data$xCO2.in.Water...Calibrated..umol.mol.1.) < xCO2_ylim_min)
+
     percent_outlier_xCO2_min <- round((outlier_xCO2_min/nrow(data))*100,2)
     cat("\n", "Number of xCO2 lower than ", xCO2_ylim_min, ": ", outlier_xCO2_min, " (", percent_outlier_xCO2_min, "%)", sep="")
   }
   if(!is.na(xCO2_ylim_max)) {
     outlier_xCO2_max <- sum(na.omit(data$xCO2.in.Water...Calibrated..umol.mol.1.) > xCO2_ylim_max)
+
     percent_outlier_xCO2_max <- round((outlier_xCO2_max/nrow(data))*100,2)
     cat("\n", "Number of xCO2 higher than ", xCO2_ylim_max, ": ", outlier_xCO2_max, " (", percent_outlier_xCO2_max, "%)", sep="")
   }
@@ -344,16 +365,19 @@ input_files <- list.files(INPUT_DIR, pattern="csv$")
    }
    
    legend(letter_location, letters[count], bty="n", cex=2.5)
+
    dev.off()
   }
   # If manually edit the axis ranges, give number of outliers not plotted in console
   if(!is.na(pCO2_ylim_min)) {
     outlier_pCO2_min <- sum(na.omit(data[["CO2..measured."]]) < pCO2_ylim_min)
+
     percent_outlier_pCO2_min <- round((outlier_pCO2_min/nrow(data))*100,2)
     cat("\n", "Number of pCO2 lower than ", pCO2_ylim_min, ": ", outlier_pCO2_min, " (", percent_outlier_pCO2_min, "%)", sep="")
   }
   if(!is.na(pCO2_ylim_max)) {
     outlier_pCO2_max <- sum(na.omit(data[["CO2..measured."]]) > pCO2_ylim_max)
+
     percent_outlier_pCO2_max <- round((outlier_pCO2_max/nrow(data))*100,2)
     cat("\n", "Number of pCO2 higher than ", pCO2_ylim_max, ": ", outlier_pCO2_max, " (", percent_outlier_pCO2_max, "%)", sep="")
   }
@@ -362,3 +386,4 @@ input_files <- list.files(INPUT_DIR, pattern="csv$")
 #cat("\n")
 
 #}
+
