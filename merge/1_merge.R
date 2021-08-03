@@ -75,7 +75,7 @@ chron_check <- function(DOY_col, filetype) {
   }
 }
 
-# Run check on both datasets
+# Run check function on both datasets
 chron_check(df_pri$DOY, 'Primary')
 chron_check(df_sec$DOY, 'Secondary')
 
