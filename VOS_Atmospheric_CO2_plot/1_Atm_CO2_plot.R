@@ -81,6 +81,7 @@ CO2atm_ylim_max <- NA # 66000
  #fquest <- ((df_sub$CO2 > 0  & df_sub$CO2 < 300)| (df_sub$CO2 >500 & df_sub$CO2 < 1000))
 # 
 
+
 #------------------------------------------------------------------------------
 
 ## PLOT ATMOSPHERIC CO2 VS TIME
@@ -112,6 +113,7 @@ par(mar=c(5,5,2,2))
 plot (df_sub$date.time, df_sub$CO2, 
       xlab="Time", ylab=expression("Atmospheric xCO"[2]*" [ppm]"), 
       ylim = CO2atm_ylims , cex.lab=1.5,cex.axis=1.3)
+
 legend(position, letter, bty="n", cex=2.5)
 dev.off()
     	
@@ -146,6 +148,7 @@ dev.off()
 
 # Change the col name of latitude, longitude and CO2 before write output (do this to make the next codes work)
 #colnames(df_sub) <- c("date.time", "TYPE", "CO2", "latitude", "longitude", "ATM_seq")
+
 
 
 

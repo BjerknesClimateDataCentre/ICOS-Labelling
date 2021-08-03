@@ -14,6 +14,7 @@
 
 sepp <- "\t"                                      # File separator used
 
+
 date_col <-c(1)
 time_col <- c(2)
 dt_format <- "%Y-%m-%d %H:%M:%S"                  # e.g. "%d/%m/%y %H:%M:%S"
@@ -22,7 +23,9 @@ runtime_col_name <- "Runtime_sec"
 start_runtime <- 0                                # Is this always 0?
 end_runtime <- ????                            # Need to get the start and end runtime from PI.
 
+
 skip <- 3                                      # How many zero rows to skip before averaging (PI used 3)
+
 
 
 # The following is found in calibration sheets (the 'pre' from the calibration before the measurements, and the
@@ -37,6 +40,7 @@ k3_post <- 1.397107e-10
 
 fTsensor <- 9849.41                 # From pre sheet
 FF <- 62256
+
 
 p0 <- 1013.25
 T0 <- 273.15

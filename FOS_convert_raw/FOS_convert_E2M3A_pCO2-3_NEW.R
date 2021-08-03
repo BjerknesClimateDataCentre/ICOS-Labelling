@@ -18,10 +18,12 @@
 
 ##-----------------------------------------------------------------------------
 ##-----------------------------------------------------------------------------
+
 # Set working directory to file & other settings
 #------------------------------------------------------------------------------------
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 library(lubridate)
+
 
 # Input params to be assigned:
 
@@ -35,7 +37,9 @@ co2_col <- "pco2_3_CO2"
 
 
 other <- c(oxy="sbe37po_oxy")         # Make this "other-varaible" to allow for easy addition of other IDs
+
 # in the future 
+
 
 
 zeroing_col <- "pco2_3_instrumentZero"
@@ -45,8 +49,10 @@ zeroing_col <- "pco2_3_instrumentZero"
 trigger <- co2_col
 
 # Make variable with all params (including position) in the prefered order
+
 #all_params <- c(lat_col, lon_col, sst_col, press_col, cond_col, co2_col, zeroing_col, other[[1]])   # Replaced "order"
 all_params <- c(sst_col, press_col, cond_col, co2_col, zeroing_col, other[[1]])   # Replaced "order"
+
 
 # What is the maximum allowed time offset between measurements?
 max_time_ofset <- 2700 # in seconds
@@ -74,10 +80,12 @@ extract_data <- function(from_df, to_array){
       # Copy the datetime from the "current_row" to the "to_print" array
       datetime_col <- length(from_df) + i - 1
       to_array[datetime_col] <- as.character(from_df[[1]])
+
       
     }
   }
   
+
   return(to_array)
 }
 
@@ -106,7 +114,9 @@ extract_data <- function(from_df, to_array){
 
 ##-----------------------------------------------------------------------------
 # SET SOME SETTINGS AND IMPORT THE DATA AND TEMPLATE
+
 #------------------------------------------------------------------------------------
+
 
 Sys.setlocale("LC_ALL", "English"); 
 
@@ -133,7 +143,9 @@ tags_file <- fromJSON(paste(readLines("tag_details/Tag_details_E2M3A_pCO2-3.json
 ##-----------------------------------------------------------------------------
 # REFORMAT THE RAW DATA TO "NORMAL" FORMAT 
 # (without removing any information)
+
 #------------------------------------------------------------------------------------
+
 
 # Open the raw file and save all lines in variable "linn"
 conn <- file(in_file,open="r")
@@ -176,6 +188,7 @@ while (data_finished==0) {
       }
     }
   }  
+
   
   # If tag_number is found, and if number of filds match... 
   if (!is.na(tag_number)) {
@@ -195,6 +208,7 @@ while (data_finished==0) {
     }
   }
   
+
   # Increase data counter
   data_count <- data_count + 1
   
@@ -202,7 +216,9 @@ while (data_finished==0) {
   if (data_count >= length(linn)) {
     data_finished <- 1
   }
+
   
+
 }
 
 close(conn)
@@ -211,10 +227,13 @@ sink()
 
 #------------------------------------------------------------------------------------
 ## REFORMAT DATETIME AND POSITION
+
 #------------------------------------------------------------------------------------
+
 
 # Import the new txt file in the output folder
 df <- read.table(output_df_all, header=TRUE, sep="\t")
+
 
 # Create proper date/time cols (combine info from different cols and reformat ISO)
 df$datetime <- rep(NA,nrow(df))
@@ -226,12 +245,14 @@ for (i in 1:nrow(df)){
   
   # GPRMC datetime
   if (!is.na(df$gprmc_date[i])) {
+
     date <- sprintf("%06d", df$gprmc_date[i])      # format is ddmmyy
     iso_date <- gsub('([0-9][0-9])([0-9][0-9])([0-9][0-9])','20\\3-\\2-\\1', date)
     time_to_int <- as.integer(df$gprmc_time[i])
     time <- sprintf("%06d", time_to_int)
     iso_time <- gsub('([0-9][0-9])([0-9][0-9])([0-9][0-9])','\\1:\\2:\\3',time)
     
+
     df$datetime[i] <- paste(iso_date, "T", iso_time, sep="")
   } else {
     # Instrument(s) datetime
@@ -280,6 +301,7 @@ for (i in 1:nrow(df)){
   #   df$datetime[i] <- paste(iso_date, "T", iso_time, sep="")         
   # 
   # }
+
 }
 
 
@@ -326,6 +348,7 @@ for (k in 1:nrow(df)){
 
 #------------------------------------------------------------------------------------
 ## EXTRACT THE COLUMNS WE WANT:
+
 #------------------------------------------------------------------------------------
 
 # Create new data frame to be filled with the wanted columns
@@ -335,21 +358,25 @@ new_df$datetime <- ymd_hms(new_df$datetime)
 
 # add the wanted columns to the empty data frame (start from 3 to avoid the latitude and longitude)
 for (l in all_params[1:length(all_params)]) {
+
   new_df[[l]] <- df[[l]]
 }
 
 # Since many columns are removed there is likely rows containing just NAs- Remove these
 na_vector <- rep(0,nrow(new_df))
 for (m in 1:nrow(new_df)) {
+
   # This gives 1 for rows without any data
   if (!all(is.na(new_df[m,(2:ncol(new_df))]))) {
     na_vector[m] <- 1
   }  
+
 }
 # Gives False for rows without data
 na_logical <- na_vector == 1
 
 new_df<- new_df[na_logical,]
+
 
 output_new_df <- paste("output/2.chosen_cols_with_zeroing_",input_files[file_loop], sep="")
 write.table(new_df, file = output_new_df, sep ="\t", row.names=FALSE)
@@ -412,9 +439,12 @@ new_df <- subset(new_df, new_df$delete_col==1)
  write.table(new_df, file = output_new_df, sep ="\t", row.names=FALSE)
 
 
+
 #------------------------------------------------------------------------------------
 # CONVERT TO FORMAT ACCEPTED BY QUINCE
+
 #------------------------------------------------------------------------------------
+
 # Need to move measurements from different sensors (with different IDs) but close enough
 # time stamp to the same row.
 
@@ -513,7 +543,9 @@ sink()
 
 #-----------------------------------------------------------------------------------
 # Import the quince_df and do minor adjustments
+
 #------------------------------------------------------------------------------------
+
 
 # Import the new txt file in the output folder
 quince_df <- read.table(output_quince_prelim, header=TRUE, sep="\t")
@@ -546,7 +578,9 @@ write.table(quince_df_diag, file = "output/diag_data.txt", sep ="\t", row.names=
 #-----------------------------------------------------------------------------------
 # DATETIME DIAGNOSTIC
 # Plot the dates for the different parameters and position
+
 #------------------------------------------------------------------------------------
+
 
 time_diag_image_name <- paste("output/4.timediff_plot",input_files[file_loop], "png", sep=".")
 
@@ -554,6 +588,8 @@ png(filename=time_diag_image_name)
 
 # Want to have all diff plots in one image. 
 par(mfrow=c(length(all_params)/2,2))
+
+
 
 # Add columns with date time difference between parameters
 # Loop through all date time columns
