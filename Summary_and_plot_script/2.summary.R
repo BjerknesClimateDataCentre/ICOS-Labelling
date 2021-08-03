@@ -1,5 +1,6 @@
 ##################
 ## CREATE A SUMMARY OF QC MESSAGES FROM QUINCE
+
 ## For VOS and FOS
 
 #-------------------------------------------------------------------------------------------
@@ -25,7 +26,9 @@ for (file_loop in 1:length(input_files)) {
 	cat("\r", input_files[file_loop], "               ")
 	in_file <- paste(INPUT_DIR, "/", input_files[file_loop], sep="")
 	data <- read.csv(in_file,header=T, fileEncoding="UTF8")
+
 	
+
 	# Get the message counts
 	message_names <- vector(mode="character", length=0)
 	message_counts <- vector(mode="numeric", length=0)
@@ -37,6 +40,7 @@ for (file_loop in 1:length(input_files)) {
   
 		#if (length(messages) > 0) {
 	 if (nchar(messages) > 0) {
+
 			message_rows <- message_rows + 1
 			message_list <- unlist(strsplit(messages, ";"))
 

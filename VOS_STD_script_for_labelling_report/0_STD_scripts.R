@@ -1,5 +1,6 @@
 ########################################################################
 #### This script runs all Scripts in folder "STD"
+
 ##############
 
 
@@ -15,6 +16,7 @@ CO2_col <- 9
 CO2_name <- "CO2"
 std_val_col <- 7
 std_val_name <- "updated_std_val"
+
 std_names <- c("STD1","STD2","STD3","STD4")
 
 

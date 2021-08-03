@@ -5,6 +5,7 @@
 ### The current QuinCamilla cannot calculate correct fCO2 for FOS data, and does
 ### not deal with oxygen or pH at all. Therefore these calculations will happen
 ### in this script instead. Script will also plot these.
+
 getwd()
 
 getSrcDirectory(function(x) {x})
@@ -13,7 +14,6 @@ getwd()
 
 ##-----------------------------------------------------------------------------
 # Input params to be assigned:
-
 
 sepp <- "\t"                                        # File separator used
 date_col <-c(2)
@@ -31,9 +31,9 @@ Peq_name <- 1000                           #    Use 1000 if this is not measured
 salinity <- TRUE                                    # If FALSE we use 35 fixed.
 sal_name <- "Sal_sbe"
 
-
 is_O2 <- TRUE
 is_pH <- FALSE
+
 
 O2_name <- "O2_sbe43_umol_pr_l_sbe"
 O2_calculations <- "no"                           # Fill inn "no" if calculations are not needed, "yes" if it is needed
@@ -50,6 +50,7 @@ is_cond <- FALSE
 cond_name <- "sbe37po_cond"
 
 O2_letter <- "e)"                                    # Lettering for measurement plot in report
+
 pH_letter <- "f)"
 press_letter <- "d)"
 cond_letter <- NA
@@ -106,6 +107,7 @@ depth_ylim_max <- 7
      df_sub <- df[df[,run_type_col]==ocean_type_name,] 
     }
 
+
  #------------------------------------------------
  # CALCULATE AND PLOT fCO2
 
@@ -118,7 +120,9 @@ if (which_CO2 == "xCO2"){
       for (i in 1:length(pCO2)) {
         pCO2[i] <- (Peq_name/1013.25)*df_sub[[CO2_name]][i]
         }
+      
      } else {  
+
       for (i in 1:length(pCO2)) {
          pCO2[i] <- (df_sub[[Peq_name]][i]/1013.25)*df_sub[[CO2_name]][i]
       }
@@ -131,13 +135,15 @@ if (which_CO2 == "xCO2"){
   
 }
     
-    # Calculate fCO2 (based on equation is Steve's document "Fixing wet stations")
+
+# Calculate fCO2 (based on equation is Steve's document "Fixing wet stations")
     fCO2 <-  rep(0, length(df_sub[,1]))
     for (l in 1:length(fCO2))  {
       
       kelvin <- (df_sub[[SST_name]][l]) + 273.15
       B <- -1636.75 + (12.0408*kelvin) - (0.0327957*kelvin^2) + ((3.16528*1e-5)*kelvin^3)
       delta <- 57.7 - (0.118*kelvin)
+
       if (is.numeric(Peq_name)) {
         fCO2[l] <- (df_sub$pCO2[l])*exp(((B + 2*(delta*1e-6))*(Peq_name*1e-6))/(8.314472*kelvin))
       } else {
@@ -145,6 +151,7 @@ if (which_CO2 == "xCO2"){
       }
     } 
     # Add to dataset # 
+
     df_sub$fCO2 <- fCO2
    
     
@@ -173,14 +180,15 @@ if (which_CO2 == "xCO2"){
      # Plot fCO2 vs xCO2
      png(paste(output_dir, "/", "2_fCO2_xCO2_", "plot.png", sep=""))
      par(mar=c(5,5,2,2))
+
      #tryCatch(plot(df_sub[[CO2_name]], df_sub$fCO2, ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = expression("pCO"[2]*" ["*mu*"atm]"), ylim=c(200,500),xlim=c(200,500), cex.lab=1.5,cex.axis=1.3), error=function(e) {})
      tryCatch(plot(df_sub[[CO2_name]], df_sub$fCO2, ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = expression("xCO"[2]*" ["*mu*"atm]"), cex.lab=1.5,cex.axis=1.3), error=function(e) {})
       legend("bottomright", "b)", bty="n", cex=2.5) 
+
      dev.off()
     }
  
  
-    
  #------------------------------------------------
 # CALCULATE AND PLOT OXYGEN
  if (is_O2==TRUE) {
@@ -190,10 +198,12 @@ if (which_CO2 == "xCO2"){
     par(mar=c(5,5,2,2))
       tryCatch(plot(df_sub$date.time, df_sub[[O2_name]], ylab = expression("O"[2]*" ["*mu*"mol/l]"), xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
 
+
     #tryCatch(plot(df_sub$date.time, df_sub[[O2_name]], ylab = expression("O"[2]*" ["*mu*"mol/kg]"), xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
     # tryCatch(plot(df_sub$date.time, df_sub[[O2_name]], ylab = expression("O"[2]*" [ml/l]"), ylim=c(4,6), xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
      #tryCatch(plot(df_sub$date.time, df_sub[[O2_name]], ylab = expression("O"[2]*" ["*mu*"M]"), xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
     #legend(letter_position, O2_letter, bty="n", cex=2.5) 
+
     legend(letter_position, O2_letter, bty="n", cex=2.5) 
     dev.off()
   
@@ -222,7 +232,9 @@ if (which_CO2 == "xCO2"){
       png(paste(output_dir, "/", "4_O2_time_", "plot.png", sep=""))
       par(mar=c(5,5,2,2))
       tryCatch(plot(df_sub$date.time, df_sub$calc_O2, ylab = expression("O"[2]*" ["*mu*"M]"), xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+
       legend("topright", "e)", bty="n", cex=2.5) 
+
       dev.off()
     
     
@@ -230,7 +242,9 @@ if (which_CO2 == "xCO2"){
       png(paste(output_dir, "/", "5_O2_meas_vs_calc_", "plot.png", sep=""))
       par(mar=c(5,5,2,2))
       tryCatch(plot(df_sub[[O2_name]], df_sub$calc_O2, ylab = expression("Calculated O"[2]*" ["*mu*"M]"), xlab = expression("Measured O"[2]*" ["*mu*"M]"), cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+
       legend("bottomright", "b)", bty="n", cex=2.5) 
+
       dev.off()
     }    
     
@@ -261,30 +275,36 @@ if (which_CO2 == "xCO2"){
     # Plot measured pH vs time
     png(paste(output_dir, "/", "6_measured_pH_time_", "plot.png", sep=""))
     par(mar=c(5,5,2,2))
+
 #    tryCatch(plot(df_sub$date.time, df_sub[[pH_name]], ylab = "pH", xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
     tryCatch(plot(df_sub$date.time, df_sub[[pH_name]], ylab = "pH", xlab = "Time", 
                   ylim=c(7.5,8.5), cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+
     legend(letter_position, pH_letter, bty="n", cex=2.5) 
     dev.off()
     
     # Plot calculated pH vs time
     png(paste(output_dir, "/", "7_pH_time_", "plot.png", sep=""))
     par(mar=c(5,5,2,2))
+
  #   tryCatch(plot(df_sub$date.time, df_sub$calc_pH, ylab = "pH", xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
     tryCatch(plot(df_sub$date.time, df_sub$calc_pH, ylab = "pH", xlab = "Time", 
                   ylim=c(7.5,8.5),cex.lab=1.5,cex.axis=1.3), error=function(e) {})
     legend("bottomright", "a)", bty="n", cex=2.5) 
+
     dev.off()
  
     # Plot calculated pH vs measured pH 
     png(paste(output_dir, "/", "8_pH_meas_vs_calc_", "plot.png", sep=""))
     par(mar=c(5,5,2,2))
+
  #   tryCatch(plot(df_sub[[pH_name]], df_sub$calc_pH, ylab = "Calculated pH", xlab = "Measured pH", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
     tryCatch(plot(df_sub[[pH_name]], df_sub$calc_pH, 
                   ylab = "Calculated pH", xlab = "Measured pH", 
                   ylim=c(7.5,8.5), xlim=c(7.5,8.5),
                   cex.lab=1.5,cex.axis=1.3), error=function(e) {})
     legend("bottomright", "b)", bty="n", cex=2.5) 
+
     dev.off()
   
     
@@ -298,7 +318,9 @@ if (which_CO2 == "xCO2"){
 
 
 # Write the new data frame out in new file.
+
 out_file <- paste(output_dir, "/", input_files[1],"_fco2.txt", sep="")
+
 write.csv(df_sub, file=out_file, row.names=FALSE, fileEncoding="UTF8")
 
 
@@ -311,6 +333,7 @@ if (is_pressure==TRUE) {
   legend(letter_position, press_letter, bty="n", cex=2.5) 
   dev.off()
 }
+
 
 # Plot depth if provided
 if (is_depth==TRUE) {
@@ -326,6 +349,7 @@ if (is_depth==TRUE) {
   dev.off()
 }
 
+
 #-------------------------
 # Plot conductivity for figure with measurements
 if (is_cond == TRUE) {
@@ -339,6 +363,7 @@ if (is_cond == TRUE) {
 
 
 #-------------------------
+
 # Print numbers of values outside plot area to console
 
 # fCO2
@@ -367,6 +392,7 @@ if(!is.na(depth_ylim_max)) {
 
 
 #-------------------------
+
 # Some additional plots to check what is going on with pH
 
 #png(paste(output_dir, "/", "7a_pH_SST_", "plot.png", sep=""))

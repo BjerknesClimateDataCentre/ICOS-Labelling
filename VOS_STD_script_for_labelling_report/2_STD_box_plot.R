@@ -21,6 +21,7 @@
 #file.remove(image)
 
 
+
 input_dir<- "input"
 output_dir<-"output"
 
@@ -30,6 +31,7 @@ input_file <- list.files(input_dir)
 # Get the path to file and read the data 
 #in_file <- paste(input_dir, "/", input_file, sep="")
 #data <- read.table(in_file,header=T, sep = "\t", strip.white=TRUE, fileEncoding="UTF8")
+
 
 
 
@@ -56,6 +58,7 @@ input_file <- list.files(input_dir)
 #  df_list[[i]] <- data_sub
 #  
 #}
+
 
 # Find the max and min y-values for the plots
 #diffs <-list()    
@@ -121,3 +124,4 @@ dev.off()
 #         ylab="Calibration anomaly [ppm]")
 # abline(h=0)
 # dev.off()
+

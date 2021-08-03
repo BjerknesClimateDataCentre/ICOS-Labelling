@@ -9,9 +9,11 @@
 press_min <- 2
 press_max <- 4
 
+
 QuinCe_timelag <- 0           # This sctipt compares dates in QuinCamilla exported files and raw files. QuinCamilla changes the time zone.                             # We therefore need to know the time difference (in hours).
 
 QC_rows_old <- 147              # How many rows got QC message from QuinCamilla (see output from summary script)
+
 
 
 ### REMEMBER TO ADD THE exported file from QuinCe to the "exported_file" folder
@@ -19,8 +21,10 @@ QC_rows_old <- 147              # How many rows got QC message from QuinCamilla 
 
 #----------------
 # Do not change
+
 oxygen_min <- 50
 oxygen_max <- 400
+
 
 pH_min <- 7
 pH_max <- 9

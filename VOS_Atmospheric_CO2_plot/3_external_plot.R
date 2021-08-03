@@ -100,6 +100,7 @@ df_station1 <- df_station1[!(df_station1$mean > 500), ]
 df_station1 <- df_station1[!(df_station1$mean < 300), ]
 
 
+
 #-------------------------
 ## PLOT STATION  AND EXTERNAL DATA VS TIME:
 externalmaxs <- c()
@@ -199,6 +200,7 @@ legend("topright", legend=c("Polarstern",listextst),bty = "n", cex = 1,
        col = c("red",colours), pch =c(19,20,20,20,20))
 
 #legend("topright", "c)", bty = "n", cex = 2.5)
+
 dev.off()
 
 
@@ -244,6 +246,7 @@ legend("topright", legend=c(listextst),bty = "n", cex = 1.5,
 dev.off()
 
 
+
 #-------------------------
 
 
@@ -279,6 +282,7 @@ cat("\n", "Intercept is: ", coefs[1], "\n", "Slope is: ", coefs[2],"\n", sep =
 sink()
 
 #}
+
 #-------------------------
 ## OLDER PLOTS:
 #-------------------------
@@ -287,6 +291,7 @@ sink()
 #png(paste("output/", "2.station_vs_external_CO2_", "plot.png", sep=""))
 #par(mar=c(5,5,2,2))
 #tryCatch(plot(df_station1[[CO2_sta_name]], df_station1[[paste(extst,"_CO2",sep="")]], ylim = c(390,420), xlim = c(365,450), ylab = "External xCO2 [ppm]", xlab = "xCO2 from station [ppm]", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+
 #legend("topleft", "a)", bty="n", cex=2.5)
 #dev.off()
 
@@ -296,6 +301,7 @@ sink()
 #par(mar=c(5,5,2,2))
 #tryCatch(plot(df_station1$date.time, df_station1[[paste(extst,"_CO2",sep="")]], ylim = c(390,420), ylab = "Atmospheric xCO2 [ppm]", xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
 #points(df_station1$date.time, df_station1[[CO2_sta_name]], col = "red")
+
 #legend("topleft", "b)", bty="n", cex=2.5)
 #dev.off()
 
@@ -312,6 +318,7 @@ sink()
 ## Calculate the means with a while loop
 #start <- as.Date(df_station1$date.time[1], format=dt_format)
 #end <- as.Date(df_station1$date.time[length(df_station1$date.time)], format=df_format)
+
 #theDate <- start
 #row_number <- 1
 
@@ -321,6 +328,7 @@ sink()
 #  if (length(df_date$CO2) == 0) {
 #    theDate <- theDate + 1
 #  } else {
+
 
 #    sum <- 0
 #    for (i in 1:length(df_date$CO2)) {
@@ -344,6 +352,7 @@ sink()
 
 # Make a new subset of the data frame where only chose one measurement per day.
 #df_daily <- data.frame(matrix(ncol=ncol(df_station1), nrow=0))
+
 #names <- c("X", "date.time", "Type","CO2","external_date", "external_CO2", "mean_co2")
 #colnames(df_daily) <- names
 #df_daily$date.time <- as.POSIXct(df_daily$date.time, tz="UTC", format="%Y-%m-%d %H:%M:%S")
@@ -352,6 +361,7 @@ sink()
 #for (j in 1:(nrow(df_station1)-1)) {
 #  if (df_station1$mean_co2[j] != df_station1$mean_co2[j+1]) {
 #    df_daily[count,] <- df_station1[j,]
+
 #    count <- count + 1
 #  }
 #}
@@ -363,6 +373,8 @@ sink()
 #png(paste("output/", "4.daily_station_vs_external_CO2_", "plot.png", sep=""))
 #par(mar=c(5,5,2,2))
 #plot(df_daily_sub$mean_co2, df_daily_sub[[paste(extst,"_CO2",sep="")]], ylim = c(390,415), xlim = c(390,415), ylab = expression("External xCO"[2]*" [ppm]"), xlab = expression("xCO"[2]*" from station [ppm]"), cex.lab=1.5,cex.axis=1.3)
+=======
+
 #abline(0,1)
 #legend("topleft", "a)", bty="n", cex=2.5)
 #dev.off()
@@ -371,6 +383,7 @@ sink()
 #png(paste("output/", "5.daily_station_and_external_CO2_vs_time", "plot.png", sep=""))
 #par(mar=c(5,5,2,2))
 #plot(df_daily$date.time, df_daily[[paste(extst,"_CO2",sep="")]], ylim = c(390,415), ylab = expression("Atmospheric xCO"[2]*" [ppm]"), xlab = "Time", cex.lab=1.5,cex.axis=1.3)
+
 #points(df_daily$date.time, df_daily$mean_co2, col = "red")
 #legend("topleft", "b)", bty="n", cex=2.5)
 #dev.off()
@@ -382,6 +395,7 @@ sink()
 
 ## Find correlation coefficient between daily average Nuka and external xco2
 #cor_pearson <- cor.test(df_daily_sub$mean_co2, df_daily_sub[[paste(extst,"_CO2",sep="")]], method="pearson")
+
 #cat("Correlation is ", round(cor_pearson$estimate,2), sep="")
 
 ## Include in report how many values were exluded for this correlation
@@ -389,3 +403,4 @@ sink()
 #excl_percent <- round((excluded/nrow(df_daily))*100,2)
 
 #cat("\n","Excluded ", excluded, " (", excl_percent, "%) values.", sep="")
+

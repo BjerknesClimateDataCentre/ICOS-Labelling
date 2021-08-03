@@ -17,6 +17,7 @@ specify_xlabel <- FALSE
 # FOR SOOP - Intake Temperature
 
 #}
+
 #-----------------
 # Consider to change these axis ranges after viewing plots.
 
@@ -76,6 +77,7 @@ data_sub <- subset(data, fCO2..uatm..QC.Flag==2)#
 #data_sub$fCO2[data_sub$fCO2>600] <- NA 
 #data_sub$CO2..measured.[data_sub$CO2..measured.>600] <- NA 
 
+
 #-----------------------------------------------------------------
 ## TEMPERATURE PLOTS (if eqTemp is measured)
 
@@ -86,6 +88,7 @@ if(plot_eqTemp == TRUE) {
     output_file_name <-  paste(OUTPUT_DIR, "/", "6.SecInd_Delta_temp_", "plot_good-values_own-range.png", sep="")
     deltaT_ylims <- c(deltaT_ylim_min,deltaT_ylim_max)
   } else if ((max(na.omit(data_sub[["Water.Equilibrator.Temperature.Difference...C....C."]])) > 20) || (min(na.omit(data_sub[["Water.Equilibrator.Temperature.Difference...C....C."]])) < -20)) {
+
     output_file_name <-  paste(OUTPUT_DIR, "/", "6.SecInd_Delta_temp_", "plot_good-values_questionable-range.png", sep="")
     deltaT_ylims <- c(-20,20) 
   } else {
@@ -104,6 +107,7 @@ if(plot_eqTemp == TRUE) {
     tryCatch(plot(data_sub[["dates"]], data_sub[["Water.Equilibrator.Temperature.Difference...C....C."]], ylab = expression(paste(Delta, "Temperature [",degree,"C]")), xlab = "Time", ylim = deltaT_ylims, cex.lab=1.5, cex.axis=1.3), error=function(e) {}) 
   }
   
+
   legend(letter_location2, deltaT_letter, bty="n", cex=2.5)
   dev.off()
   
@@ -122,6 +126,7 @@ if(plot_eqTemp == TRUE) {
   png(output_file_name)
   par(mar=c(5,5,2,2))
   tryCatch(plot(data_sub[["Temp..degC....C."]], data_sub[["Temperature.of.Equilibration..degC....C."]], ylab = expression(paste("Equilibrator Temperature [",degree,"C]")), xlab = expression(paste("Intake Temperature [",degree,"C]")), ylim=TvsT_ylims, xlim=TvsT_xlims, cex.lab=1.5, cex.axis=1.3), error=function(e) {})
+
   legend(letter_location2, "b)", bty="n", cex=2.5)
   dev.off()
 }  
@@ -136,6 +141,7 @@ if (is.numeric(CO2vsCO2_xlim_min)) {
    output_file_name <- paste(OUTPUT_DIR, "/", "8.SecInd_fCO2_calculated_", "plot_good-values_own-range.png", sep="")
    fCO2_ylims <- c(fCO2_ylim_min, fCO2_ylim_max)
 } else if ((max(na.omit(data_sub[["fCO2..uatm...uatm."]])) > 1200) || (min(na.omit(data_sub[["fCO2..uatm...uatm."]])) < 80)) {
+
    output_file_name <- paste(OUTPUT_DIR, "/", "8.SecInd_fCO2_calculated_", "plot_good-values_questionable-range.png", sep="")
    fCO2_ylims <- c(80,1200)
 } else {
@@ -152,6 +158,7 @@ if (specify_xlabel == TRUE) {
 } else {
   tryCatch(plot(data_sub[["dates"]], data_sub[["fCO2..uatm...uatm."]], ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = "Time", ylim = fCO2_ylims, cex.lab=1.5, cex.axis=1.3), error=function(e) {}) 
 }
+
 legend(letter_location2, "a)", bty="n", cex=2.5)
 dev.off()
 
@@ -170,6 +177,7 @@ if(is.numeric(CO2vsCO2_xlim_min)) {
 png(output_file_name)
 par(mar=c(5,5,2,2))
 tryCatch(plot(data_sub[[xco2_colname]], data_sub[["fCO2..uatm...uatm."]], ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = expression("xCO"[2]*" [ppm]"), ylim = CO2vsCO2_ylims, xlim = CO2vsCO2_xlims, cex.lab=1.5, cex.axis=1.3), error=function(e) {})
+
 legend(letter_location2, "b)", bty="n", cex=2.5)
 dev.off()
 
