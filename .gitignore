@@ -35,6 +35,8 @@ vignettes/*.pdf
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
 
-# Ignore input and output folders for merge script
+# Ignore input and output folders
 merge/input
 merge/output
+Summary_and_plot_script/input
+Summary_and_plot_script/output
