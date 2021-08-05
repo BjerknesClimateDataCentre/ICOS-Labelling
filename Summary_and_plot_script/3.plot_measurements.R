@@ -12,18 +12,25 @@
 #if (!input_from_main) {
 
 plot_SST <- TRUE                      # Core for VOS and FOS
-plot_eqTemp <- FALSE                   # Core for VOS
-plot_sal <- FALSE                     # Core for FOS
+plot_eqTemp <- TRUE                   # Core for VOS
+plot_sal <- TRUE                     # Core for FOS
 plot_eqPress <- TRUE                  # Core for VOS
 plot_xCO2sw <- TRUE                   # xCO2 or pCO2 is core for VOS and FOS
 plot_pCO2sw <- FALSE
 plot_DepthPressure <- FALSE           # Pressure (depth) is plotted for FOS, but in another script. The reason we need to know this here is for the plot lettering
 
-letter_location <- "bottomright"      # Alternatives are "bottomright", "bottomleft", "topleft", "topright"
+letter_location <- "bottomleft"      # Alternatives are "bottomright", "bottomleft", "topleft", "topright"
 
-fix_xaxis <- TRUE                     # Set to true if the xaxis only shows year and you want ticks for months instead
+fix_xaxis <- FALSE                   # Set to true if the xaxis only shows year and you want ticks for months instead
+                                      # Do not use this one! Only use true if x-label distances does not make sense.
+# REMEMEBER TO CHAGNE THE TEMP PLOT LABEL MANUALLY ACCORDING TO STATION TYPE:
+# FOR FOS - Sea Surface Temperature
+# FOR SOOP - Intake Temperature
 
 #}
+
+
+
 
 #-----------------s
 # Consider to change axis ranges after viewing plots.
@@ -32,20 +39,20 @@ fix_xaxis <- TRUE                     # Set to true if the xaxis only shows year
 # Need to assign for both min and max!
  
                                                #  As a reference, here are questionable ranges:
-SST_ylim_min <- NA                              # SST -10:50
+SST_ylim_min <- NA                             # SST -10:50
 SST_ylim_max <-  NA
   
-eqTemp_ylim_min <- NA                          # eqTemp -10:50
-eqTemp_ylim_max <- NA 
+eqTemp_ylim_min <- NA                       # eqTemp -10:50
+eqTemp_ylim_max <- NA
 
-sal_ylim_min <- NA                            # sal 0:50
-sal_ylim_max <- NA
+sal_ylim_min <- 30                            # sal 0:50
+sal_ylim_max <- 38
 
 eqPress_ylim_min <- NA                         # eqPress 750:1250
-eqPress_ylim_max <- NA 
+eqPress_ylim_max <- NA
 
-xCO2_ylim_min <- NA                            # xCO2 80:1200
-xCO2_ylim_max <- NA
+xCO2_ylim_min <- 220                           # xCO2 80:1200
+xCO2_ylim_max <- 550
 
 pCO2_ylim_min <- NA                          # pCO2 80:1200
 pCO2_ylim_max <- NA
@@ -103,9 +110,9 @@ for (file_loop in 1:length(input_files)) {
     
     # Adjust x-axis if requested in the unput
     if (fix_xaxis==FALSE) {
-      tryCatch(plot(dates, data[["Intake.Temperature"]], ylab = expression(paste("Sea Surface Temperature [",degree,"C]")), xlab = "Time", ylim = SST_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {}) 
+      tryCatch(plot(dates, data[["Intake.Temperature"]], ylab = expression(paste("Intake Temperature [",degree,"C]")), xlab = "Time", ylim = SST_ylims, cex.lab=1.5,cex.axis=1.3), error=function(e) {}) 
     } else {
-      tryCatch(plot(dates, data[["Intake.Temperature"]], ylab = expression(paste("Sea Surface Temperature [",degree,"C]")), xlab = "Time", ylim = SST_ylims, cex.lab=1.5, cex.axis=1.3, xaxt='n'), error=function(e) {}) 
+      tryCatch(plot(dates, data[["Intake.Temperature"]], ylab = expression(paste("Intake Temperature [",degree,"C]")), xlab = "Time", ylim = SST_ylims, cex.lab=1.5, cex.axis=1.3, xaxt='n'), error=function(e) {}) 
       ticks.at <- seq(min(dates), max(dates), by = "months")
       ticks.lab <- format(ticks.at, format = "%b")
       axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
@@ -337,12 +344,12 @@ for (file_loop in 1:length(input_files)) {
   }
   # If manually edit the axis ranges, give number of outliers not plotted in console
   if(!is.na(pCO2_ylim_min)) {
-    outlier_pCO2_min <- sum(data$CO2..measured. < pCO2_ylim_min)
+    outlier_pCO2_min <- sum(na.omit(data[["CO2..measured."]]) < pCO2_ylim_min)
     percent_outlier_pCO2_min <- round((outlier_pCO2_min/nrow(data))*100,2)
     cat("\n", "Number of pCO2 lower than ", pCO2_ylim_min, ": ", outlier_pCO2_min, " (", percent_outlier_pCO2_min, "%)", sep="")
   }
   if(!is.na(pCO2_ylim_max)) {
-    outlier_pCO2_max <- sum(data$CO2..measured. > pCO2_ylim_max)
+    outlier_pCO2_max <- sum(na.omit(data[["CO2..measured."]]) > pCO2_ylim_max)
     percent_outlier_pCO2_max <- round((outlier_pCO2_max/nrow(data))*100,2)
     cat("\n", "Number of pCO2 higher than ", pCO2_ylim_max, ": ", outlier_pCO2_max, " (", percent_outlier_pCO2_max, "%)", sep="")
   }

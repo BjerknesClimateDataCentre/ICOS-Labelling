@@ -16,48 +16,54 @@ getwd()
 
 
 sepp <- "\t"                                        # File separator used
-date_col <-c(3,4,5)
-time_col <- c(6,7,8)
-dt_format <- "%Y %m %d %H %M %S"                   # e.g. "%d/%m/%y %H:%M:%S" or "%Y %m %d %H %M %S" 
+date_col <-c(2)
+time_col <- c(3)
+dt_format <- "%m/%d/%y %H:%M:%S"                   # e.g. "%d/%m/%y %H:%M:%S" or "%Y %m %d %H %M %S" 
 
-which_CO2 <- "xCO2"                               # Choose between xCO2 and pCO2 
+which_CO2 <- "pCO2"                               # Choose between xCO2 and pCO2 
 
-CO2_name <- "CONC_co2"                             # Use dots instead of space
-SST_name <- "TEMP_sbo"
-Peq_name <- "GAS_P_co2"                             #    Use 1000 if this is not measured.
-
-
-
-salinity <- FALSE                                    # If FALSE we use 35 fixed.
-sal_name <- "Salinity"
+CO2_name <- "CO2_sami"                             # Use dots instead of space
+SST_name <- "SST_degC_sbe"
+Peq_name <- 1000                           #    Use 1000 if this is not measured.
 
 
-is_O2 <- FALSE
+
+salinity <- TRUE                                    # If FALSE we use 35 fixed.
+sal_name <- "Sal_sbe"
+
+
+is_O2 <- TRUE
 is_pH <- FALSE
 
-O2_name <- "O2CONC_o2"
+O2_name <- "O2_sbe43_umol_pr_l_sbe"
 O2_calculations <- "no"                           # Fill inn "no" if calculations are not needed, "yes" if it is needed
 
 pH_name <- "pH"
 pH_temp_name <- "pH.Temp"
 
-is_pressure <- FALSE                                 # Pressure related to depth
-pressure_name <- ""    
-is_depth <- FALSE
-depth_name <- "Depth_m"
+is_pressure <- TRUE                                 # Pressure related to depth
+pressure_name <- "depth_m_sbe"    
+is_depth <- TRUE
+depth_name <- "depth_m_sbe"
 
 is_cond <- FALSE
 cond_name <- "sbe37po_cond"
 
-O2_letter <- "c)"                                    # Lettering for measurement plot in report
+O2_letter <- "e)"                                    # Lettering for measurement plot in report
 pH_letter <- "f)"
-press_letter <- "c)"
+press_letter <- "d)"
 cond_letter <- NA
-letter_position <- "bottomright"                    # Depends on where letters are in other measurement plots
+letter_position <- "bottomleft"                    # Depends on where letters are in other measurement plots
 
 run_type_col <- FALSE                                # Set to false if there is no run type and all are ocean measurements
 ocean_type_name <- "EQU"
 
+#-------------------------
+fco2_ylim_min <-  350                             
+fco2_ylim_max <-  1200
+
+depth_ylim_min <- 4
+depth_ylim_max <- 7
 
 #------------------------------------------------------------------------------
 
@@ -132,9 +138,13 @@ if (which_CO2 == "xCO2"){
       kelvin <- (df_sub[[SST_name]][l]) + 273.15
       B <- -1636.75 + (12.0408*kelvin) - (0.0327957*kelvin^2) + ((3.16528*1e-5)*kelvin^3)
       delta <- 57.7 - (0.118*kelvin)
-      fCO2[l] <- (df_sub$pCO2[l])*exp(((B + 2*(delta*1e-6))*(df_sub[[Peq_name]][l]*1e-6))/(8.314472*kelvin))
+      if (is.numeric(Peq_name)) {
+        fCO2[l] <- (df_sub$pCO2[l])*exp(((B + 2*(delta*1e-6))*(Peq_name*1e-6))/(8.314472*kelvin))
+      } else {
+        fCO2[l] <- (df_sub$pCO2[l])*exp(((B + 2*(delta*1e-6))*(df_sub[[Peq_name]][l]*1e-6))/(8.314472*kelvin))
+      }
     } 
-    # Add to dataset
+    # Add to dataset # 
     df_sub$fCO2 <- fCO2
    
     
@@ -143,7 +153,11 @@ if (which_CO2 == "xCO2"){
     png(paste(output_dir, "/", "1_fCO2_time_", "plot.png", sep=""))
     par(mar=c(5,5,2,2))
 #    tryCatch(plot(df_sub$date.time, df_sub$fCO2, ylim=c(100,1200), ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = "Time", cex.lab=1.5, cex.axis=1.3), error=function(e) {})
-     tryCatch(plot(df_sub$date.time, df_sub$fCO2, ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = "Time", cex.lab=1.5, cex.axis=1.3), error=function(e) {})
+    if (is.numeric(fco2_ylim_min)) {
+      tryCatch(plot(df_sub$date.time, df_sub$fCO2, ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = "Time", cex.lab=1.5, cex.axis=1.3, ylim=c(fco2_ylim_min,fco2_ylim_max)), error=function(e) {})
+    } else {
+      tryCatch(plot(df_sub$date.time, df_sub$fCO2, ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = "Time", cex.lab=1.5, cex.axis=1.3), error=function(e) {})
+    }
 
 #    tryCatch(plot(df_sub$date.time, df_sub$fCO2, ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = "Time", xaxt='n'), error=function(e) {})
 #    ticks.at <- seq(min(df_sub$date.time), max(df_sub$date.time), by = "months")
@@ -175,7 +189,8 @@ if (which_CO2 == "xCO2"){
     png(paste(output_dir, "/", "3_measured_O2_time_", "plot.png", sep=""))
     par(mar=c(5,5,2,2))
       tryCatch(plot(df_sub$date.time, df_sub[[O2_name]], ylab = expression("O"[2]*" ["*mu*"mol/l]"), xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
-     #tryCatch(plot(df_sub$date.time, df_sub[[O2_name]], ylab = expression("O"[2]*" ["*mu*"mol/kg]"), xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+
+    #tryCatch(plot(df_sub$date.time, df_sub[[O2_name]], ylab = expression("O"[2]*" ["*mu*"mol/kg]"), xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
     # tryCatch(plot(df_sub$date.time, df_sub[[O2_name]], ylab = expression("O"[2]*" [ml/l]"), ylim=c(4,6), xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
      #tryCatch(plot(df_sub$date.time, df_sub[[O2_name]], ylab = expression("O"[2]*" ["*mu*"M]"), xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
     #legend(letter_position, O2_letter, bty="n", cex=2.5) 
@@ -301,7 +316,12 @@ if (is_pressure==TRUE) {
 if (is_depth==TRUE) {
   png(paste(output_dir, "/", "9_depth_", "plot.png", sep=""))
   par(mar=c(5,5,2,2))
-  tryCatch(plot(df_sub$date.time, df_sub[[depth_name]], ylab = "Depth [m]", xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+  if (is.numeric(fco2_ylim_min)) {
+    tryCatch(plot(df_sub$date.time, df_sub[[depth_name]], ylab = "Depth [m]", xlab = "Time", cex.lab=1.5,cex.axis=1.3, ylim=c(depth_ylim_min, depth_ylim_max)), error=function(e) {})
+  } else {
+    tryCatch(plot(df_sub$date.time, df_sub[[depth_name]], ylab = "Depth [m]", xlab = "Time", cex.lab=1.5,cex.axis=1.3), error=function(e) {})
+  }
+  
   legend(letter_position, press_letter, bty="n", cex=2.5) 
   dev.off()
 }
@@ -316,6 +336,34 @@ if (is_cond == TRUE) {
   dev.off()
 }
 
+
+
+#-------------------------
+# Print numbers of values outside plot area to console
+
+# fCO2
+if(!is.na(fco2_ylim_min)) {
+  outlier_fco2_min <- sum(na.omit(df_sub$fCO2) < fco2_ylim_min)
+  percent_outlier_fco2_min <- round((outlier_fco2_min/nrow(df_sub))*100,2)
+  cat("\n", "Number of fco2 lower than ", fco2_ylim_min, ": ", outlier_fco2_min, " (", percent_outlier_fco2_min, "%)", sep="")
+}
+if(!is.na(fco2_ylim_max)) {
+  outlier_fco2_max <- sum(na.omit(df_sub$fCO2) > fco2_ylim_max)
+  percent_outlier_fco2_max <- round((outlier_fco2_max/nrow(df_sub))*100,2)
+  cat("\n", "Number of fco2 higher than ", fco2_ylim_max, ": ", outlier_fco2_max, " (", percent_outlier_fco2_max, "%)", sep="")
+}
+
+# Depth
+if(!is.na(depth_ylim_min)) {
+  outlier_depth_min <- sum(na.omit(df_sub[[depth_name]]) < depth_ylim_min)
+  percent_outlier_depth_min <- round((outlier_depth_min/nrow(df_sub))*100,2)
+  cat("\n", "Number of depth lower than ", depth_ylim_min, ": ", outlier_depth_min, " (", percent_outlier_depth_min, "%)", sep="")
+}
+if(!is.na(depth_ylim_max)) {
+  outlier_depth_max <- sum(na.omit(df_sub[[depth_name]]) > depth_ylim_max)
+  percent_outlier_depth_max <- round((outlier_depth_max/nrow(df_sub))*100,2)
+  cat("\n", "Number of depth higher than ", depth_ylim_max, ": ", outlier_depth_max, " (", percent_outlier_depth_max, "%)", sep="")
+}
 
 
 #-------------------------
