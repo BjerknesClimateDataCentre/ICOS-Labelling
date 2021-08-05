@@ -1,5 +1,0 @@
-Before run the scripts:
-- remove the messages from the external data which are not core parameter from that station type (e.g. remove salinity messages from VOS stations).
-- since we might remove all messages from some rows do the following replacement: replace ",4,"","  with  ",2,"",".
-  This makes sure the QC flag is 2 when no messages occur
-- The '2' in CO2 from the header is gone. Add this so that R does not complain
