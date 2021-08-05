@@ -1,0 +1,16 @@
+--------------------------------------------------------------------
+OLD:
+
+find station code here:
+https://www.esrl.noaa.gov/gmd/dv/site/map.html
+
+replace ICE with station code in this link:
+https://www.esrl.noaa.gov/gmd/dv/iadv/graph.php?code=ICE&program=ccgg&type=ts
+
+
+--------------------------------------------------------------------
+Station map:
+https://www.esrl.noaa.gov/gmd/dv/iadv/
+
+Data here:
+ftp://aftp.cmdl.noaa.gov/data/greenhouse_gases/co2/flask/surface/

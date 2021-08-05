@@ -7,12 +7,12 @@
 ##-----------------------------------------------------------------------------
 ### This script has some input parameters.
 
-time_diff_col <- c(16)              # If there is no timediff column, need to use something else to determine the sequences, e.g. sequence number (not writen in the script yet)
+time_diff_col <- c(5)              # If there is no timediff column, need to use something else to determine the sequences, e.g. sequence number (not writen in the script yet)
 
 
 
-numb_of_meas <- 50                   # How many measurements per sequence are used to calculate the standard deviation
-max_seq_diff <- 3600                # Minimum time passed to separate one sequence from another (3600 = 1h)
+numb_of_meas <- 10                  # How many measurements per sequence are used to calculate the standard deviation
+max_seq_diff <- 10000                # Minimum time passed to separate one sequence from another (3600 = 1h)
 
 
 remove_outliers<- TRUE
@@ -42,7 +42,7 @@ while (data_finished == 0) {
   
   if (state == "find_end_of_seq"){
     # If the next time difference is huge, change state.
-    if(df[row_count+1,time_diff_col] > 3600){
+    if(df[row_count+1,time_diff_col] > 3000){
       state <- "write_to_data_frame"
     }
   }

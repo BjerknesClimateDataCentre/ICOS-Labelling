@@ -40,16 +40,16 @@ if (!exists("input_from_main")) {
 }
 if (!input_from_main) {
 
-date_col <-3
-time_col <- 4
-dt_format <- "%d/%m/%y"            # e.g. "%d/%m/%y %H:%M:%S"
-run_type_col <- 1
-CO2_col <- 8
-CO2_name <- "CO2.um.m"
-std_val_col <- 6
-std_val_name <- "std.val"
+date_col <-4
+time_col <- 5
+dt_format <- "%d/%m/%y %H:%M:%S"            # e.g. "%d/%m/%y %H:%M:%S"
+run_type_col <- 2
+CO2_col <- 14
+CO2_name <- "CO2_um_pr_m"
+std_val_col <- 11
+std_val_name <- "std_val"
 std_names <- c("STD1","STD2","STD3","STD4")
-appendtext <- "PS"
+appendtext <- "KPH"
 }
 
 ##-------------
@@ -70,7 +70,7 @@ questionable_max <- 5
 #file.remove(image)
 
 
-#Sys.setlocale("LC_ALL", "English"); 
+Sys.setlocale("LC_ALL", "English"); 
 input_dir<- "input"
 output_dir<-"./output"
 
@@ -340,4 +340,14 @@ close(outtextfile)
 #}
 
 
+#------------------------------------------------------------
+# Additional STD4 plot for Polarstern
+png('output/STD4.png', width=1600,height=1600, res=300)#, width=1000)
 
+std4_df <-data[data[,run_type_col]=='STD4',cols]   
+std4_df$diff <- std4_df[[CO2_name]] - std4_df[[std_val_name]]
+
+plot (std4_df$date.time, std4_df$diff, col=color[4], ylab="Calibration anomaly [ppm]", xlab="Time", type="p")
+abline(h=0)
+
+dev.off()

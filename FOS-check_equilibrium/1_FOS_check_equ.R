@@ -10,11 +10,11 @@ Sys.setlocale("LC_ALL", "English");
 
 
 sepp <- "\t"                            # or ","
-CO2_col <- c(11)                       # This is for xCO2 or pCO2
+CO2_col <- c(7)                       # This is for xCO2 or pCO2
 additional_CO2_col <- NA               # Use if are more than one co2 in raw file (xCO2 AND pCO2). Assign as NA if not relevant
-date_col <- c(3,4,5)
-time_col <- c(6,7,8)
-dt_format <- "%Y %m %d %H %M %S"     # Or e.g. "%Y-%m-%dT%H:%M:%S" or "%Y %m %d %H %M %S"
+date_col <- c(3)
+time_col <- c(4)
+dt_format <- "%m/%d/%y %H:%M:%S"     # Or e.g. "%Y-%m-%dT%H:%M:%S" or "%Y %m %d %H %M %S"
 
 cycle_length <- 12                       # Approximate time between 2 measurements cycles (in hours)
 
@@ -23,7 +23,7 @@ cycle_length <- 12                       # Approximate time between 2 measuremen
 
 #-----------------
 # Do not change these
-step <- 2000                           # How many measuments to plot in each window, usually 50
+step <- 50                          # How many measuments to plot in each window, usually 50
 nn <- 5                                 # How many plots
 
 #------------------------------------------------------------------------------
@@ -108,6 +108,9 @@ loop <- 0
 while (done==0) {
   
   this_diff <- abs(difftime(df$date.time[dummy_beg+loop], df$date.time[dummy_beg+loop+1], unit ="sec"))
+  if (is.na(this_diff)){
+    this_diff <- 0
+  }
   if(this_diff > time_limit){
     beg2 <- dummy_beg + loop + 1
     done <- 1

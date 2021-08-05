@@ -7,8 +7,14 @@
 # Input parameters:
 #if (!input_from_main) {
 
-letter_location2 <- "topleft"
-deltaT_letter <- "a)"               # Set to "a)" for report and "b)" for executive summary 
+letter_location2 <- "bottomright"
+deltaT_letter <- "b)"               # Set to "a)" for report and "b)" for executive summary 
+
+specify_xlabel <- FALSE 
+
+# REMEMEBER TO CHAGNE THE TEMP PLOT LABEL MANUALLY ACCORDING TO STATION TYPE:
+# FOR FOS - Sea Surface Temperature
+# FOR SOOP - Intake Temperature
 
 #}
 #-----------------
@@ -88,7 +94,16 @@ if(plot_eqTemp == TRUE) {
   }
   png(output_file_name)
   par(mar=c(5,5,2,2))
-  tryCatch(plot(data_sub[["dates"]], data_sub[["Delta.Temperature"]], ylab = expression(paste(Delta, "Temperature [",degree,"C]")), xlab = "Time", ylim = deltaT_ylims, cex.lab=1.5, cex.axis=1.3), error=function(e) {}) 
+  
+  if (specify_xlabel == TRUE) {
+    tryCatch(plot(data_sub[["dates"]], data_sub[["Delta.Temperature"]], ylab = expression(paste(Delta, "Temperature [",degree,"C]")), xlab = "Time", ylim = deltaT_ylims, cex.lab=1.5, cex.axis=1.3, xaxt='n'), error=function(e) {}) 
+    ticks.at <- seq(min(data_sub[["dates"]]), max(data_sub[["dates"]]), by = "months")
+    ticks.lab <- format(ticks.at, format = "%b")
+    axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
+  } else {
+    tryCatch(plot(data_sub[["dates"]], data_sub[["Delta.Temperature"]], ylab = expression(paste(Delta, "Temperature [",degree,"C]")), xlab = "Time", ylim = deltaT_ylims, cex.lab=1.5, cex.axis=1.3), error=function(e) {}) 
+  }
+  
   legend(letter_location2, deltaT_letter, bty="n", cex=2.5)
   dev.off()
   
@@ -106,7 +121,7 @@ if(plot_eqTemp == TRUE) {
   }
   png(output_file_name)
   par(mar=c(5,5,2,2))
-  tryCatch(plot(data_sub[["Intake.Temperature"]], data_sub[["Equilibrator.Temperature"]], ylab = expression(paste("Equilibrator Temperature [",degree,"C]")), xlab = expression(paste("Sea Surface Temperature [",degree,"C]")), ylim=TvsT_ylims, xlim=TvsT_xlims, cex.lab=1.5, cex.axis=1.3), error=function(e) {})
+  tryCatch(plot(data_sub[["Intake.Temperature"]], data_sub[["Equilibrator.Temperature"]], ylab = expression(paste("Equilibrator Temperature [",degree,"C]")), xlab = expression(paste("Intake Temperature [",degree,"C]")), ylim=TvsT_ylims, xlim=TvsT_xlims, cex.lab=1.5, cex.axis=1.3), error=function(e) {})
   legend(letter_location2, "b)", bty="n", cex=2.5)
   dev.off()
 }  
@@ -129,7 +144,14 @@ if (is.numeric(CO2vsCO2_xlim_min)) {
 } 
 png(output_file_name)
 par(mar=c(5,5,2,2))
-tryCatch(plot(data_sub[["dates"]], data_sub[["fCO2"]], ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = "Time", ylim = fCO2_ylims, cex.lab=1.5, cex.axis=1.3), error=function(e) {}) 
+if (specify_xlabel == TRUE) {
+  tryCatch(plot(data_sub[["dates"]], data_sub[["fCO2"]], ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = "Time", ylim = fCO2_ylims, cex.lab=1.5, cex.axis=1.3, xaxt='n'), error=function(e) {}) 
+  ticks.at <- seq(min(data_sub[["dates"]]), max(data_sub[["dates"]]), by = "months")
+  ticks.lab <- format(ticks.at, format = "%b")
+  axis(1, at = ticks.at, labels = ticks.lab, cex.lab=1.5, cex.axis=1.3)
+} else {
+  tryCatch(plot(data_sub[["dates"]], data_sub[["fCO2"]], ylab = expression("fCO"[2]*" ["*mu*"atm]"), xlab = "Time", ylim = fCO2_ylims, cex.lab=1.5, cex.axis=1.3), error=function(e) {}) 
+}
 legend(letter_location2, "a)", bty="n", cex=2.5)
 dev.off()
 
