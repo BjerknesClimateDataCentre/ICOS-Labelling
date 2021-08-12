@@ -38,5 +38,5 @@ rsconnect/
 # Ignore input and output folders
 merge/input
 merge/output
-Summary_and_plot_script/input
-Summary_and_plot_script/output
+QC_summary_and_plot/input
+QC_summary_and_plot/output
