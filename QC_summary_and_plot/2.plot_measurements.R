@@ -13,18 +13,6 @@
 
 
 #-------------------------------------------------------------------------------
-# INPUT PARAMETERS
-#-------------------------------------------------------------------------------
-
-
-#letter_position_name <- "topright"
-
-#parameter_list <- c("temp", "teq","sal","peq","raw_CO2")
-
-#axis_labels <- c("Intake Temperature","Temperature at Equilibrator")
-
-
-#-------------------------------------------------------------------------------
 # INITIAL SETTINGS
 #-------------------------------------------------------------------------------
 
@@ -64,13 +52,11 @@ colnames(df)[which(names(df) == paste(settings$raw_CO2_colname," QC Comment",sep
   "raw_CO2_comm"
 
 
-
-
 #-------------------------------------------------------------------------------
 # FUNCTION(S)
 #-------------------------------------------------------------------------------
 
-create_plot <- function(param, plot_count, x_lab, y_lab,letter_position) {
+create_plot <- function(param, plot_count, y_lab, y_lims, letter_position) {
 
   letter_text <- paste(letters[plot_count],")",sep="")
   
@@ -78,7 +64,7 @@ create_plot <- function(param, plot_count, x_lab, y_lab,letter_position) {
   png(filename)
   ret <- ggplot(df, aes(x = datetime, y = as.numeric(df[[param]]))) +
     geom_point() +
-    xlab(x_lab) + ylab(y_lab) + 
+    xlab("Time") + ylab(y_lab) + 
     scale_x_datetime(date_breaks="1 month", date_labels = '%b') +
     theme_bw() +
     theme(axis.text=element_text(size=rel(1.5)),
@@ -90,6 +76,11 @@ create_plot <- function(param, plot_count, x_lab, y_lab,letter_position) {
              hjust = letter_position[[3]],
              vjust = letter_position[[4]],
              size=9)
+  
+  if (!is.na(y_lims[1])){
+    ret <- ret + ylim(y_lims[1], y_lims[2])
+  }
+  
   print(ret)
   dev.off()
 }
@@ -120,7 +111,6 @@ create_letter_position <- function(letter_position_name, param) {
 # CREATE THE PLOTS
 #-------------------------------------------------------------------------------
 
-
 # Create positions template
 positions <- data.frame(
   xpos = c(min(df$datetime),min(df$datetime),max(df$datetime),max(df$datetime)),
@@ -131,18 +121,23 @@ positions <- data.frame(
 
 # Loop through the parameter list and create the plots
 plot_count <- 1
-x_lab <- "Time"
 
 for (parameter in settings$parameter_list){
   
   if (parameter$make_plot) {
+    
+    # Extract all these in a loop?
     param <- parameter$param_name
-    y_lab <- parameter$axis_label
+    y_lab <- parameter$y_lab
+    y_lims <- parameter$y_lims
     letter_position_name <- parameter$letter_position_name
+  
+    # Change ylim to vector
+    y_lims <- as.numeric(unlist(strsplit(y_lims, ",")))
     
     letter_position <- create_letter_position(letter_position_name, param)
   
-    create_plot(param, plot_count, x_lab, y_lab, letter_position)
+    create_plot(param, plot_count, y_lab, y_lims, letter_position)
   }
   
   plot_count <- plot_count + 1
