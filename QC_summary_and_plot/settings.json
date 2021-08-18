@@ -5,31 +5,36 @@
 		"temp": {
 			"param_name" : "temp",
 			"make_plot" : true,
-			"axis_label" : "Intake Temperature [degC]",
+			"y_lab" : "Intake Temperature [degC]",
+			"y_lims": "10,20",
 			"letter_position_name" : "bottomleft"
 		},
 		"teq" : {
 			"param_name" : "teq",
 			"make_plot" : true,
-			"axis_label" : "Temperature at equilibrium [degC]",
+			"y_lab" : "Temperature at equilibrium [degC]",
+			"y_lims": "NA,NA",
 			"letter_position_name" : "topright"
 		},
 		"sal" : {
 			"param_name" : "sal",
 			"make_plot" : false,
-			"axis_label" : "Salinity",
+			"y_lab" : "Salinity",
+			"y_lims": "NA,NA",
 			"letter_position_name" : "topright"
 		},
 		"peq" : {
 			"param_name" : "peq",
 			"make_plot" : true,
-			"axis_label" : "Pressure at Equilibrator [hpa]",
+			"y_lab" : "Pressure at Equilibrator [hpa]",
+			"y_lims": "NA,NA",
 			"letter_position_name" : "topright"
 		},
 		"raw_CO2" : {
 			"param_name" : "raw_CO2",
 			"make_plot" : true,
-			"axis_label" : "Sea surface xCO2 [ppm]",
+			"y_lab" : "Sea surface xCO2 [ppm]",
+			"y_lims": "NA,NA",
 			"letter_position_name" : "topright"
 		}
 	}
