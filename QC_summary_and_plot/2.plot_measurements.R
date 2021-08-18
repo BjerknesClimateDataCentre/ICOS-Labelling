@@ -17,7 +17,13 @@
 #-------------------------------------------------------------------------------
 
 # Original column name of the measured CO2
-raw_CO2_colname <- "S1_CO2w"
+raw_CO2_colname <- "S1_CO2w" 
+
+letter_position_name <- "topright"
+
+parameter_list <- c("temp", "teq","sal","peq","raw_CO2")
+
+axis_labels <- c("Intake Temperature","Temperature at Equilibrator")
 
 
 #-------------------------------------------------------------------------------
@@ -40,14 +46,14 @@ datafile_name <- list.files("input",pattern="csv$")
 datafile_path <- paste("input/",datafile_name, sep="")
 df <- read_csv(datafile_path)
 
-# Import config file and store the header converter as data frame
-config <- read_json(path="config.json",format="json")
+# Import config files and store the header converter as data frame
+header_config <- read_json(path="header_config.json",format="json")
 
 # Update the column names using the names in the config file
-for (header in names(config$header_converter)){
+for (header in names(header_config$header_converter)){
   if (header %in% names(df)) {
     colnames(df)[which(names(df) == header)] <- 
-      config$header_converter[[header]]
+      header_config$header_converter[[header]]
   }
 }
 
@@ -63,34 +69,79 @@ colnames(df)[which(names(df) == paste(raw_CO2_colname," QC Comment",sep=""))] <-
 # FUNCTION(S)
 #-------------------------------------------------------------------------------
 
+create_plot <- function(param, plot_count, x_lab, y_lab,letter_position) {
+
+  letter_text <- paste(letters[plot_count],")",sep="")
+  
+  filename <- paste("output/",plot_count,"_",param,".png", sep="")
+  png(filename)
+  ret <- ggplot(df, aes(x = datetime, y = as.numeric(df[[param]]))) +
+    geom_point() +
+    xlab(x_lab) + ylab(y_lab) + 
+    scale_x_datetime(date_breaks="1 month", date_labels = '%b') +
+    theme_bw() +
+    theme(axis.text=element_text(size=rel(1.5)),
+          axis.title=element_text(size=rel(1.7)))  +
+    annotate("text",
+             x = letter_position[[1]],
+             y = letter_position[[2]], 
+             label = letter_text,
+             hjust = letter_position[[3]],
+             vjust = letter_position[[4]],
+             size=9)
+  print(ret)
+  dev.off()
+}
+
+
+#Create function that returns the the letter location
+create_letter_position <- function(letter_position_name, param) {
+  
+  position_index <- which(positions$location==letter_position_name)
+  
+  if (positions$ypos[position_index] > 0) {
+    ypos <- max(na.omit(as.numeric(df[[param]])))
+  } else {
+    ypos <- min(na.omit(as.numeric(df[[param]])))
+  }
+
+  xpos <- positions$xpos[position_index] 
+  hjustvar <- positions$hjustvar[position_index]
+  vjustvar <- positions$vjustvar[position_index]
+  
+  letter_position <- list(xpos,ypos,hjustvar,vjustvar)
+  
+  return(letter_position)
+}
 
 
 #-------------------------------------------------------------------------------
 # CREATE THE PLOTS
 #-------------------------------------------------------------------------------
 
-annotations <- data.frame(
+
+# Create positions template
+positions <- data.frame(
   xpos = c(min(df$datetime),min(df$datetime),max(df$datetime),max(df$datetime)),
-  ypos =  c(min(df$temp),max(df$temp),min(df$temp),max(df$temp)),
-  annotateText = c(rep("a)",4)),
-  hjustvar = c(-1,-1,1,1) ,
-  vjustvar = c(-1,1,-1,1))
+  ypos =  c(-Inf,Inf,-Inf,Inf),
+  hjustvar = c(-1,-1,1,1),
+  vjustvar = c(-1,1,-1,1),
+  location = c("bottomleft","topleft","bottomright","topright"))
 
+# Loop through the parameter list and create the plots
+plot_count <- 1
+x_lab <- "Time"
 
-
-png("output/temp_plot.png")
-
-ggplot(df, aes(x = datetime, y = temp)) +
-  geom_point() + 
-  xlab("Time") + ylab(expression(paste("Intake Temperature [ ",degree,"C]"))) + 
-  scale_x_datetime(date_breaks="1 month", date_labels = '%b') + 
-  theme_bw() +
-  theme(axis.text=element_text(size=rel(1.5)),
-        axis.title=element_text(size=rel(1.7))
-  ) + 
-  annotate("text", x = annotations$xpos[4], y = annotations$ypos[4], 
-           label = annotations$annotateText[4], hjust = annotations$hjustvar[4],
-           vjust = annotations$vjustvar[4], size=9)
+for (param in parameter_list){
   
+  # !!! Insert finding the letter_position
+  letter_position <- create_letter_position(letter_position_name, param)
   
-dev.off()
+  # !!! Change: extract from list
+  y_lab <- expression(paste("Intake Temperature [ ",degree,"C]"))
+  
+  create_plot(param, plot_count, x_lab, y_lab, letter_position)
+  
+  plot_count <- plot_count + 1
+  
+}
