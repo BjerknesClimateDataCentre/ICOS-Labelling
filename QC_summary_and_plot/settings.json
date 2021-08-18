@@ -1,0 +1,36 @@
+{
+	"raw_CO2_colname":"S1_CO2w",
+	"letter_position_name" : "topright",
+	"parameter_list": {
+		"temp": {
+			"param_name" : "temp",
+			"make_plot" : true,
+			"axis_label" : "Intake Temperature [degC]",
+			"letter_position_name" : "bottomleft"
+		},
+		"teq" : {
+			"param_name" : "teq",
+			"make_plot" : true,
+			"axis_label" : "Temperature at equilibrium [degC]",
+			"letter_position_name" : "topright"
+		},
+		"sal" : {
+			"param_name" : "sal",
+			"make_plot" : false,
+			"axis_label" : "Salinity",
+			"letter_position_name" : "topright"
+		},
+		"peq" : {
+			"param_name" : "peq",
+			"make_plot" : true,
+			"axis_label" : "Pressure at Equilibrator [hpa]",
+			"letter_position_name" : "topright"
+		},
+		"raw_CO2" : {
+			"param_name" : "raw_CO2",
+			"make_plot" : true,
+			"axis_label" : "Sea surface xCO2 [ppm]",
+			"letter_position_name" : "topright"
+		}
+	}
+}

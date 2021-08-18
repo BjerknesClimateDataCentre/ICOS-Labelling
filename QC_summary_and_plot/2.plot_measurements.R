@@ -16,14 +16,12 @@
 # INPUT PARAMETERS
 #-------------------------------------------------------------------------------
 
-# Original column name of the measured CO2
-raw_CO2_colname <- "S1_CO2w" 
 
-letter_position_name <- "topright"
+#letter_position_name <- "topright"
 
-parameter_list <- c("temp", "teq","sal","peq","raw_CO2")
+#parameter_list <- c("temp", "teq","sal","peq","raw_CO2")
 
-axis_labels <- c("Intake Temperature","Temperature at Equilibrator")
+#axis_labels <- c("Intake Temperature","Temperature at Equilibrator")
 
 
 #-------------------------------------------------------------------------------
@@ -46,10 +44,8 @@ datafile_name <- list.files("input",pattern="csv$")
 datafile_path <- paste("input/",datafile_name, sep="")
 df <- read_csv(datafile_path)
 
-# Import config files and store the header converter as data frame
+# Import header config and change the headers of the data frame
 header_config <- read_json(path="header_config.json",format="json")
-
-# Update the column names using the names in the config file
 for (header in names(header_config$header_converter)){
   if (header %in% names(df)) {
     colnames(df)[which(names(df) == header)] <- 
@@ -57,12 +53,17 @@ for (header in names(header_config$header_converter)){
   }
 }
 
+# Import the input parameters
+settings <- read_json(path="settings.json", format="json")
+
 # Update column names related to the raw CO2
-colnames(df)[which(names(df) == raw_CO2_colname)] <- "raw_CO2"
-colnames(df)[which(names(df) == paste(raw_CO2_colname," QC Flag",sep=""))] <-
+colnames(df)[which(names(df) == settings$raw_CO2_colname)] <- "raw_CO2"
+colnames(df)[which(names(df) == paste(settings$raw_CO2_colname," QC Flag",sep=""))] <-
   "raw_CO2_flag"
-colnames(df)[which(names(df) == paste(raw_CO2_colname," QC Comment",sep=""))] <-
+colnames(df)[which(names(df) == paste(settings$raw_CO2_colname," QC Comment",sep=""))] <-
   "raw_CO2_comm"
+
+
 
 
 #-------------------------------------------------------------------------------
@@ -132,15 +133,17 @@ positions <- data.frame(
 plot_count <- 1
 x_lab <- "Time"
 
-for (param in parameter_list){
+for (parameter in settings$parameter_list){
   
-  # !!! Insert finding the letter_position
-  letter_position <- create_letter_position(letter_position_name, param)
+  if (parameter$make_plot) {
+    param <- parameter$param_name
+    y_lab <- parameter$axis_label
+    letter_position_name <- parameter$letter_position_name
+    
+    letter_position <- create_letter_position(letter_position_name, param)
   
-  # !!! Change: extract from list
-  y_lab <- expression(paste("Intake Temperature [ ",degree,"C]"))
-  
-  create_plot(param, plot_count, x_lab, y_lab, letter_position)
+    create_plot(param, plot_count, x_lab, y_lab, letter_position)
+  }
   
   plot_count <- plot_count + 1
   
