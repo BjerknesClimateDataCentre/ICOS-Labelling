@@ -7,6 +7,7 @@
 			"make_plot" : true,
 			"y_lab" : "Intake Temperature [\u00B0C]",
 			"y_lims": "NA,NA",
+			"letter_string": "a)",
 			"letter_position_name" : "topleft"
 		},
 		"teq" : {
@@ -14,6 +15,7 @@
 			"make_plot" : true,
 			"y_lab" : "Temperature at Equilibrator [\u00B0C]",
 			"y_lims": "NA,NA",
+			"letter_string" : "b)",
 			"letter_position_name" : "topleft"
 		},
 		"sal" : {
@@ -21,6 +23,7 @@
 			"make_plot" : true,
 			"y_lab" : "Salinity",
 			"y_lims": "NA,NA",
+			"letter_string" : "c)",
 			"letter_position_name" : "topleft"
 		},
 		"peq" : {
@@ -28,6 +31,7 @@
 			"make_plot" : true,
 			"y_lab" : "Pressure at Equilibrator [hpa]",
 			"y_lims": "NA,NA",
+			"letter_string" : "d)",
 			"letter_position_name" : "topleft"
 		},
 		"raw_CO2" : {
@@ -35,6 +39,23 @@
 			"make_plot" : true,
 			"y_lab" : "Sea Surface xCO\u2082 [ppm]",
 			"y_lims": "NA,NA",
+			"letter_string" : "e)",
+			"letter_position_name" : "topleft"
+		},
+		"deltaT" : {
+			"param_name" : "deltaT",
+			"make_plot" : true,
+			"y_lab" : "\u0394Temperature [\u00B0C]",
+			"y_lims": "NA,NA",
+			"letter_string" : "a)",
+			"letter_position_name" : "topleft"
+		},
+		"fco2" : {
+			"param_name" : "fco2",
+			"make_plot" : true,
+			"y_lab" : "fCO\u2082 [uatm]",
+			"y_lims": "NA,NA",
+			"letter_string" : "a)",
 			"letter_position_name" : "topleft"
 		}
 	}
