@@ -59,9 +59,10 @@ colnames(df)[which(names(df) == paste(settings$raw_CO2_colname," QC Comment",sep
 # FUNCTION(S)
 #-------------------------------------------------------------------------------
 
-create_plot <- function(param, plot_count, y_lab, y_lims, letter_position) {
+create_plot <- function(param, plot_count, y_lab, y_lims, letter_string,
+                        letter_position) {
 
-  letter_text <- paste(letters[plot_count],")",sep="")
+  #letter_text <- paste(letters[plot_count],")",sep="")
   
   filename <- paste("output/",plot_count,"_",param,".png", sep="")
   png(filename)
@@ -76,7 +77,7 @@ create_plot <- function(param, plot_count, y_lab, y_lims, letter_position) {
     annotate("text",
              x = letter_position[[1]],
              y = letter_position[[2]], 
-             label = letter_text,
+             label = letter_string,
              hjust = letter_position[[3]],
              vjust = letter_position[[4]],
              size=9)
@@ -127,6 +128,7 @@ positions <- data.frame(
 plot_count <- 1
 
 sink(file = "output/out_of_range.txt")
+sink_file_empty <- TRUE
 for (parameter in settings$parameter_list){
   
   if (parameter$make_plot) {
@@ -136,6 +138,7 @@ for (parameter in settings$parameter_list){
     y_lab <- parameter$y_lab
     y_lims <- parameter$y_lims
     letter_position_name <- parameter$letter_position_name
+    letter_string <- parameter$letter_string
   
     # Change ylim to vector
     y_lims <- as.numeric(unlist(strsplit(y_lims, ",")))
@@ -144,7 +147,7 @@ for (parameter in settings$parameter_list){
     letter_position <- create_letter_position(letter_position_name, param)
   
     # Create the plot
-    create_plot(param, plot_count, y_lab, y_lims, letter_position)
+    create_plot(param, plot_count, y_lab, y_lims, letter_string, letter_position)
     
     # Print outliers to screen if there are any
     if (!is.na(y_lims[1])){
@@ -160,6 +163,8 @@ for (parameter in settings$parameter_list){
       percent_high <- round((outlier_high/n_meas)*100,1)
       cat("\nNumber of ", param, " measurements higher than ", y_lims[2], ": ",
           outlier_high, " (", percent_high, "%)", sep="")
+      
+      sink_file_empty <- FALSE
     }
     
   }
@@ -167,4 +172,9 @@ for (parameter in settings$parameter_list){
   plot_count <- plot_count + 1
   
 }
+
+if (sink_file_empty) {
+  cat("No measurements are out of the plot range:)")
+}
+
 sink()
