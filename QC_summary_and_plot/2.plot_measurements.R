@@ -19,9 +19,12 @@
 library(readr)
 library(jsonlite)
 library(ggplot2)
+#library(extrafont) Uninstall this package
+#library(ggpubr) Uninstall this package!!!
 
 Sys.setlocale("LC_ALL", "English");
 
+windowsFonts(Times=windowsFont("Times New Roman"))
 
 #-------------------------------------------------------------------------------
 # IMPORT DATA AND CONFIG FILE
@@ -68,7 +71,8 @@ create_plot <- function(param, plot_count, y_lab, y_lims, letter_position) {
     scale_x_datetime(date_breaks="1 month", date_labels = '%b') +
     theme_bw() +
     theme(axis.text=element_text(size=rel(1.5)),
-          axis.title=element_text(size=rel(1.7)))  +
+          axis.title=element_text(size=rel(1.7)),
+          text=element_text(family="Times"))  +#, face="bold"))  +
     annotate("text",
              x = letter_position[[1]],
              y = letter_position[[2]], 
