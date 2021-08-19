@@ -5,37 +5,37 @@
 		"temp": {
 			"param_name" : "temp",
 			"make_plot" : true,
-			"y_lab" : "Intake Temperature [degC]",
-			"y_lims": "10,20",
-			"letter_position_name" : "bottomleft"
+			"y_lab" : "Intake Temperature [\u00B0C]",
+			"y_lims": "NA,NA",
+			"letter_position_name" : "topleft"
 		},
 		"teq" : {
 			"param_name" : "teq",
 			"make_plot" : true,
-			"y_lab" : "Temperature at equilibrium [degC]",
+			"y_lab" : "Temperature at Equilibrator [\u00B0C]",
 			"y_lims": "NA,NA",
-			"letter_position_name" : "topright"
+			"letter_position_name" : "topleft"
 		},
 		"sal" : {
 			"param_name" : "sal",
-			"make_plot" : false,
+			"make_plot" : true,
 			"y_lab" : "Salinity",
 			"y_lims": "NA,NA",
-			"letter_position_name" : "topright"
+			"letter_position_name" : "topleft"
 		},
 		"peq" : {
 			"param_name" : "peq",
 			"make_plot" : true,
 			"y_lab" : "Pressure at Equilibrator [hpa]",
 			"y_lims": "NA,NA",
-			"letter_position_name" : "topright"
+			"letter_position_name" : "topleft"
 		},
 		"raw_CO2" : {
 			"param_name" : "raw_CO2",
 			"make_plot" : true,
-			"y_lab" : "Sea surface xCO2 [ppm]",
+			"y_lab" : "Sea Surface xCO\u2082 [ppm]",
 			"y_lims": "NA,NA",
-			"letter_position_name" : "topright"
+			"letter_position_name" : "topleft"
 		}
 	}
 }
