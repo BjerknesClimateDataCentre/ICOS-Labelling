@@ -126,6 +126,7 @@ positions <- data.frame(
 # Loop through the parameter list and create the plots
 plot_count <- 1
 
+sink(file = "output/out_of_range.txt")
 for (parameter in settings$parameter_list){
   
   if (parameter$make_plot) {
@@ -139,11 +140,31 @@ for (parameter in settings$parameter_list){
     # Change ylim to vector
     y_lims <- as.numeric(unlist(strsplit(y_lims, ",")))
     
+    # Get the letter position details
     letter_position <- create_letter_position(letter_position_name, param)
   
+    # Create the plot
     create_plot(param, plot_count, y_lab, y_lims, letter_position)
+    
+    # Print outliers to screen if there are any
+    if (!is.na(y_lims[1])){
+
+      n_meas <- length(na.omit(as.numeric(df$peq)))
+      
+      outlier_low <- sum(na.omit(as.numeric(df[[param]])) < y_lims[1])
+      percent_low <- round((outlier_low/n_meas)*100,1)
+      cat("\nNumber of ", param, " measurements lower than ", y_lims[1], ": ",
+          outlier_low, " (", percent_low, "%)", sep="")
+      
+      outlier_high <- sum(na.omit(as.numeric(df[[param]])) > y_lims[2])
+      percent_high <- round((outlier_high/n_meas)*100,1)
+      cat("\nNumber of ", param, " measurements higher than ", y_lims[2], ": ",
+          outlier_high, " (", percent_high, "%)", sep="")
+    }
+    
   }
   
   plot_count <- plot_count + 1
   
 }
+sink()
