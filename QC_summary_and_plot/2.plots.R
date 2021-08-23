@@ -27,6 +27,7 @@
 
 # Load packages
 library(readr)
+library(dplyr)
 library(jsonlite)
 library(ggplot2)
 
@@ -78,9 +79,9 @@ create_letter_position <- function(letter_position_name, param_name) {
   # The y-position is either the max or min of the parameter. Which one is
   # determined by the sign in the ypos column in the position template.
   if (positions_template$ypos[position_index] > 0) {
-    ypos <- max(na.omit(as.numeric(df[[param_name]])))
+    ypos <- max(na.omit(as.numeric(df_to_plot[[param_name]])))
   } else {
-    ypos <- min(na.omit(as.numeric(df[[param_name]])))
+    ypos <- min(na.omit(as.numeric(df_to_plot[[param_name]])))
   }
   
   # The rest of the letter position information is extracted straight from 
@@ -106,7 +107,8 @@ create_plot <- function(param_name, plot_count, y_lab, y_lims, letter_string,
   png(filename)
   
   # Create a ggplot and add multiple features
-  ret <- ggplot(df, aes(x = datetime, y = as.numeric(df[[param_name]]))) +
+  ret <- ggplot(df_to_plot, 
+                aes(x = datetime, y = as.numeric(df_to_plot[[param_name]]))) +
     geom_point() +
     xlab("Time") + ylab(y_lab) + 
     # Specify monthly ticks with short month names as label
@@ -173,6 +175,15 @@ for (plot_config in settings$all_plot_settings){
     # string containing the min and max. This is to ensure that either none or 
     # both are given. Only giving one limit does not work.)
     y_lims <- as.numeric(unlist(strsplit(y_lims, ",")))
+    
+    # Filter out all bad data if this is specified in the settings
+    if (good_only){
+      df_to_plot <- df %>%
+        filter(get(paste(param_name, "_flag", sep="")) == 2)
+      print(nrow(df_to_plot))
+    } else {
+      df_to_plot <- df
+    }
     
     # Get the letter position details
     letter_position <- create_letter_position(letter_position_name, param_name)
