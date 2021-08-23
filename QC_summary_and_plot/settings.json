@@ -1,7 +1,6 @@
 {
 	"raw_CO2_colname":"S1_CO2w",
-	"letter_position_name" : "topright",
-	"parameter_list": {
+	"all_plot_settings": {
 		"temp": {
 			"param_name" : "temp",
 			"make_plot" : true,
@@ -45,7 +44,7 @@
 		"deltaT" : {
 			"param_name" : "deltaT",
 			"make_plot" : true,
-			"y_lab" : "\u0394Temperature [\u00B0C]",
+			"y_lab" : "Abs. \u0394Temperature [\u00B0C]",
 			"y_lims": "NA,NA",
 			"letter_string" : "a)",
 			"letter_position_name" : "topleft"
@@ -53,7 +52,7 @@
 		"fco2" : {
 			"param_name" : "fco2",
 			"make_plot" : true,
-			"y_lab" : "fCO\u2082 [uatm]",
+			"y_lab" : "fCO\u2082 [\u03BCatm]",
 			"y_lims": "NA,NA",
 			"letter_string" : "a)",
 			"letter_position_name" : "topleft"
