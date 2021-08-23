@@ -4,6 +4,7 @@
 		"temp": {
 			"param_name" : "temp",
 			"make_plot" : true,
+			"good_only" : false,
 			"y_lab" : "Intake Temperature [\u00B0C]",
 			"y_lims": "NA,NA",
 			"letter_string": "a)",
@@ -12,6 +13,7 @@
 		"teq" : {
 			"param_name" : "teq",
 			"make_plot" : true,
+			"good_only" : false,
 			"y_lab" : "Temperature at Equilibrator [\u00B0C]",
 			"y_lims": "NA,NA",
 			"letter_string" : "b)",
@@ -20,6 +22,7 @@
 		"sal" : {
 			"param_name" : "sal",
 			"make_plot" : true,
+			"good_only" : false,
 			"y_lab" : "Salinity",
 			"y_lims": "NA,NA",
 			"letter_string" : "c)",
@@ -28,6 +31,7 @@
 		"peq" : {
 			"param_name" : "peq",
 			"make_plot" : true,
+			"good_only" : false,
 			"y_lab" : "Pressure at Equilibrator [hpa]",
 			"y_lims": "NA,NA",
 			"letter_string" : "d)",
@@ -36,6 +40,7 @@
 		"raw_CO2" : {
 			"param_name" : "raw_CO2",
 			"make_plot" : true,
+			"good_only" : false,
 			"y_lab" : "Sea Surface xCO\u2082 [ppm]",
 			"y_lims": "NA,NA",
 			"letter_string" : "e)",
@@ -44,6 +49,7 @@
 		"deltaT" : {
 			"param_name" : "deltaT",
 			"make_plot" : true,
+			"good_only" : false,
 			"y_lab" : "Abs. \u0394Temperature [\u00B0C]",
 			"y_lims": "NA,NA",
 			"letter_string" : "a)",
@@ -52,6 +58,7 @@
 		"fco2" : {
 			"param_name" : "fco2",
 			"make_plot" : true,
+			"good_only" : true,
 			"y_lab" : "fCO\u2082 [\u03BCatm]",
 			"y_lims": "NA,NA",
 			"letter_string" : "a)",
