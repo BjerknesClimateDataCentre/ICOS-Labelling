@@ -40,6 +40,11 @@ Sys.setlocale("LC_ALL", "English");
 # Change the plot font (subscript 2 does not work in the png with default font)
 windowsFonts(Times=windowsFont("Times New Roman"))
 
+# Remove existing files in the output directory
+if (!is.null(list.files("output"))) {
+  file.remove(dir(paste(getwd(),"/output",sep=""), pattern = "",
+                  full.names = TRUE))
+}
 
 #-------------------------------------------------------------------------------
 # IMPORT DATA AND CONFIG FILE
