@@ -9,12 +9,12 @@ time; intake temperature vs equilibrator temperature; and fco2 vs xco2.
 ### How to run the script ###
 Before run the script, add the dataset (as exported from QuinCe with the 'ICOS
 Labelling' format) in the input folder, and edit the settings.json file if
-needed. The settings file is used to specify:
-- the name of the raw co2 data column (this header is the same as in the raw
-data, and therefore different for each station)
-- which plots to create and how (see below)
+needed. Two things are needed from the settings file:
+- raw_co2_colname: the name of the raw co2 data column (this header is the same
+ as in the raw data, and therefore different for each station)
+- all_plot_settings: which plots to create and how (see below)
 
-### The plot settings ###
+### All plot settings ###
 The settings file contains a list ("all_plot_settings") of all plots that can
 be created. For each plot there are these settings:
 - make_plot: true or false. Determines if plot should be created or not.

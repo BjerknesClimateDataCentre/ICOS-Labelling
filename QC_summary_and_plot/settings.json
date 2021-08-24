@@ -1,4 +1,5 @@
 {
+	"station_type": "SOOP",
 	"raw_co2_colname":"S1_CO2w",
 	"all_plot_settings": {
 		"temp_vs_time": {
