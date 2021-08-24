@@ -44,14 +44,14 @@ datafile_name <- list.files("input",pattern="csv$")
 datafile_path <- paste("input/",datafile_name, sep="")
 df <- read_csv(datafile_path)
 
-# Import config file and store the header converter as data frame
-config <- read_json(path="config.json",format="json")
+# Import header config file and store the header converter as data frame
+header_config <- read_json(path="header_config.json",format="json")
 
-# Update the column names using the names in the config file
-for (header in names(config$header_converter)){
+# Update the column names using the names in the header config file
+for (header in names(header_config$header_converter)){
   if (header %in% names(df)) {
     colnames(df)[which(names(df) == header)] <- 
-      config$header_converter[[header]]
+      header_config$header_converter[[header]]
   }
 }
 
