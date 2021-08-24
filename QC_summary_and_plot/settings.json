@@ -4,9 +4,9 @@
 		"temp_vs_time": {
 			"make_plot" : true,
 			"y_name" : "temp",
-			"y_filter_bad" : true,
+			"y_filter_bad" : false,
 			"y_lab" : "Intake Temperature [\u00B0C]",
-			"y_lims": "12,20",
+			"y_lims": "NA,NA",
 			"x_name" : "datetime",
 			"x_filter_bad": false,
 			"x_lab" : "Time",
@@ -15,11 +15,11 @@
 			"letter_position_name" : "topleft"
 		},
 		"teq_vs_time" : {
-			"make_plot" : false,
+			"make_plot" : true,
 			"y_name" : "teq",
 			"y_filter_bad" : false,
 			"y_lab" : "Temperature at Equilibrator [\u00B0C]",
-			"y_lims": "12,20",
+			"y_lims": "NA,NA",
 			"x_name" : "datetime",
 			"x_filter_bad": false,
 			"x_lab" : "Time",
@@ -28,11 +28,11 @@
 			"letter_position_name" : "topleft"
 		},
 		"sal_vs_time" : {
-			"make_plot" : false,
+			"make_plot" : true,
 			"y_name" : "sal",
 			"y_filter_bad" : false,
 			"y_lab" : "Salinity",
-			"y_lims": "10,20",
+			"y_lims": "NA,NA",
 			"x_name" : "datetime",
 			"x_filter_bad": false,
 			"x_lab" : "Time",
@@ -41,11 +41,11 @@
 			"letter_position_name" : "topleft"
 		},
 		"peq_vs_time" : {
-			"make_plot" : false,
+			"make_plot" : true,
 			"y_name" : "peq",
 			"y_filter_bad" : false,
 			"y_lab" : "Pressure at Equilibrator [hpa]",
-			"y_lims": "990,1010",
+			"y_lims": "NA,NA",
 			"x_name" : "datetime",
 			"x_filter_bad": false,
 			"x_lab" : "Time",
@@ -54,11 +54,11 @@
 			"letter_position_name" : "topleft"
 		},
 		"raw_co2_vs_time" : {
-			"make_plot" : false,
+			"make_plot" : true,
 			"y_name" : "raw_co2",
 			"y_filter_bad" : false,
 			"y_lab" : "Sea Surface xCO\u2082 [ppm]",
-			"y_lims": "300,500",
+			"y_lims": "NA,NA",
 			"x_name" : "datetime",
 			"x_filter_bad": false,
 			"x_lab" : "Time",
@@ -67,11 +67,11 @@
 			"letter_position_name" : "topleft"
 		},
 		"deltaT_vs_time" : {
-			"make_plot" : false,
+			"make_plot" : true,
 			"y_name" : "deltaT",
 			"y_filter_bad" : false,
 			"y_lab" : "Abs. \u0394Temperature [\u00B0C]",
-			"y_lims": "0,2",
+			"y_lims": "NA,NA",
 			"x_name" : "datetime",
 			"x_filter_bad": false,
 			"x_lab" : "Time",
@@ -80,24 +80,24 @@
 			"letter_position_name" : "topleft"
 		},
 		"teq_vs_temp" : {
-			"make_plot" : false,
+			"make_plot" : true,
 			"y_name" : "teq",
 			"y_filter_bad" : true,
 			"y_lab" : "Equilibrator Temperature [\u00B0C]",
-			"y_lims": "10,20",
+			"y_lims": "NA,NA",
 			"x_name" : "temp",
 			"x_filter_bad": true,
 			"x_lab" : "Intake Temperature [\u00B0C]",
-			"x_lims" : "13,24",
+			"x_lims" : "NA,NA",
 			"letter_string" : "b)",
 			"letter_position_name" : "topleft"
 		},
 		"fco2_vs_time" : {
-			"make_plot" : false,
+			"make_plot" : true,
 			"y_name" : "fco2",
 			"y_filter_bad" : true,
 			"y_lab" : "fCO\u2082 [\u03BCatm]",
-			"y_lims": "200,700",
+			"y_lims": "NA,NA",
 			"x_name" : "datetime",
 			"x_filter_bad": false,
 			"x_lab" : "Time",
@@ -106,15 +106,15 @@
 			"letter_position_name" : "topleft"
 		},
 		"fco2_vs_xco2" : {
-			"make_plot" : false,
+			"make_plot" : true,
 			"y_name" : "fco2",
 			"y_filter_bad" : true,
 			"y_lab" : "fCO\u2082 [\u03BCatm]",
-			"y_lims": "250,750",
+			"y_lims": "NA,NA",
 			"x_name" : "raw_co2",
 			"x_filter_bad": true,
 			"x_lab" : "xCO\u2082 [ppm]",
-			"x_lims" : "250,750",
+			"x_lims" : "NA,NA",
 			"letter_string" : "b)",
 			"letter_position_name" : "topleft"
 		}
