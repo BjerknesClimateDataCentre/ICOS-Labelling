@@ -15,17 +15,6 @@
 
 
 #-------------------------------------------------------------------------------
-# INPUT PARAMETERS
-#-------------------------------------------------------------------------------
-
-# What type of station (SOOP or FOS)
-station_type <- "SOOP"
-
-# Original column name of the measured CO2
-raw_CO2_colname <- "S1_CO2w"
-
-
-#-------------------------------------------------------------------------------
 # INITIAL SETTINGS
 #-------------------------------------------------------------------------------
 
@@ -33,6 +22,12 @@ library(readr)
 library(jsonlite)
 library(dplyr)
 library(tidyr)
+
+# Remove existing files in the output directory
+if (!is.null(list.files("output"))) {
+  file.remove(dir(paste(getwd(),"/output",sep=""), pattern = "",
+                  full.names = TRUE))
+}
 
 
 #-------------------------------------------------------------------------------
@@ -55,12 +50,15 @@ for (header in names(header_config$header_converter)){
   }
 }
 
+# Import the settings
+settings <- read_json(path="settings.json", format="json")
+
 # Update column names related to the raw CO2
-colnames(df)[which(names(df) == raw_CO2_colname)] <- "raw_CO2"
-colnames(df)[which(names(df) == paste(raw_CO2_colname," QC Flag",sep=""))] <-
-  "raw_CO2_flag"
-colnames(df)[which(names(df) == paste(raw_CO2_colname," QC Comment",sep=""))] <-
-  "raw_CO2_comm"
+colnames(df)[which(names(df) == settings$raw_co2_colname)] <- "raw_co2"
+colnames(df)[which(names(df) == paste(settings$raw_co2_colname," QC Flag",sep=""))] <-
+  "raw_co2_flag"
+colnames(df)[which(names(df) == paste(settings$raw_co2_colname," QC Comment",sep=""))] <-
+  "raw_co2_comm"
 
 # Store data object in output folder (use this when fix data import issue (#7))
 # saveRDS(df,file='input/exported_data.rds')
@@ -131,12 +129,12 @@ cat("QC SUMMARY FOR '", datafile_name, "'\n", sep="")
 cat("===========\n\n")
 
 # Create list of parameters to do summaries for
-if (station_type == "SOOP"){
+if (settings$station_type == "SOOP"){
   param_list <- c("lat","lon","temp","teq","peq")
 } else {
   param_list <- c("lat","lon","temp","sal")
 }
-param_list <- append(param_list, c("raw_CO2","fco2"))
+param_list <- append(param_list, c("raw_co2","fco2"))
 
 # Create and print the QC summaries
 for (param in param_list){
