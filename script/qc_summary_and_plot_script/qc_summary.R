@@ -2,22 +2,11 @@
 ### CREATE A SUMMARY OF QC MESSAGES FROM QUINCE
 ################################################################################
 
-### Description:
-# Sript makes a summary of how many and what kind of QC messages each 
-# parameter got from the QC procedures in QuinCe.
-
-### Requirements:
-# The dataset as exported from Quince (with format 'ICOS OTC Labelling') must 
-# be in the input folder in the same directory as this script.
-
-### Output:
-# A text file containing the QC summary in the output folder.
-
-
 #-------------------------------------------------------------------------------
 # INITIAL SETTINGS
 #-------------------------------------------------------------------------------
 
+# Load packages
 library(readr)
 library(jsonlite)
 library(dplyr)
@@ -34,21 +23,8 @@ if (!is.null(list.files("output"))) {
 # IMPORT DATA, HEADER CONFIG AND SETTINGS FILE
 #-------------------------------------------------------------------------------
 
-# Import data
-datafile_name <- list.files("input",pattern="csv$")
-datafile_path <- paste("input/",datafile_name, sep="")
-df <- read_csv(datafile_path)
-
-# Import header config file and store the header converter as data frame
-header_config <- read_json(path="header_config.json",format="json")
-
-# Update the column names using the names in the header config file
-for (header in names(header_config$header_converter)){
-  if (header %in% names(df)) {
-    colnames(df)[which(names(df) == header)] <- 
-      header_config$header_converter[[header]]
-  }
-}
+# Import processed data
+df <- readRDS(file = "../data/processed_data.rds")
 
 # Import the settings
 settings <- read_json(path="settings.json", format="json")
@@ -59,9 +35,6 @@ colnames(df)[which(names(df) == paste(settings$raw_co2_colname," QC Flag",sep=""
   "raw_co2_flag"
 colnames(df)[which(names(df) == paste(settings$raw_co2_colname," QC Comment",sep=""))] <-
   "raw_co2_comm"
-
-# Store data object in output folder (use this when fix data import issue (#7))
-# saveRDS(df,file='input/exported_data.rds')
 
 
 #-------------------------------------------------------------------------------
@@ -122,10 +95,10 @@ QC_summary <- function(param_name){
 # CREATE THE SUMMARY FILE
 #-------------------------------------------------------------------------------
 
-summaryfile_path <- paste("output/QC_summary_", datafile_name, ".txt", sep="")
+summaryfile_path <- paste("output/QC_summary.txt", sep="")
 sink(summaryfile_path)
 cat("=================================================================\n")
-cat("QC SUMMARY FOR '", datafile_name, "'\n", sep="")
+cat("QC SUMMARY\n", sep="")
 cat("===========\n\n")
 
 # Create list of parameters to do summaries for
