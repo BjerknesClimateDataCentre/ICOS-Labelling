@@ -2,28 +2,6 @@
 ### PLOT DATA IN THE EXPORT FILE
 ################################################################################
 
-### DESCRIPTION:
-# This script creates plots from the data in the exported file from QuinCe. The
-# plots required for the labelling report are
-# - all measurements vs time
-# - deltaT vs time
-# - SST vs Equilibrator Temperature
-# - fCO2 vs time
-# - fCO2 vs xCO2
-
-### REQUIREMENTS:
-# - The dataset as exported from Quince (with format 'ICOS OTC Labelling') must 
-# be in the input folder in the same directory as this script.
-# - Informatiton about which plots to create must be specified in the 
-# "settings.json" file. There are several plot option you need to set for each
-# parameter (plot letter, y label, etc.).
-
-### OUTPUT:
-# The plots are stored in the output folder, together with a text file 
-# containing the number of measurements ouf of plot range (if any). These are
-# needed in the labelling report text.
-
-
 #-------------------------------------------------------------------------------
 # INITIAL SETTINGS
 #-------------------------------------------------------------------------------
@@ -42,28 +20,17 @@ windowsFonts(Times=windowsFont("Times New Roman"))
 
 # Remove existing files in the output directory
 if (!is.null(list.files("output"))) {
-  file.remove(dir(paste(getwd(),"/output",sep=""), pattern = "",
-                  full.names = TRUE))
+  file.remove(dir(paste(getwd(),"/output",sep=""),
+                  pattern = "", full.names = TRUE))
 }
 
 
 #-------------------------------------------------------------------------------
-# IMPORT DATA, HEADER CONFIG AND SETTINGS FILE
+# IMPORT DATA AND SETTINGS
 #-------------------------------------------------------------------------------
 
-# Import data as tibble
-datafile_name <- list.files("input",pattern="csv$")
-datafile_path <- paste("input/",datafile_name, sep="")
-df <- read_csv(datafile_path)
-
-# Import header config and change the headers of the tibble
-header_config <- read_json(path="header_config.json",format="json")
-for (header in names(header_config$header_converter)){
-  if (header %in% names(df)) {
-    colnames(df)[which(names(df) == header)] <- 
-      header_config$header_converter[[header]]
-  }
-}
+# Import processed data
+df <- readRDS(file = "../data/processed_data.rds")
 
 # Import the settings
 settings <- read_json(path="settings.json", format="json")
