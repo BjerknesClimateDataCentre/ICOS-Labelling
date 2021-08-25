@@ -36,10 +36,8 @@ vignettes/*.pdf
 rsconnect/
 
 # Ignore input and output folders
-script/merge_script/input
-script/merge_script/output
-script/qc_summary_and_plot_script/input
-script/qc_summary_and_plot_script/output
+script/*/input
+script/*/output
 
 # Ignore Diverse folder
 diverse/
