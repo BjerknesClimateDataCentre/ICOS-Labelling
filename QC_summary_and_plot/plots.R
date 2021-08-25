@@ -48,7 +48,7 @@ if (!is.null(list.files("output"))) {
 
 
 #-------------------------------------------------------------------------------
-# IMPORT DATA AND CONFIG FILE
+# IMPORT DATA, HEADER CONFIG AND SETTINGS FILE
 #-------------------------------------------------------------------------------
 
 # Import data as tibble
@@ -205,7 +205,7 @@ sink_file_empty <- TRUE
 
 # Create a loop counter and create plots in a loop (one plot per iteration)
 plot_count <- 1
-for (plot_config in settings$all_plot_settings){
+for (plot_config in settings$all_plots){
   if (plot_config$make_plot) {
     
     # Extract all plot settings (use same variable name as in the settings file)

@@ -31,7 +31,7 @@ if (!is.null(list.files("output"))) {
 
 
 #-------------------------------------------------------------------------------
-# IMPORT DATA AND CONFIG FILE
+# IMPORT DATA, HEADER CONFIG AND SETTINGS FILE
 #-------------------------------------------------------------------------------
 
 # Import data
