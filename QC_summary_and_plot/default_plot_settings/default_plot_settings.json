@@ -1,0 +1,122 @@
+{
+	"default_plots_SOOP": {
+		"temp_vs_time": {
+			"make_plot" : true,
+			"x_name" : "datetime",
+			"y_name" : "temp",
+			"x_filter_bad": false,
+			"y_filter_bad" : false,
+			"x_lims" : "NA,NA",
+			"y_lims": "NA,NA",
+			"x_lab" : "Time",
+			"y_lab" : "Intake Temperature [\u00B0C]",
+			"letter_string": "a)",
+			"letter_position_name" : "topleft"
+		},
+		"teq_vs_time" : {
+			"make_plot" : true,
+			"x_name" : "datetime",
+			"y_name" : "teq",
+			"x_filter_bad": false,
+			"y_filter_bad" : false,
+			"x_lims": "NA,NA",
+			"y_lims" : "NA,NA",
+			"x_lab" : "Time",
+			"y_lab" : "Temperature at Equilibrator [\u00B0C]",
+			"letter_string" : "b)",
+			"letter_position_name" : "topleft"
+		},
+		"sal_vs_time" : {
+			"make_plot" : true,
+			"x_name" : "datetime",
+			"y_name" : "sal",
+			"x_filter_bad": false,
+			"y_filter_bad" : false,
+			"x_lims" : "NA,NA",
+			"y_lims": "NA,NA",
+			"x_lab" : "Time",
+			"y_lab" : "Salinity",
+			"letter_string" : "c)",
+			"letter_position_name" : "topleft"
+		},
+		"peq_vs_time" : {
+			"make_plot" : true,
+			"x_name" : "datetime",
+			"y_name" : "peq",
+			"x_filter_bad": false,
+			"y_filter_bad" : false,
+			"x_lims" : "NA,NA",
+			"y_lims": "NA,NA",
+			"x_lab" : "Time",
+			"y_lab" : "Pressure at Equilibrator [hpa]",
+			"letter_string" : "d)",
+			"letter_position_name" : "topleft"
+		},
+		"raw_co2_vs_time" : {
+			"make_plot" : true,
+			"x_name" : "datetime",
+			"y_name" : "raw_co2",
+			"x_filter_bad": false,
+			"y_filter_bad" : false,
+			"x_lims" : "NA,NA",
+			"y_lims": "NA,NA",
+			"x_lab" : "Time",
+			"y_lab" : "Sea Surface xCO\u2082 [ppm]",
+			"letter_string" : "e)",
+			"letter_position_name" : "topleft"
+		},
+		"deltaT_vs_time" : {
+			"make_plot" : true,
+			"x_name" : "datetime",
+			"y_name" : "deltaT",
+			"x_filter_bad": false,
+			"y_filter_bad" : false,
+			"x_lims" : "NA,NA",
+			"y_lims": "NA,NA",
+			"x_lab" : "Time",
+			"y_lab" : "Abs. \u0394Temperature [\u00B0C]",
+			"letter_string" : "a)",
+			"letter_position_name" : "topleft"
+		},
+		"teq_vs_temp" : {
+			"make_plot" : true,
+			"x_name" : "temp",
+			"y_name" : "teq",
+			"x_filter_bad": true,
+			"y_filter_bad" : true,
+			"x_lims" : "NA,NA",
+			"y_lims": "NA,NA",
+			"x_lab" : "Intake Temperature [\u00B0C]",
+			"y_lab" : "Equilibrator Temperature [\u00B0C]",
+			"letter_string" : "b)",
+			"letter_position_name" : "topleft"
+		},
+		"fco2_vs_time" : {
+			"make_plot" : true,
+			"x_name" : "datetime",
+			"y_name" : "fco2",
+			"x_filter_bad": false,
+			"y_filter_bad" : true,
+			"x_lims" : "NA,NA",
+			"y_lims": "NA,NA",
+			"x_lab" : "Time",
+			"y_lab" : "fCO\u2082 [\u03BCatm]",
+			"letter_string" : "a)",
+			"letter_position_name" : "topleft"
+		},
+		"fco2_vs_xco2" : {
+			"make_plot" : true,
+			"x_name" : "raw_co2",
+			"y_name" : "fco2",
+			"x_filter_bad": true,
+			"y_filter_bad" : true,
+			"x_lims" : "NA,NA",
+			"y_lims": "NA,NA",
+			"x_lab" : "xCO\u2082 [ppm]",
+			"y_lab" : "fCO\u2082 [\u03BCatm]",
+			"letter_string" : "b)",
+			"letter_position_name" : "topleft"
+		}
+	},
+	"default_plots_FOS": ""
+}
