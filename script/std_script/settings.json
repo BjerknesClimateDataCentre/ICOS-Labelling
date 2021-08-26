@@ -1,0 +1,29 @@
+{
+	"required_columns": {
+		"run_type" : "Betriebsart",
+		"std_value" : "std_val",
+		"co2" : "S1_CO2w"
+	},
+	"std_names": {
+		"std1_name" : "2 Messung Eichgas 1",
+		"std2_name" : "3 Messung Eichgas 2",
+		"std3_name" : "4 Messung Eichgas 3"
+	},
+	"std_legends" : {
+		"std1_legend" : "STD 1",
+		"std1_legend" : "STD 2",
+		"std1_legend" : "STD 3"
+	},
+	"remove_flush":true,
+	"n_rows_flush":"5",
+	"ylims" : {
+		"y_lim_min" : "-5",
+		"y_lim_max" : "5"
+	},
+	"qc_ranges" : {
+		"good_min" : "-2",
+		"good_max" : "2",
+		"questionable_min" : "-5",
+		"questionable_max" : "5"
+	}
+}
