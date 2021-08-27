@@ -24,9 +24,13 @@ library(readr)
 library(dplyr)
 library(jsonlite)
 library(ggplot2)
+library(gridExtra)
 
 # Set the locale (needed for correct spelling of months in plots)
 Sys.setlocale("LC_ALL", "English");
+
+# Change the plot font (subscript 2 does not work in the png with default font)
+windowsFonts(Times=windowsFont("Times New Roman"))
 
 
 #-------------------------------------------------------------------------------
@@ -73,10 +77,10 @@ df_mod <- df %>%
          std_val = all_of(std_value),
          co2 = all_of(co2)) %>%
   filter(run_type %in% stds) %>%
-  mutate(anomaly = std_val - co2) 
+  mutate(anomaly = co2 - std_val) 
 
 # Remove flush values if required. (Add a dummy column 'flush' containing 
-# true/false about whether the valueis a flush or not. Remove rows where flush 
+# true/false about whether the value is a flush or not. Remove rows where flush 
 # is true and finally remove the dummy column.)
 if (settings$remove_flush) {
   df_mod <- df_mod %>% 
@@ -87,7 +91,39 @@ if (settings$remove_flush) {
     select(-flush)
 }
 
+# Remove missing values (!!! Allow for more than one missing value)
+df_mod <- df_mod %>%
+  filter(df_mod$co2 != as.numeric(settings$co2_missing_value))
+
 
 #-------------------------------------------------------------------------------
-# CREATE THE STD PLOTS
+# CREATE THE STD PLOTS AND STATS
 #-------------------------------------------------------------------------------
+
+filename <- paste("output/std_plot.png",sep="")
+png(filename)
+
+plot_list <- list()
+for (i in 1:length(stds)) {
+  
+  # Create datasubset
+  df_std <- df_mod %>%
+    filter(run_type == stds[i])
+  
+  # Create the plots
+  plot_list[[i]] <- ggplot(df_std, aes(x = datetime, y = anomaly)) +
+      geom_point() +
+      xlab("Time") + ylab("Calibration anomaly [ppm]") + 
+      ylim(as.numeric(settings$ylims$y_lim_min),
+           as.numeric(settings$ylims$y_lim_max)) + 
+      scale_x_datetime(date_breaks="1 month", date_labels = '%b') + 
+      theme_bw() +
+      theme(text=element_text(family="Times"),
+            axis.text=element_text(size=rel(1.5)),
+            axis.title=element_text(size=rel(1.7)))
+  
+  # Write stats
+}
+
+do.call("grid.arrange", c(plot_list, ncol = 1, nrow = 3))
+dev.off()
