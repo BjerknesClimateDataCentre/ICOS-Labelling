@@ -72,7 +72,8 @@ for (name in settings$std_names) {
 # Modify the dataset: Only select the needed columns and rename them; only keep
 # rows that are std measurements; and  add the calculated std anomaly
 df_mod <- df %>%
-  select(date_time, all_of(run_type_colname), all_of(std_value_colname), all_of(co2_colname)) %>%
+  select(date_time, all_of(run_type_colname), all_of(std_value_colname),
+         all_of(co2_colname)) %>%
   rename(datetime = date_time, 
          run_type = all_of(run_type_colname),
          std_val = all_of(std_value_colname),
@@ -113,11 +114,19 @@ for (j in 1:length(std_approx_values)) {
                       paste("STD ", j, " (~", std_approx_values[j], ")",sep=""))
 }
 
+# Extract the qc ranges from the settings file
+for (qc_key in names(settings$qc_ranges)){
+  assign(qc_key, as.numeric(settings$qc_ranges[[qc_key]]))
+}
+
+# Set up the file for stats
+sink(file = "output/std_stats.txt")
+
 # Set up the image file
 filename <- paste("output/1.std_scatter.png",sep="")
 png(filename)
 
-# Create the plot objects in a loop, one std plot per iteration
+# Create the plot objects in a loop, one std plot/stat per iteration
 plot_list <- list()
 for (i in 1:length(std_names)) {
   
@@ -125,13 +134,20 @@ for (i in 1:length(std_names)) {
   df_std <- df_mod %>%
     filter(run_type == std_names[i])
   
-  # Filter away values outside plot area and create a linear model to be added
-  # to the plot and used for stats later
+  #--------------
+  # CREATE PLOT
+  #--------------
+  # Filter away values outside plot area (needed for linear_model)
   df_std_good <- df_std %>%
     filter(anomaly < as.numeric(settings$y_lims$y_lim_max),
            anomaly > as.numeric(settings$y_lims$y_lim_min)) %>%
     mutate(datetime_sec = as.numeric(datetime))
+  
+  # Create a linear model to be added to the plot and used for stats later
   reg <- lm(anomaly ~ datetime, data = df_std_good)
+  drift_intercept <- coef(reg)[[1]]
+  drift_slope <- coef(reg)[[2]]
+  drift_p_value <- round(summary(reg)$coefficient[2,4],3)
   
   # Create the plot
   plot_list[[i]] <- ggplot(df_std, aes(x = datetime, y = anomaly)) +
@@ -155,17 +171,52 @@ for (i in 1:length(std_names)) {
       # Make the 0 line more visible
       geom_hline(yintercept=0) +
       # Add the linear regression line
-      geom_abline(intercept = coef(reg)[[1]],slope = coef(reg)[[2]],
+      geom_abline(intercept = drift_intercept, slope = drift_slope,
                   colour = "red", size = 0.5)
   
   # Hide x axis text for all plots except the last one (Comment this out for now
-  # since it is risky to hide axis tick text when the x axis is not shared)
+  # since the x axis is not set to be shared (often is, but not a guaranty))
   #if (i<length(std_names)) {
   #  plot_list[[i]] <- plot_list[[i]] + theme(axis.text.x = element_blank())
   #}
   
-  # Write stats here...
+  #--------------
+  # CREATE STATS
+  #--------------
+  
+  cat("Stats for: ", std_labels[i],"\n")
+  
+  # Calculate and print number and percent of good values
+  n_good <- sum(df_std$anomaly > good_min & df_std$anomaly < good_max)
+  percent_good <- round((n_good/nrow(df_std))*100,1)
+  cat("  Good values (",good_min,",",good_max,"): ", n_good, " (", 
+      percent_good, "%)\n", sep="")
+  
+  # Calculate and print number and percent of questionable values
+  n_questionable <-
+    sum(df_std$anomaly > questionable_min & df_std$anomaly < good_min) +
+    sum(df_std$anomaly > good_max & df_std$anomaly < questionable_max)
+  percent_questionable <- round((n_questionable/nrow(df_std))*100,1)
+  cat("  Questionable values (",questionable_min,",",questionable_max,"): ",
+      n_questionable, " (", percent_questionable, "%)\n", sep="")
+  
+  # Calculate and print number and percent of bad values
+  n_bad <- 
+    sum(df_std$anomaly > questionable_max) + 
+    sum(df_std$anomaly < questionable_min)
+  percent_bad <- round((n_bad/nrow(df_std))*100,1)
+  cat("  Bad values: ", n_bad, " (", percent_bad, "%)\n", sep="")
+  
+  # Calculate and print drift
+  time_total <- df_std_good$datetime_sec[nrow(df_std_good)] - 
+    df_std_good$datetime_sec[1]
+  drift <- round(drift_slope * time_total,2)
+  cat("  Drift over shown time frame: ", drift, " [ppm] (p-value: ", 
+      drift_p_value, ")", "\n\n", sep="")
 }
+
+# Close the writing to stats file
+sink()
 
 # Create the axis labels to be shared by all plots in the figure
 text_left <- text_grob("Calibration anomaly [ppm]",
