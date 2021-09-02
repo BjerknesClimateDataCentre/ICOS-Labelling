@@ -1,7 +1,7 @@
-About the qc summary and plot script (and the default setting script)
+About the QC Summary and Plots Script
 ==========================================================================
 
-## qc_summary.R ##
+## Script 'qc_summary.R' ##
 
 ### Description ###
 The 'qc_summary' sript makes a summary of how many and what kind of QC messages
@@ -21,22 +21,16 @@ The script needs the following from this settings file:
 A text file containing the QC summary in the output folder.
 
 
-## default_plot_settings.R ##
+## Script 'default_plot_settings.R' ##
 
-Note that this script is not complete yet. It needs to deal with raw data as
- well...
-
-### DESCRIPTION:
-The script imports data (either raw or exported from QuinCe), refromats and
-cleans up the data, and creates .Rdata ojcets which can be used by the other
-labelling scripts
+### Description ###
 
 ### Requirements ###
 
 ### Output ###
 
 
-## plots.R ##
+## Script 'plots.R' ##
 
 ### Description ###
 The 'plots.R' script is used to create most of the plots for the labelling
@@ -80,7 +74,7 @@ settings and only edit the axis ranges and/or letter locations as needed. The
 default settings can be restored by running the script
 'default_plot_settings.R'.
 
-### OUTPUT:
+### Output ###
 The plots are stored in the output folder, together with a text file
 containing the number of measurements ouf of plot range (if any). These are
 needed in the labelling report text.
