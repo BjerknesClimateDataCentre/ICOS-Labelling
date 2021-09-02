@@ -1,5 +1,5 @@
 ################################################################################
-### GAS STANDARD VALUES PLOTS
+### GAS STANDARD GRAPHS, BOX PLOT AND STATS
 ################################################################################
 
 #-------------------------------------------------------------------------------
@@ -24,6 +24,7 @@ library(readr)
 library(dplyr)
 library(jsonlite)
 library(ggplot2)
+library(ggpubr)
 library(gridExtra)
 
 # Set the locale (needed for correct spelling of months in plots)
@@ -69,7 +70,7 @@ for (name in settings$std_names) {
 }
 
 # Modify the dataset: Only select the needed columns and rename them; only keep
-# rows that are std measurements; and add the std anomaly
+# rows that are std measurements; and  add the calculated std anomaly
 df_mod <- df %>%
   select(date_time, all_of(run_type), all_of(std_value), all_of(co2)) %>%
   rename(datetime = date_time, 
@@ -97,33 +98,69 @@ df_mod <- df_mod %>%
 
 
 #-------------------------------------------------------------------------------
-# CREATE THE STD PLOTS AND STATS
+# CREATE THE STD PLOTS FIGURE
 #-------------------------------------------------------------------------------
 
+# Set up the image file
 filename <- paste("output/std_plot.png",sep="")
 png(filename)
 
+# Create the plot objects in a loop, one std plot per iteration
 plot_list <- list()
 for (i in 1:length(stds)) {
   
-  # Create datasubset
+  # Filter away all data that are not from the standard gas in question
   df_std <- df_mod %>%
     filter(run_type == stds[i])
   
-  # Create the plots
+  # Filter away values outside plot area and create a linear model to be added
+  # to the plot and used for stats later
+  df_std_good <- df_std %>%
+    filter(anomaly < as.numeric(settings$y_lims$y_lim_max),
+           anomaly > as.numeric(settings$y_lims$y_lim_min)) %>%
+    mutate(datetime_sec = as.numeric(datetime))
+  reg <- lm(anomaly ~ datetime, data = df_std_good)
+  
+  # Create the plot
   plot_list[[i]] <- ggplot(df_std, aes(x = datetime, y = anomaly)) +
-      geom_point() +
-      xlab("Time") + ylab("Calibration anomaly [ppm]") + 
-      ylim(as.numeric(settings$ylims$y_lim_min),
-           as.numeric(settings$ylims$y_lim_max)) + 
+      geom_point(color=i+1) +
+      # Hide axis labels - will be added later
+      xlab("") + ylab("") + 
+      # Set the plot range limits as given in settings file
+      ylim(as.numeric(settings$y_lims$y_lim_min),
+           as.numeric(settings$y_lims$y_lim_max)) + 
+      # Set one tick per month on x axis
       scale_x_datetime(date_breaks="1 month", date_labels = '%b') + 
+      # Change to another layout theme
       theme_bw() +
-      theme(text=element_text(family="Times"),
-            axis.text=element_text(size=rel(1.5)),
-            axis.title=element_text(size=rel(1.7)))
+      # Create label with std name to be added on top of plot
+      labs(title = paste("STD ",i," (",stds[i],")",sep="")) +
+      # Add label text and exit size of axis texts
+      theme(text = element_text(family="Times"),
+            axis.text = element_text(size=rel(1.5)),
+            axis.title = element_text(size=rel(1.7)),
+            plot.title = element_text(hjust = 1, size=rel(1.4))) + 
+      # Make the 0 line more visible
+      geom_hline(yintercept=0) +
+      # Add the linear regression line
+      geom_abline(intercept = coef(reg)[[1]],slope = coef(reg)[[2]],
+                  colour = "red", size = 0.5)
+  
+  # Hide x axis text for all plots except the last one (Comment this out for now
+  # since it is risky to hide axis tick text when the x axis is not shared)
+  #if (i<length(stds)) {
+  #  plot_list[[i]] <- plot_list[[i]] + theme(axis.text.x = element_blank())
+  #}
   
   # Write stats
 }
 
-do.call("grid.arrange", c(plot_list, ncol = 1, nrow = 3))
+# Create the axis labels to be shared by all plots in the figure
+text_left <- text_grob("Calibration anomaly [ppm]",
+                   rot=90, vjust=1, size=19, family = "Times")
+text_bottom <- text_grob("Time", size=19, family = "Times")
+
+# Arrange the plots in the figure and add the common axis labels
+grid.arrange(grobs = plot_list, ncol = 1, left = text_left,bottom = text_bottom)
+
 dev.off()
