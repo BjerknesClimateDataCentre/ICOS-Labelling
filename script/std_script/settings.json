@@ -1,8 +1,8 @@
 {
 	"required_columns": {
-		"run_type" : "Betriebsart",
-		"std_value" : "std_val",
-		"co2" : "S1_CO2w"
+		"run_type_colname" : "Betriebsart",
+		"std_value_colname" : "std_val",
+		"co2_colname" : "S1_CO2w"
 	},
 	"std_names": {
 		"std1_name" : "2 Messung Eichgas 1",
@@ -13,6 +13,11 @@
 		"std1_legend" : "STD 1",
 		"std1_legend" : "STD 2",
 		"std1_legend" : "STD 3"
+	},
+	"std_approx_values" : {
+		"std1_approx_value" : "800",
+		"std2_approx_value" : "400",
+		"std3_approx_value" : "200"
 	},
 	"remove_flush":true,
 	"n_rows_flush":"5",

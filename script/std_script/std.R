@@ -64,20 +64,20 @@ for (column_key in names(settings$required_columns)) {
 }
 
 # Extract the names of standard value used in data file
-stds <- c()
+std_names <- c()
 for (name in settings$std_names) {
-  stds <- append(stds, name) 
+  std_names <- append(std_names, name) 
 }
 
 # Modify the dataset: Only select the needed columns and rename them; only keep
 # rows that are std measurements; and  add the calculated std anomaly
 df_mod <- df %>%
-  select(date_time, all_of(run_type), all_of(std_value), all_of(co2)) %>%
+  select(date_time, all_of(run_type_colname), all_of(std_value_colname), all_of(co2_colname)) %>%
   rename(datetime = date_time, 
-         run_type = all_of(run_type),
-         std_val = all_of(std_value),
-         co2 = all_of(co2)) %>%
-  filter(run_type %in% stds) %>%
+         run_type = all_of(run_type_colname),
+         std_val = all_of(std_value_colname),
+         co2 = all_of(co2_colname)) %>%
+  filter(run_type %in% std_names) %>%
   mutate(anomaly = co2 - std_val) 
 
 # Remove flush values if required. (Add a dummy column 'flush' containing 
@@ -98,20 +98,32 @@ df_mod <- df_mod %>%
 
 
 #-------------------------------------------------------------------------------
-# CREATE THE STD PLOTS FIGURE
+# CREATE THE STD PLOTS FIGURE AND STATS
 #-------------------------------------------------------------------------------
 
+# Extract the approximate value for each standard gas and create labels
+std_approx_values <- c()
+for (value in settings$std_approx_values) {
+  std_approx_values <- append(std_approx_values, value) 
+}
+
+std_labels <- c()
+for (j in 1:length(std_approx_values)) {
+  std_labels <- append(std_labels,
+                      paste("STD ", j, " (~", std_approx_values[j], ")",sep=""))
+}
+
 # Set up the image file
-filename <- paste("output/std_plot.png",sep="")
+filename <- paste("output/1.std_scatter.png",sep="")
 png(filename)
 
 # Create the plot objects in a loop, one std plot per iteration
 plot_list <- list()
-for (i in 1:length(stds)) {
+for (i in 1:length(std_names)) {
   
   # Filter away all data that are not from the standard gas in question
   df_std <- df_mod %>%
-    filter(run_type == stds[i])
+    filter(run_type == std_names[i])
   
   # Filter away values outside plot area and create a linear model to be added
   # to the plot and used for stats later
@@ -133,8 +145,8 @@ for (i in 1:length(stds)) {
       scale_x_datetime(date_breaks="1 month", date_labels = '%b') + 
       # Change to another layout theme
       theme_bw() +
-      # Create label with std name to be added on top of plot
-      labs(title = paste("STD ",i," (",stds[i],")",sep="")) +
+      # Add plot label
+      labs(title = std_labels[i]) +
       # Add label text and exit size of axis texts
       theme(text = element_text(family="Times"),
             axis.text = element_text(size=rel(1.5)),
@@ -148,11 +160,11 @@ for (i in 1:length(stds)) {
   
   # Hide x axis text for all plots except the last one (Comment this out for now
   # since it is risky to hide axis tick text when the x axis is not shared)
-  #if (i<length(stds)) {
+  #if (i<length(std_names)) {
   #  plot_list[[i]] <- plot_list[[i]] + theme(axis.text.x = element_blank())
   #}
   
-  # Write stats
+  # Write stats here...
 }
 
 # Create the axis labels to be shared by all plots in the figure
@@ -163,4 +175,38 @@ text_bottom <- text_grob("Time", size=19, family = "Times")
 # Arrange the plots in the figure and add the common axis labels
 grid.arrange(grobs = plot_list, ncol = 1, left = text_left,bottom = text_bottom)
 
+dev.off()
+
+
+#-------------------------------------------------------------------------------
+# CREATE THE STD BOX PLOT
+#-------------------------------------------------------------------------------
+
+# Set up the image file
+filename <- paste("output/2.std_boxplot.png",sep="")
+png(filename)
+
+# Create the plot object
+boxplot <- ggplot(df_mod, aes(x = run_type, y = anomaly, fill = run_type)) + 
+  geom_boxplot() + 
+  # Hide x axis labels - add new y axis label
+  xlab("") + ylab("Calibration anomaly [ppm]") + 
+  # Rename the x axis box labels
+  scale_x_discrete(labels = std_labels) +
+  # Make the 0 line more visible
+  geom_hline(yintercept=0) +
+  # Set new layout theme
+  theme_bw() +
+  # Edit the size of text and remove legend
+  theme(text = element_text(family="Times"),
+        axis.text = element_text(size=rel(1.5)),
+        axis.title = element_text(size=rel(1.7)),
+        legend.position="none")
+
+# Compute lower and upper whiskers and use them to scale the y limits  
+ylim_box = boxplot.stats(df_mod$anomaly)$stats[c(1, 5)]
+boxplot <- boxplot + coord_cartesian(ylim = ylim_box*1.05)
+
+# Create the box plot image
+print(boxplot)
 dev.off()
