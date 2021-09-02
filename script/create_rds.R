@@ -1,6 +1,15 @@
 ################################################################################
-### CREATE RDATA OBJECTS
+### CREATE RDS DATA OBJECTS
 ################################################################################
+
+# Note that this script is not complete yet. It needs to deal with raw data as
+# well...
+
+### Description
+# The script imports data (either raw or exported from QuinCe), refromats and
+# cleans up the data, and creates .Rdata ojcets which can be used by the other
+# labelling scripts
+
 
 #-------------------------------------------------------------------------------
 # INITIAL SETTINGS
