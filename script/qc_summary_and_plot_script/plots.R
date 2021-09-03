@@ -48,7 +48,8 @@ colnames(df)[which(names(df) == paste(settings$raw_co2_colname," QC Flag",sep=""
 # This function returns information about where in the plot to put the letter
 # string. Required inputs are the name of the parameter, and in which corner
 # of the plot the letter should be added.
-create_letter_position <- function(letter_position_name, y_name, x_name) {
+create_letter_position <- function(letter_position_name, y_name, x_name,
+                                   y_lims, x_lims) {
   
   # Get the row number in the positions template data frame where information 
   # about the requested corner is given
@@ -56,17 +57,41 @@ create_letter_position <- function(letter_position_name, y_name, x_name) {
   
   # The x and y-positions are either the max or min of the parameter. Which one
   # is determined by the sign in the xpos and ypos column in the position 
-  # template.
+  # template. (!! This is confusing code - improve how this is done !!)
   if (positions_template$ypos[position_index] > 0) {
-    ypos <- max(na.omit(as.numeric(df_to_plot[[y_name]])))
+    
+    if (is.na(y_lims[2])){
+      ypos <- max(na.omit(as.numeric(df_to_plot[[y_name]])))
+    } else {
+      ypos <- na.omit(y_lims[2])
+    }
+   
   } else {
-    ypos <- min(na.omit(as.numeric(df_to_plot[[y_name]])))
+  
+    if (is.na(y_lims[1])) {
+      ypos <- min(na.omit(as.numeric(df_to_plot[[y_name]])))
+    } else {
+      ypos <- na.omit(y_lims[1])
+    }
+  
   }
   
   if (positions_template$xpos[position_index] > 0){
-    xpos <- max(na.omit(as.numeric(df_to_plot[[x_name]])))
+    
+    if (is.na(x_lims[2])) {
+      xpos <- max(na.omit(as.numeric(df_to_plot[[x_name]])))
+    } else {
+      na.omit(x_lims[2])
+    }
+  
   } else {
-    xpos <- min(na.omit(as.numeric(df_to_plot[[x_name]])))
+  
+    if (is.na(x_lims[1])) {
+      xpos <- min(na.omit(as.numeric(df_to_plot[[x_name]])))
+    } else {
+      na.omit(x_lims[1])
+    }
+
   }
   
   # Change xpos class back to posixct if x axis data is date time
@@ -160,7 +185,7 @@ out_of_range <- function(axis_name, lims) {
 # string in plots.
 positions_template <- data.frame(
   xpos = c(-Inf,-Inf,Inf,Inf),
-  ypos =  c(-Inf,Inf,-Inf,Inf),
+  ypos = c(-Inf,Inf,-Inf,Inf),
   hjustvar = c(-1,-1,1,1),
   vjustvar = c(-1,1,-1,1),
   location = c("bottomleft","topleft","bottomright","topright"))
@@ -212,7 +237,7 @@ for (plot_config in settings$all_plots){
     
     # Get the letter position details
     letter_position <- create_letter_position(letter_position_name, 
-                                              y_name, x_name)
+                                              y_name, x_name, y_lims, x_lims)
     
     # Create the plot
     create_plot(plot_count, y_name, x_name, y_lab, x_lab, y_lims, x_lims,
@@ -232,8 +257,7 @@ for (plot_config in settings$all_plots){
   plot_count <- plot_count + 1
 }
 
-# If the sink file is empty, add a messsage that no values were out of plot 
-# range
+# If the sink file is empty, add a message that no values were out of plot range
 if (sink_file_empty) {
   cat("No measurements are out of the plot range:)")
 }
