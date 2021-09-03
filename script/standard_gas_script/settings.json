@@ -21,10 +21,11 @@
 	},
 	"remove_flush":true,
 	"n_rows_flush":"5",
-	"co2_missing_value": "999999.0000",
+	"remove_missing_value": true,
+	"missing_value": "999999",
 	"y_lims" : {
-		"y_lim_min" : "-5",
-		"y_lim_max" : "5"
+		"y_lim_min" : "-2",
+		"y_lim_max" : "2"
 	},
 	"qc_ranges" : {
 		"good_min" : "-2",
