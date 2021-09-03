@@ -6,16 +6,6 @@
 # INITIAL SETTINGS
 #-------------------------------------------------------------------------------
 
-# Clear plots
-#if (!is.null(dev.list())) {
-#  dev.off()
-#}
-
-# Reset sink file
-#for (i in seq_len(sink.number())) {
-#  sink(NULL)
-#}
-
 # Clean workspace
 rm(list = ls())
 
@@ -45,11 +35,6 @@ df <- read_tsv(datafile_path)
 
 # Import header config file and store the header converter as data frame
 settings <- read_json(path="settings.json",format="json")
-
-
-#-------------------------------------------------------------------------------
-# FUNCTION(S)
-#-------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------
@@ -93,10 +78,11 @@ if (settings$remove_flush) {
     select(-flush)
 }
 
-# Remove missing values (!!! Allow for more than one missing value)
-df_mod <- df_mod %>%
-  filter(df_mod$co2 != as.numeric(settings$co2_missing_value))
-
+# Remove missing value (!! change to allow multiple missing values !!)
+if (settings$remove_missing_value) {
+  df_mod <- df_mod %>%
+    filter(df_mod$co2 != as.numeric(settings$missing_value))
+}
 
 #-------------------------------------------------------------------------------
 # CREATE THE STD PLOTS FIGURE AND STATS
