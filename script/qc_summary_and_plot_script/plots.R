@@ -16,11 +16,11 @@ library(ggplot2)
 Sys.setlocale("LC_ALL", "English");
 
 # Change the plot font (subscript 2 does not work in the png with default font)
-windowsFonts(Times=windowsFont("Times New Roman"))
+windowsFonts(Times = windowsFont("Times New Roman"))
 
 # Remove existing files in the output directory
 if (!is.null(list.files("output"))) {
-  file.remove(dir(paste(getwd(),"/output",sep=""),
+  file.remove(dir(paste(getwd(), "/output", sep = ""),
                   pattern = "", full.names = TRUE))
 }
 
@@ -33,12 +33,12 @@ if (!is.null(list.files("output"))) {
 df <- readRDS(file = "../data/processed_data.rds")
 
 # Import the settings
-settings <- read_json(path="settings.json", format="json")
+settings <- read_json(path = "settings.json", format = "json")
 
 # Update column names related to the raw CO2
 colnames(df)[which(names(df) == settings$raw_co2_colname)] <- "raw_co2"
 colnames(df)[which(names(df) == paste(settings$raw_co2_colname, 
-                                      " QC Flag", sep=""))] <- "raw_co2_flag"
+                                      " QC Flag", sep = ""))] <- "raw_co2_flag"
 
 
 #-------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   
   # Get the row number in the positions template data frame where information 
   # about the requested corner is given
-  position_index <- which(positions_template$location==letter_position_name)
+  position_index <- which(positions_template$location == letter_position_name)
   
   # The x and y-positions are either the max or min of the parameter. Which one
   # is determined by the sign in the xpos and ypos column in the position 
@@ -105,7 +105,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   vjustvar <- positions_template$vjustvar[position_index]
   
   # Store all position details in a vector and return it
-  letter_position <- list(xpos,ypos,hjustvar,vjustvar)
+  letter_position <- list(xpos, ypos, hjustvar, vjustvar)
   return(letter_position)
 }
 
@@ -117,7 +117,8 @@ create_plot <- function(plot_count, y_name, x_name, y_lab, x_lab, y_lims,
                         x_lims, letter_string, letter_position) {
 
   # Set up the image file
-  filename <- paste("output/",plot_count,"_",y_name,"_vs_",x_name,".png",sep="")
+  filename <- paste("output/", plot_count, "_", y_name, "_vs_", x_name, ".png", 
+                    sep = "")
   png(filename)
   
   # Create a ggplot and add multiple features
@@ -127,9 +128,9 @@ create_plot <- function(plot_count, y_name, x_name, y_lab, x_lab, y_lims,
     xlab(x_lab) + ylab(y_lab) + 
     # Change plot layout to another theme and so some adjustments to the theme
     theme_bw() +
-    theme(text=element_text(family="Times"),
-          axis.text=element_text(size=rel(1.5)),
-          axis.title=element_text(size=rel(1.7))) +
+    theme(text = element_text(family = "Times"),
+          axis.text = element_text(size = rel(1.5)),
+          axis.title = element_text(size = rel(1.7))) +
     # Add the plot letter string
     annotate("text",
              x = letter_position[[1]],
@@ -137,7 +138,7 @@ create_plot <- function(plot_count, y_name, x_name, y_lab, x_lab, y_lims,
              label = letter_string,
              hjust = letter_position[[3]],
              vjust = letter_position[[4]],
-             size=9)
+             size = 9)
   
   # Change the y and x plot range if this was specified in the settings
   if (!is.na(y_lims[1])){
@@ -149,7 +150,7 @@ create_plot <- function(plot_count, y_name, x_name, y_lab, x_lab, y_lims,
   
   # If x-axis is time: specify monthly ticks with short month names as label
   if (x_name == "datetime") {
-    ret <- ret + scale_x_datetime(date_breaks="1 month", date_labels = '%b')
+    ret <- ret + scale_x_datetime(date_breaks = "1 month", date_labels = '%b')
   }
   
   # Create the plot and image file
@@ -163,16 +164,16 @@ out_of_range <- function(axis_name, lims) {
   n_meas <- length(na.omit(df_to_plot[[axis_name]]))
   
   outlier_low <- sum(na.omit(df_to_plot[[axis_name]]) < lims[1])
-  percent_low <- round((outlier_low/n_meas)*100,1)
+  percent_low <- round((outlier_low/n_meas)*100, 1)
   cat("\nPlot ", plot_count, ": Number of ", axis_name, 
       " measurements lower than ", lims[1], ": ", outlier_low, " (", 
-      percent_low, "%)", sep="")
+      percent_low, "%)", sep = "")
   
   outlier_high <- sum(na.omit(df_to_plot[[axis_name]]) > lims[2])
-  percent_high <- round((outlier_high/n_meas)*100,1)
+  percent_high <- round((outlier_high/n_meas)*100, 1)
   cat("\nPlot ", plot_count, ": Number of ", axis_name, 
       " measurements higher than ", lims[2], ": ", outlier_high, " (",
-      percent_high, "%)\n", sep="")
+      percent_high, "%)\n", sep = "")
 }
 
 # This function prints a warning if the plot range exceeds the pre-defined
@@ -185,12 +186,12 @@ limit_warning <- function(param_name, given_lims, warning_lims) {
   
   if (plot_min < warning_lims[1]) {
     cat(paste("\nWarning: The lower limit exceeds questionable/bad range ",
-              warning_lims[1], " for ", param_name, sep=""))
+              warning_lims[1], " for ", param_name, sep = ""))
   }
   
   if (plot_max > warning_lims[2]) {
     cat(paste("\nWarning: The higher limit exceeds questionable/bad range ",
-              warning_lims[2], " for ", param_name, sep=""))
+              warning_lims[2], " for ", param_name, sep = ""))
   }
   
 }
@@ -204,11 +205,11 @@ limit_warning <- function(param_name, given_lims, warning_lims) {
 # plot. This data frame is later used to determine where to place the letter 
 # string in plots.
 positions_template <- data.frame(
-  xpos = c(-Inf,-Inf,Inf,Inf),
-  ypos = c(-Inf,Inf,-Inf,Inf),
-  hjustvar = c(-1,-1,1,1),
-  vjustvar = c(-1,1,-1,1),
-  location = c("bottomleft","topleft","bottomright","topright"))
+  xpos = c(-Inf, -Inf, Inf, Inf),
+  ypos = c(-Inf, Inf, -Inf, Inf),
+  hjustvar = c(-1, -1, 1, 1),
+  vjustvar = c(-1, 1, -1, 1),
+  location = c("bottomleft", "topleft", "bottomright", "topright"))
 
 # Set up the text file which will be filled with information about number of 
 # measurements out of the plot range
@@ -228,14 +229,14 @@ for (plot_config in settings$all_plots){
     # Filter out all bad data if this is specified in the settings
     if (y_filter_bad & x_filter_bad){
       df_to_plot <- df %>%
-        filter(get(paste(y_name, "_flag", sep="")) == 2,
-               get(paste(x_name, "_flag", sep="")) == 2)
+        filter(get(paste(y_name, "_flag", sep = "")) == 2,
+               get(paste(x_name, "_flag", sep = "")) == 2)
     } else if (y_filter_bad & !x_filter_bad) {
       df_to_plot <- df %>%
-        filter(get(paste(y_name, "_flag", sep="")) == 2)
+        filter(get(paste(y_name, "_flag", sep = "")) == 2)
     } else if (!y_filter_bad & x_filter_bad) {
       df_to_plot <- df %>%
-        filter(get(paste(x_name, "_flag", sep="")) == 2)
+        filter(get(paste(x_name, "_flag", sep = "")) == 2)
     } else {
       df_to_plot <- df
     }
