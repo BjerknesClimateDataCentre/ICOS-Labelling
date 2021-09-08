@@ -88,7 +88,7 @@
 			"letter_string" : "a)",
 			"letter_position_name" : "topleft",
 			"x_warning_lims": "NA,NA",
-			"y_warning_lims": "NA,NA"
+			"y_warning_lims": "0,999"
 		},
 		"teq_vs_temp" : {
 			"make_plot" : true,
