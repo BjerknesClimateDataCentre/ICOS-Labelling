@@ -11,7 +11,9 @@
 			"x_lab" : "Time",
 			"y_lab" : "Intake Temperature [\u00B0C]",
 			"letter_string": "a)",
-			"letter_position_name" : "topleft"
+			"letter_position_name" : "topleft",
+			"x_warning_lims": "NA,NA",
+			"y_warning_lims": "-5,40"
 		},
 		"teq_vs_time" : {
 			"make_plot" : true,
@@ -24,7 +26,9 @@
 			"x_lab" : "Time",
 			"y_lab" : "Temperature at Equilibrator [\u00B0C]",
 			"letter_string" : "b)",
-			"letter_position_name" : "topleft"
+			"letter_position_name" : "topleft",
+			"x_warning_lims": "NA,NA",
+			"y_warning_lims": "-5,40"
 		},
 		"sal_vs_time" : {
 			"make_plot" : true,
@@ -37,7 +41,9 @@
 			"x_lab" : "Time",
 			"y_lab" : "Salinity",
 			"letter_string" : "c)",
-			"letter_position_name" : "topleft"
+			"letter_position_name" : "topleft",
+			"x_warning_lims": "NA,NA",
+			"y_warning_lims": "0,42"
 		},
 		"peq_vs_time" : {
 			"make_plot" : true,
@@ -50,7 +56,9 @@
 			"x_lab" : "Time",
 			"y_lab" : "Pressure at Equilibrator [hpa]",
 			"letter_string" : "d)",
-			"letter_position_name" : "topleft"
+			"letter_position_name" : "topleft",
+			"x_warning_lims": "NA,NA",
+			"y_warning_lims": "900,1100"
 		},
 		"raw_co2_vs_time" : {
 			"make_plot" : true,
@@ -63,7 +71,9 @@
 			"x_lab" : "Time",
 			"y_lab" : "Sea Surface xCO\u2082 [ppm]",
 			"letter_string" : "e)",
-			"letter_position_name" : "topleft"
+			"letter_position_name" : "topleft",
+			"x_warning_lims": "NA,NA",
+			"y_warning_lims": "80,1200"
 		},
 		"deltaT_vs_time" : {
 			"make_plot" : true,
@@ -76,7 +86,9 @@
 			"x_lab" : "Time",
 			"y_lab" : "Abs. \u0394Temperature [\u00B0C]",
 			"letter_string" : "a)",
-			"letter_position_name" : "topleft"
+			"letter_position_name" : "topleft",
+			"x_warning_lims": "NA,NA",
+			"y_warning_lims": "NA,NA"
 		},
 		"teq_vs_temp" : {
 			"make_plot" : true,
@@ -89,7 +101,9 @@
 			"x_lab" : "Intake Temperature [\u00B0C]",
 			"y_lab" : "Equilibrator Temperature [\u00B0C]",
 			"letter_string" : "b)",
-			"letter_position_name" : "topleft"
+			"letter_position_name" : "topleft",
+			"x_warning_lims": "-5,40",
+			"y_warning_lims": "-5,40"
 		},
 		"fco2_vs_time" : {
 			"make_plot" : true,
@@ -102,7 +116,9 @@
 			"x_lab" : "Time",
 			"y_lab" : "fCO\u2082 [\u03BCatm]",
 			"letter_string" : "a)",
-			"letter_position_name" : "topleft"
+			"letter_position_name" : "topleft",
+			"x_warning_lims": "NA,NA",
+			"y_warning_lims": "80,1200"
 		},
 		"fco2_vs_xco2" : {
 			"make_plot" : true,
@@ -115,7 +131,9 @@
 			"x_lab" : "xCO\u2082 [ppm]",
 			"y_lab" : "fCO\u2082 [\u03BCatm]",
 			"letter_string" : "b)",
-			"letter_position_name" : "topleft"
+			"letter_position_name" : "topleft",
+			"x_warning_lims": "80,1200",
+			"y_warning_lims": "80,1200"
 		}
 	},
 	"default_plots_FOS": ""

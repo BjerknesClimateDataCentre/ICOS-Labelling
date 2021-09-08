@@ -37,8 +37,8 @@ settings <- read_json(path="settings.json", format="json")
 
 # Update column names related to the raw CO2
 colnames(df)[which(names(df) == settings$raw_co2_colname)] <- "raw_co2"
-colnames(df)[which(names(df) == paste(settings$raw_co2_colname," QC Flag",sep=""))] <-
-  "raw_co2_flag"
+colnames(df)[which(names(df) == paste(settings$raw_co2_colname, 
+                                      " QC Flag", sep=""))] <- "raw_co2_flag"
 
 
 #-------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
     if (is.na(x_lims[2])) {
       xpos <- max(na.omit(as.numeric(df_to_plot[[x_name]])))
     } else {
-      na.omit(x_lims[2])
+      xpos <- na.omit(x_lims[2])
     }
   
   } else {
@@ -89,7 +89,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
     if (is.na(x_lims[1])) {
       xpos <- min(na.omit(as.numeric(df_to_plot[[x_name]])))
     } else {
-      na.omit(x_lims[1])
+      xpos <- na.omit(x_lims[1])
     }
 
   }
@@ -129,7 +129,7 @@ create_plot <- function(plot_count, y_name, x_name, y_lab, x_lab, y_lims,
     theme_bw() +
     theme(text=element_text(family="Times"),
           axis.text=element_text(size=rel(1.5)),
-          axis.title=element_text(size=rel(1.7)))  +
+          axis.title=element_text(size=rel(1.7))) +
     # Add the plot letter string
     annotate("text",
              x = letter_position[[1]],
@@ -164,15 +164,35 @@ out_of_range <- function(axis_name, lims) {
   
   outlier_low <- sum(na.omit(df_to_plot[[axis_name]]) < lims[1])
   percent_low <- round((outlier_low/n_meas)*100,1)
-  cat("\n", plot_count, ": Number of ", axis_name, 
+  cat("\nPlot ", plot_count, ": Number of ", axis_name, 
       " measurements lower than ", lims[1], ": ", outlier_low, " (", 
       percent_low, "%)", sep="")
   
   outlier_high <- sum(na.omit(df_to_plot[[axis_name]]) > lims[2])
   percent_high <- round((outlier_high/n_meas)*100,1)
-  cat("\n", plot_count, ": Number of ", axis_name, 
+  cat("\nPlot ", plot_count, ": Number of ", axis_name, 
       " measurements higher than ", lims[2], ": ", outlier_high, " (",
       percent_high, "%)\n", sep="")
+}
+
+# This function prints a warning if the plot range exceeds the pre-defined
+# questionable/bad range for the given parameter. Required inputs are the name
+# of the parameter, the given limits and the warning limits.
+limit_warning <- function(param_name, given_lims, warning_lims) {
+  
+  plot_min <- max(na.omit(given_lims[1]), min(na.omit(df_to_plot[[param_name]])))
+  plot_max <- min(na.omit(given_lims[2]), max(na.omit(df_to_plot[[param_name]])))
+  
+  if (plot_min < warning_lims[1]) {
+    cat(paste("\nWarning: The lower limit exceeds questionable/bad range ",
+              warning_lims[1], " for ", param_name, sep=""))
+  }
+  
+  if (plot_max > warning_lims[2]) {
+    cat(paste("\nWarning: The higher limit exceeds questionable/bad range ",
+              warning_lims[2], " for ", param_name, sep=""))
+  }
+  
 }
 
 
@@ -219,6 +239,7 @@ for (plot_config in settings$all_plots){
     } else {
       df_to_plot <- df
     }
+    #{if (TRUE) filter(., hp == 245) else .} %>% 
     
     # If data is stored as character, change to numeric (datetime is always 
     # read correctly as date class)
@@ -253,6 +274,20 @@ for (plot_config in settings$all_plots){
       sink_file_empty <- FALSE
     }
     
+    # Create a vector of the pre-defined axis warning limits
+    y_warning_lims <- as.numeric(unlist(strsplit(y_warning_lims, ",")))
+    x_warning_lims <- as.numeric(unlist(strsplit(x_warning_lims, ",")))
+    
+    # If the parameter is not datetime, check if the plot limits exceeds the 
+    # pre-defined questionable/bad limits. If so, the function writes a warning
+    # in the sink file.
+    if (is.numeric(df_to_plot[[y_name]])) {
+      limit_warning(y_name, y_lims, y_warning_lims)
+    }
+    if (is.numeric(df_to_plot[[x_name]])) {
+      limit_warning(x_name, x_lims, x_warning_lims)
+    }
+    cat("\n")
   }
   plot_count <- plot_count + 1
 }
