@@ -226,21 +226,12 @@ for (plot_config in settings$all_plots){
       assign(plot_setting_key, plot_config[[plot_setting_key]])
     }
     
-    # Filter out all bad data if this is specified in the settings
-    if (y_filter_bad & x_filter_bad){
-      df_to_plot <- df %>%
-        filter(get(paste(y_name, "_flag", sep = "")) == 2,
-               get(paste(x_name, "_flag", sep = "")) == 2)
-    } else if (y_filter_bad & !x_filter_bad) {
-      df_to_plot <- df %>%
-        filter(get(paste(y_name, "_flag", sep = "")) == 2)
-    } else if (!y_filter_bad & x_filter_bad) {
-      df_to_plot <- df %>%
-        filter(get(paste(x_name, "_flag", sep = "")) == 2)
-    } else {
-      df_to_plot <- df
-    }
-    #{if (TRUE) filter(., hp == 245) else .} %>% 
+    # Filter out rows with bad data if this is specified in the settings
+    df_to_plot <- df %>%
+      {if (y_filter_bad) filter(., get(paste(y_name, "_flag", sep = "")) == 2) 
+        else .} %>%
+      {if (x_filter_bad) filter(., get(paste(x_name, "_flag", sep = "")) == 2)
+        else .}
     
     # If data is stored as character, change to numeric (datetime is always 
     # read correctly as date class)
