@@ -6,6 +6,9 @@
 # INITIAL SETTINGS
 #-------------------------------------------------------------------------------
 
+# Clean workspace
+rm(list = ls())
+
 # Load packages
 library(readr)
 library(dplyr)

@@ -1,31 +1,37 @@
 {
 	"required_columns": {
-		"run_type_colname" : "Betriebsart",
-		"std_value_colname" : "std_val",
-		"co2_colname" : "S1_CO2w"
+		"run_type_colname" : "Type",
+		"std_value_colname" : "std.val",
+		"co2_colname" : "CO2.um.m",
+		"date_colname" : "PC.Date",
+		"time_colname" : "PC.Time"
 	},
+	"datetime_format" : "%d/%m/%y %H:%M:%S",
 	"std_names": {
-		"std1_name" : "2 Messung Eichgas 1",
-		"std2_name" : "3 Messung Eichgas 2",
-		"std3_name" : "4 Messung Eichgas 3"
+		"std1_name" : "STD1",
+		"std2_name" : "STD2",
+		"std3_name" : "STD3",
+		"std4_name" : "STD4"
 	},
 	"std_legends" : {
 		"std1_legend" : "STD 1",
-		"std1_legend" : "STD 2",
-		"std1_legend" : "STD 3"
+		"std2_legend" : "STD 2",
+		"std3_legend" : "STD 3",
+		"std4_legend" : "STD 4"
 	},
 	"std_approx_values" : {
-		"std1_approx_value" : "800",
-		"std2_approx_value" : "400",
-		"std3_approx_value" : "200"
+		"std1_approx_value" : "0",
+		"std2_approx_value" : "250",
+		"std3_approx_value" : "400",
+		"std4_approx_value" : "550"
 	},
-	"remove_flush":true,
-	"n_rows_flush":"5",
-	"remove_missing_value": true,
-	"missing_value": "999999",
+	"remove_flush" : false,
+	"n_rows_flush" : "5",
+	"remove_missing_value" : false,
+	"missing_value" : "999999",
 	"y_lims" : {
-		"y_lim_min" : "-2",
-		"y_lim_max" : "2"
+		"y_lim_min" : "-4",
+		"y_lim_max" : "6"
 	},
 	"qc_ranges" : {
 		"good_min" : "-2",
