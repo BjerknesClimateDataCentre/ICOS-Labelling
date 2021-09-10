@@ -23,6 +23,11 @@ Sys.setlocale("LC_ALL", "English");
 # Change the plot font (subscript 2 does not work in the png with default font)
 windowsFonts(Times=windowsFont("Times New Roman"))
 
+# Remove existing files in the output directory
+if (!is.null(list.files("output"))) {
+  file.remove(dir(paste(getwd(), "/output", sep = ""),
+                  pattern = "", full.names = TRUE))
+}
 
 #-------------------------------------------------------------------------------
 # IMPORT DATA AND SETTINGS
@@ -54,13 +59,18 @@ for (name in settings$std_names) {
   std_names <- append(std_names, name) 
 }
 
+# Specify date/time column(s) !!!!! First here, then move to read raw data script!!!
+df <- df %>%
+  mutate(datetime = as.POSIXct(paste(df[[date_colname]], df[[time_colname]]),
+                               format=settings$datetime_format))
+
+
 # Modify the dataset: Only select the needed columns and rename them; only keep
 # rows that are std measurements; and  add the calculated std anomaly
 df_mod <- df %>%
-  select(date_time, all_of(run_type_colname), all_of(std_value_colname),
+  select(datetime, all_of(run_type_colname), all_of(std_value_colname),
          all_of(co2_colname)) %>%
-  rename(datetime = date_time, 
-         run_type = all_of(run_type_colname),
+  rename(run_type = all_of(run_type_colname),
          std_val = all_of(std_value_colname),
          co2 = all_of(co2_colname)) %>%
   filter(run_type %in% std_names) %>%
@@ -147,21 +157,32 @@ for (i in 1:length(std_names)) {
       scale_x_datetime(date_breaks="1 month", date_labels = '%b') + 
       # Change to another layout theme
       theme_bw() +
-      # Add plot label
-      labs(title = std_labels[i]) +
-      # Add label text and exit size of axis texts
+      # Add plot label (allow annotation outside plot area with clip 'off')
+      annotate("text", 
+               x = min(df_std$datetime), 
+               y = as.numeric(settings$y_lims$y_lim_max) - 1,
+               hjust = -0.25,
+               vjust = -1.3,
+               label = std_labels[i],
+               size = 4.5,
+               family = "Times") +
+      coord_cartesian(clip = "off") +
+      # Add axis label text and exit size of axis texts
       theme(text = element_text(family="Times"),
-            axis.text = element_text(size=rel(1.5)),
-            axis.title = element_text(size=rel(1.7)),
-            plot.title = element_text(hjust = 1, size=rel(1.4))) + 
+            axis.text = element_text(size=rel(1.4)),
+            axis.title = element_text(size=rel(1.7))) +
       # Make the 0 line more visible
       geom_hline(yintercept=0) +
       # Add the linear regression line
       geom_abline(intercept = drift_intercept, slope = drift_slope,
                   colour = "red", size = 0.5)
   
-  # Hide x axis text for all plots except the last one (Comment this out for now
-  # since the x axis is not set to be shared (often is, but not a guaranty))
+  # Increase top margin to upper plot to make space for the plot tittle
+  if (i == 1) {
+    plot_list[[i]] <- plot_list[[i]] + theme(plot.margin=unit(c(14, 5.5, 5.5, 5.5), "points"))
+  }
+  
+  # Hide x axis text for all plots except the last one
   #if (i<length(std_names)) {
   #  plot_list[[i]] <- plot_list[[i]] + theme(axis.text.x = element_blank())
   #}
@@ -210,7 +231,8 @@ text_left <- text_grob("Calibration anomaly [ppm]",
 text_bottom <- text_grob("Time", size=19, family = "Times")
 
 # Arrange the plots in the figure and add the common axis labels
-grid.arrange(grobs = plot_list, ncol = 1, left = text_left,bottom = text_bottom)
+grid.arrange(grobs = plot_list, ncol = 1, left = text_left,bottom = text_bottom,
+             heights=c(2,2,2,2))
 
 dev.off()
 
@@ -236,7 +258,7 @@ boxplot <- ggplot(df_mod, aes(x = run_type, y = anomaly, fill = run_type)) +
   theme_bw() +
   # Edit the size of text and remove legend
   theme(text = element_text(family="Times"),
-        axis.text = element_text(size=rel(1.5)),
+        axis.text = element_text(size=rel(1.4)),
         axis.title = element_text(size=rel(1.7)),
         legend.position="none")
 
