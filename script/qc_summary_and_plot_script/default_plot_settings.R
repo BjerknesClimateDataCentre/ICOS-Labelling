@@ -2,24 +2,6 @@
 ### RESET THE PLOT SETTINGS TO DEFAULT
 ################################################################################
 
-### Description:
-# All plot settings can be edited, however the setting when starting out with 
-# plotting new data is always the same. There is one default setting for SOOP
-# and another default setting for FOS. This script resets the settings to this
-# default.
-
-### Requirements:
-# - There must be a settings json file in the same directory as this script 
-# ('settings.json'). Specify in this file if should reset to default for SOOP
-# or FOS ("station_type": "SOOP"/"FOS").
-# - There must be a default settings folder with a json file containing the 
-# defaults plot settings ('..default_settings/default_settings.json').
-
-### Output:
-# The all_plot_settings section in the settings.json file will contain the 
-# default settings for the chosen station type.
-
-
 #-------------------------------------------------------------------------------
 # INITIAL SETTINGS
 #-------------------------------------------------------------------------------
