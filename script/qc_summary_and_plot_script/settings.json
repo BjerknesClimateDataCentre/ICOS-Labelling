@@ -1,6 +1,6 @@
 {
   "station_type": "SOOP",
-  "raw_co2_colname": "S1_CO2w",
+  "raw_co2_colname": "CO2.um.m",
   "all_plots": {
     "temp_vs_time": {
       "make_plot": true,
@@ -9,7 +9,7 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "-1,32",
+      "y_lims": "NA,NA",
       "x_lab": "Time",
       "y_lab": "Intake Temperature [°C]",
       "letter_string": "a)",
@@ -24,7 +24,7 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "-1,32",
+      "y_lims": "NA,NA",
       "x_lab": "Time",
       "y_lab": "Temperature at Equilibrator [°C]",
       "letter_string": "b)",
@@ -69,7 +69,7 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "80,1200",
+      "y_lims": "NA,NA",
       "x_lab": "Time",
       "y_lab": "Sea Surface xCO₂ [ppm]",
       "letter_string": "e)",
