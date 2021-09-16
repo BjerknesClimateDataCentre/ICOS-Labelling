@@ -38,7 +38,7 @@ datafile_name <- list.files("input") #, pattern = "csv$")
 datafile_path <- paste("input/", datafile_name, sep = "")
 df <- read_tsv(datafile_path)
 
-# Import header config file and store the header converter as data frame
+# Import settings
 settings <- read_json(path = "settings.json", format = "json")
 
 
