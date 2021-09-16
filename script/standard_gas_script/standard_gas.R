@@ -21,7 +21,7 @@ library(gridExtra)
 Sys.setlocale("LC_ALL", "English");
 
 # Change the plot font (subscript 2 does not work in the png with default font)
-windowsFonts(Times=windowsFont("Times New Roman"))
+windowsFonts(Times = windowsFont("Times New Roman"))
 
 # Remove existing files in the output directory
 if (!is.null(list.files("output"))) {
@@ -34,12 +34,12 @@ if (!is.null(list.files("output"))) {
 #-------------------------------------------------------------------------------
 
 # Import data
-datafile_name <- list.files("input") #,pattern="csv$")
-datafile_path <- paste("input/",datafile_name, sep="")
+datafile_name <- list.files("input") #, pattern = "csv$")
+datafile_path <- paste("input/", datafile_name, sep = "")
 df <- read_tsv(datafile_path)
 
 # Import header config file and store the header converter as data frame
-settings <- read_json(path="settings.json",format="json")
+settings <- read_json(path = "settings.json", format = "json")
 
 
 #-------------------------------------------------------------------------------
@@ -59,10 +59,10 @@ for (name in settings$std_names) {
   std_names <- append(std_names, name) 
 }
 
-# Specify date/time column(s) !!!!! First here, then move to read raw data script!!!
+# Specify date/time column(s) !!M ve to read raw data script !!
 df <- df %>%
   mutate(datetime = as.POSIXct(paste(df[[date_colname]], df[[time_colname]]),
-                               format=settings$datetime_format))
+                               format = settings$datetime_format))
 
 
 # Modify the dataset: Only select the needed columns and rename them; only keep
@@ -82,8 +82,8 @@ df_mod <- df %>%
 if (settings$remove_flush) {
   df_mod <- df_mod %>% 
     mutate(flush = ifelse(run_type != 
-                   lag(run_type,n=as.numeric(settings$n_rows_flush)),
-                   TRUE,FALSE)) %>%
+                   lag(run_type, n = as.numeric(settings$n_rows_flush)), 
+                   TRUE, FALSE)) %>%
     filter(flush == FALSE) %>%
     select(-flush)
 }
@@ -106,8 +106,8 @@ for (value in settings$std_approx_values) {
 
 std_labels <- c()
 for (j in 1:length(std_approx_values)) {
-  std_labels <- append(std_labels,
-                      paste("STD ", j, " (~", std_approx_values[j], ")",sep=""))
+  std_labels <- append(std_labels, paste("STD ", j, " (~", std_approx_values[j],
+                                         ")", sep = ""))
 }
 
 # Extract the qc ranges from the settings file
@@ -119,7 +119,7 @@ for (qc_key in names(settings$qc_ranges)){
 sink(file = "output/std_stats.txt")
 
 # Set up the image file
-filename <- paste("output/1.std_scatter.png",sep="")
+filename <- paste("output/1.std_scatter.png", sep = "")
 png(filename)
 
 # Create the plot objects in a loop, one std plot/stat per iteration
@@ -143,18 +143,18 @@ for (i in 1:length(std_names)) {
   reg <- lm(anomaly ~ datetime, data = df_std_good)
   drift_intercept <- coef(reg)[[1]]
   drift_slope <- coef(reg)[[2]]
-  drift_p_value <- round(summary(reg)$coefficient[2,4],3)
+  drift_p_value <- round(summary(reg)$coefficient[2, 4], 3)
   
   # Create the plot
   plot_list[[i]] <- ggplot(df_std, aes(x = datetime, y = anomaly)) +
-      geom_point(color=i+1) +
+      geom_point(color = i+1) +
       # Hide axis labels - will be added later
       xlab("") + ylab("") + 
       # Set the plot range limits as given in settings file
       ylim(as.numeric(settings$y_lims$y_lim_min),
            as.numeric(settings$y_lims$y_lim_max)) + 
       # Set one tick per month on x axis
-      scale_x_datetime(date_breaks="1 month", date_labels = '%b') + 
+      scale_x_datetime(date_breaks = "1 month", date_labels = '%b') + 
       # Change to another layout theme
       theme_bw() +
       # Add plot label (allow annotation outside plot area with clip 'off')
@@ -167,19 +167,20 @@ for (i in 1:length(std_names)) {
                size = 4.5,
                family = "Times") +
       coord_cartesian(clip = "off") +
-      # Add axis label text and exit size of axis texts
-      theme(text = element_text(family="Times"),
-            axis.text = element_text(size=rel(1.4)),
-            axis.title = element_text(size=rel(1.7))) +
+      # Add axis label text and edit size of axis texts
+      theme(text = element_text(family = "Times"),
+            axis.text = element_text(size = rel(1.4)),
+            axis.title = element_text(size = rel(1.7))) +
       # Make the 0 line more visible
-      geom_hline(yintercept=0) +
+      geom_hline(yintercept = 0) +
       # Add the linear regression line
       geom_abline(intercept = drift_intercept, slope = drift_slope,
                   colour = "red", size = 0.5)
   
   # Increase top margin to upper plot to make space for the plot tittle
   if (i == 1) {
-    plot_list[[i]] <- plot_list[[i]] + theme(plot.margin=unit(c(14, 5.5, 5.5, 5.5), "points"))
+    plot_list[[i]] <- plot_list[[i]] + 
+      theme(plot.margin = unit(c(14, 5.5, 5.5, 5.5), "points"))
   }
   
   # Hide x axis text for all plots except the last one
@@ -191,35 +192,44 @@ for (i in 1:length(std_names)) {
   # CREATE STATS
   #--------------
   
-  cat("Stats for: ", std_labels[i],"\n")
+  cat("Stats for: ", std_labels[i], "\n")
+  
+  # Get number of values outside the plotting area
+  n_outside_plot <- 
+    sum(df_std$anomaly > as.numeric(settings$y_lims$y_lim_max)) + 
+    sum(df_std$anomaly < as.numeric(settings$y_lims$y_lim_min))
+  percent_outside <- round((n_outside_plot/nrow(df_std))*100, 1)
+  cat("  Values outside plot area (", settings$y_lims$y_lim_min, ":", 
+      settings$y_lims$y_lim_max, ") is: ", n_outside_plot, " (", 
+      percent_outside, "%)\n", sep = "")
   
   # Calculate and print number and percent of good values
   n_good <- sum(df_std$anomaly > good_min & df_std$anomaly < good_max)
-  percent_good <- round((n_good/nrow(df_std))*100,1)
-  cat("  Good values (",good_min,",",good_max,"): ", n_good, " (", 
-      percent_good, "%)\n", sep="")
+  percent_good <- round((n_good/nrow(df_std))*100, 1)
+  cat("  Good values (", good_min, ",", good_max, "): ", n_good, " (", 
+      percent_good, "%)\n", sep = "")
   
   # Calculate and print number and percent of questionable values
   n_questionable <-
     sum(df_std$anomaly > questionable_min & df_std$anomaly < good_min) +
     sum(df_std$anomaly > good_max & df_std$anomaly < questionable_max)
-  percent_questionable <- round((n_questionable/nrow(df_std))*100,1)
-  cat("  Questionable values (",questionable_min,",",questionable_max,"): ",
-      n_questionable, " (", percent_questionable, "%)\n", sep="")
+  percent_questionable <- round((n_questionable/nrow(df_std))*100, 1)
+  cat("  Questionable values (", questionable_min, ",", questionable_max, "): ", 
+      n_questionable, " (", percent_questionable, "%)\n", sep = "")
   
   # Calculate and print number and percent of bad values
   n_bad <- 
     sum(df_std$anomaly > questionable_max) + 
     sum(df_std$anomaly < questionable_min)
-  percent_bad <- round((n_bad/nrow(df_std))*100,1)
-  cat("  Bad values: ", n_bad, " (", percent_bad, "%)\n", sep="")
+  percent_bad <- round((n_bad/nrow(df_std))*100, 1)
+  cat("  Bad values: ", n_bad, " (", percent_bad, "%)\n", sep = "")
   
   # Calculate and print drift
   time_total <- df_std_good$datetime_sec[nrow(df_std_good)] - 
     df_std_good$datetime_sec[1]
-  drift <- round(drift_slope * time_total,2)
+  drift <- round(drift_slope * time_total, 2)
   cat("  Drift over shown time frame: ", drift, " [ppm] (p-value: ", 
-      drift_p_value, ")", "\n\n", sep="")
+      drift_p_value, ")", "\n\n", sep = "")
 }
 
 # Close the writing to stats file
@@ -227,12 +237,12 @@ sink()
 
 # Create the axis labels to be shared by all plots in the figure
 text_left <- text_grob("Calibration anomaly [ppm]",
-                   rot=90, vjust=1, size=19, family = "Times")
-text_bottom <- text_grob("Time", size=19, family = "Times")
+                   rot = 90, vjust = 1, size = 19, family = "Times")
+text_bottom <- text_grob("Time", size = 19, family = "Times")
 
 # Arrange the plots in the figure and add the common axis labels
 grid.arrange(grobs = plot_list, ncol = 1, left = text_left,bottom = text_bottom,
-             heights=c(2,2,2,2))
+             heights = c(2, 2, 2, 2))
 
 dev.off()
 
@@ -242,7 +252,7 @@ dev.off()
 #-------------------------------------------------------------------------------
 
 # Set up the image file
-filename <- paste("output/2.std_boxplot.png",sep="")
+filename <- paste("output/2.std_boxplot.png", sep = "")
 png(filename)
 
 # Create the plot object
@@ -253,14 +263,14 @@ boxplot <- ggplot(df_mod, aes(x = run_type, y = anomaly, fill = run_type)) +
   # Rename the x axis box labels
   scale_x_discrete(labels = std_labels) +
   # Make the 0 line more visible
-  geom_hline(yintercept=0) +
+  geom_hline(yintercept = 0) +
   # Set new layout theme
   theme_bw() +
   # Edit the size of text and remove legend
-  theme(text = element_text(family="Times"),
-        axis.text = element_text(size=rel(1.4)),
-        axis.title = element_text(size=rel(1.7)),
-        legend.position="none")
+  theme(text = element_text(family = "Times"),
+        axis.text = element_text(size = rel(1.4)),
+        axis.title = element_text(size = rel(1.7)),
+        legend.position = "none")
 
 # Compute lower and upper whiskers and use them to scale the y limits  
 ylim_box = boxplot.stats(df_mod$anomaly)$stats[c(1, 5)]
