@@ -44,3 +44,6 @@ diverse/
 
 # Ignore data folder
 script/data
+
+# Ignore templates
+script/atmosphere_script/external_data_format_example.txt
