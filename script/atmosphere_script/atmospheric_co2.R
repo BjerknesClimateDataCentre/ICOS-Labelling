@@ -163,7 +163,8 @@ df_mod_full <- df_mod %>%
          std_plot_size = case_when((std < 0.5) ~ 0.1,
                                    (std > 0.5 & std < 1) ~ 0.25,
                                    (std > 1 & std < 2) ~ 0.75,
-                                   TRUE ~ 6))
+                                   TRUE ~ 6),
+         std_hist = ifelse((std > 2), 2, std))
 
 
 #-------------------------------------------------------------------------------
@@ -239,6 +240,8 @@ percent_bad <- round((n_bad/nrow(df_mod_full))*100, 1)
 cat("Plot 1. Number of bad measurements (outside the good range ", good_min,
     ":", good_max, ") is: ", n_bad, " (", percent_bad, "%)\n", sep = "")
 
+#sink()
+
 
 #-------------------------------------------------------------------------------
 # CREATE STANDARD DEVIATION 'MAP'
@@ -298,4 +301,38 @@ print(plot_2)
 dev.off()
 
 
-#sink()
+#-------------------------------------------------------------------------------
+# CREATE STANDARD DEVIATION HISTOGRAM
+#-------------------------------------------------------------------------------
+
+for (plot_key in names(settings$plot_settings$histogram)) {
+  assign(plot_key, settings$plot_settings$histogram[[plot_key]])
+}
+
+# Set up the image file
+filename <- paste("output/3.histogram.png", sep = "")
+png(filename)
+
+plot_3 <- ggplot(df_mod_full, aes(x = std_hist)) +
+  geom_histogram(binwidth = 0.5, color="black", fill="grey") +
+  scale_x_continuous(breaks = seq(0, 2, 0.5),
+                     labels=c("> 0.5", "> 1", "> 1.5","> 2", "< 2")) +
+  stat_bin(binwidth = 0.5, geom = "text", aes(label = ..count..), vjust = -0.5,
+          size = 5, family = "Times") + 
+  labs(x = "Standard deviation [ppm]", y = "Atmospheric Sequences") +
+  theme_bw() +
+  theme(text = element_text(family = "Times"),
+        axis.text = element_text(size = rel(1.5)),
+        axis.title = element_text(size = rel(1.7)))
+
+plot_3 <- plot_3 +
+  annotate("text",
+         x = 1.75,
+         y = max(ggplot_build(plot_3)$data[[1]]$count), 
+         label = letter_string,
+         hjust = -1,
+         vjust = 1,
+         size = 9)
+
+print(plot_3)
+dev.off()

@@ -24,6 +24,9 @@
 			"y_lim_max" : "NA",
 			"x_lim_min" : "NA",
 			"x_lim_max" : "NA"
+		},
+		"histogram" : {
+			"letter_string" : "b)"
 		}
 	},
 	"qc_range" : {
