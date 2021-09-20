@@ -23,7 +23,7 @@ windowsFonts(Times = windowsFont("Times New Roman"))
 
 # Remove existing files in the output directory
 #if (!is.null(list.files("output"))) {
-#  file.remove(dir(paste(getwd(), "/output", sep = ""),
+#  file.remove(dir(paste0(getwd(), "/output"),
 #                  pattern = "", full.names = TRUE))
 #}
 
@@ -33,12 +33,19 @@ windowsFonts(Times = windowsFont("Times New Roman"))
 #-------------------------------------------------------------------------------
 
 # Import data
-datafile_name <- list.files("input", pattern=".txt")
-datafile_path <- paste("input/", datafile_name, sep = "")
+datafile_name <- list.files("input", pattern = ".txt")
+datafile_path <- paste0("input/", datafile_name)
 df <- read_tsv(datafile_path)
 
 # Import settings
 settings <- read_json(path = "settings.json", format = "json")
+
+# Import external data if specified in settings
+if (settings$external_comparison) {
+  external_datafile_name <- list.files("input/external")
+  external_datafile_path <- paste0("input/external/", external_datafile_name)
+  df_external <- read_csv(external_datafile_path)
+}
 
 
 #-------------------------------------------------------------------------------
@@ -126,7 +133,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
 # Specify date and time; remove all unnecessary columns and rows; get the 
 # sequence number and calculate mean and standard deviation per sequence
 
-# Extract the required column names from the settings
+# Extract the column names from the settings
 for (column_key in names(settings$required_columns)) {
   assign(column_key, settings$required_columns[[column_key]])
 }
@@ -151,10 +158,9 @@ df_mod <- df %>%
 # Add sequence number and calculate mean and standard deviation per sequence
 df_mod_full <- df_mod %>%  
   mutate(new_sequence = ifelse(
-    is.na(abs(difftime(df_mod$datetime, lag(df_mod$datetime), units="secs"))),
-    TRUE, ifelse(
-      abs(difftime(df_mod$datetime, lag(df_mod$datetime), units="secs")) > 3600,
-      TRUE, FALSE))) %>%
+    is.na(abs(difftime(df_mod$datetime, lag(df_mod$datetime), units = "secs"))),
+    TRUE, ifelse(abs(difftime(df_mod$datetime, lag(df_mod$datetime), 
+                              units = "secs")) > 3600, TRUE, FALSE))) %>%
   mutate(sequence = cumsum(new_sequence)) %>%
   select(-new_sequence) %>%
   group_by(sequence) %>%
@@ -171,7 +177,7 @@ df_mod_full <- df_mod %>%
 # PLOT ATMOSPHERIC CO2 VS TIME 
 #-------------------------------------------------------------------------------
 
-# Extract the required plot settings
+# Extract the plot settings
 for (plot_key in names(settings$plot_settings$co2_vs_time)) {
   assign(plot_key, settings$plot_settings$co2_vs_time[[plot_key]])
 }
@@ -183,11 +189,10 @@ y_lim_max <- as.numeric(y_lim_max)
 # Get the letter position details
 letter_position <- create_letter_position(letter_position_name, y_name = "co2", 
                         x_name = "datetime", y_lims = c(y_lim_min, y_lim_max),
-                        x_lims = c(NA,NA))
+                        x_lims = c(NA, NA))
 
 # Set up the image file
-filename <- paste("output/1.atmpspheric_co2_vs_time.png", sep = "")
-png(filename)
+png("output/1.atmpspheric_co2_vs_time.png")
 
 # Create the plot
 plot_1 <-  ggplot(df_mod_full, aes(x = datetime, y = co2)) +
@@ -224,7 +229,7 @@ dev.off()
 #-------------------------------------------------------------------------------
 
 # Set up the file for stats
-#sink(file = "output/std_stats.txt")"
+sink(file = "output/std_stats.txt")
 
 # Print number of measureents outside the plotting area
 n_outside_plot <- sum(df_mod_full$co2 > y_lim_max) + sum(df_mod_full$co2 < y_lim_min)
@@ -240,14 +245,14 @@ percent_bad <- round((n_bad/nrow(df_mod_full))*100, 1)
 cat("Plot 1. Number of bad measurements (outside the good range ", good_min,
     ":", good_max, ") is: ", n_bad, " (", percent_bad, "%)\n", sep = "")
 
-#sink()
+sink()
 
 
 #-------------------------------------------------------------------------------
 # CREATE STANDARD DEVIATION 'MAP'
 #-------------------------------------------------------------------------------
 
-# Extract the required plot settings
+# Extract the plot settings
 for (plot_key in names(settings$plot_settings$std_dev_map)) {
   assign(plot_key, settings$plot_settings$std_dev_map[[plot_key]])
 }
@@ -262,17 +267,16 @@ x_lim_max <- as.numeric(x_lim_max)
 letter_position <- create_letter_position(letter_position_name, 
                         y_name = "latitude", x_name = "longitude", 
                         y_lims = c(y_lim_min, y_lim_max),
-                        x_lims = c(x_lim_min,y_lim_max))
+                        x_lims = c(x_lim_min, y_lim_max))
 
 # Set up the image file
-filename <- paste("output/2.std_dev_map.png", sep = "")
-png(filename)
+png("output/2.std_dev_map.png")
 
 plot_2 <-  ggplot(df_mod_full, aes(x = longitude, y = latitude)) +
   # Use the std_plot_size column to scale the points
   geom_point(aes(size = std_plot_size), shape = 1, show.legend = F) +
   # Icrease the size of the points in plot
-  scale_size(range = c(0,20)) +
+  scale_size(range = c(0, 20)) +
   xlab("Longitude") + ylab("Latitude") + 
   # Change plot layout to another theme and so some adjustments to the theme
   theme_bw() +
@@ -305,18 +309,18 @@ dev.off()
 # CREATE STANDARD DEVIATION HISTOGRAM
 #-------------------------------------------------------------------------------
 
+# Extract the plot settings
 for (plot_key in names(settings$plot_settings$histogram)) {
   assign(plot_key, settings$plot_settings$histogram[[plot_key]])
 }
 
 # Set up the image file
-filename <- paste("output/3.histogram.png", sep = "")
-png(filename)
+png("output/3.histogram.png")
 
 plot_3 <- ggplot(df_mod_full, aes(x = std_hist)) +
-  geom_histogram(binwidth = 0.5, color="black", fill="grey") +
+  geom_histogram(binwidth = 0.5, color = "black", fill = "grey") +
   scale_x_continuous(breaks = seq(0, 2, 0.5),
-                     labels=c("> 0.5", "> 1", "> 1.5","> 2", "< 2")) +
+                     labels = c("> 0.5", "> 1", "> 1.5", "> 2", "< 2")) +
   stat_bin(binwidth = 0.5, geom = "text", aes(label = ..count..), vjust = -0.5,
           size = 5, family = "Times") + 
   labs(x = "Standard deviation [ppm]", y = "Atmospheric Sequences") +
@@ -334,5 +338,93 @@ plot_3 <- plot_3 +
          vjust = 1,
          size = 9)
 
+# Create the image
 print(plot_3)
 dev.off()
+
+
+#-------------------------------------------------------------------------------
+# COMPARE WITH EXTERNAL DATA
+#-------------------------------------------------------------------------------
+
+if (settings$external_comparison) {
+  
+  # Extract the plot settings
+  for (plot_key in names(settings$plot_settings$external_plot)) {
+    assign(plot_key, settings$plot_settings$external_plot[[plot_key]])
+  }
+  
+  # Modify the external dataset: Create datetime column and (if specified in 
+  # the settings) add a value to the co2 measurements (applied if the external
+  # data is from an earlier year)
+  df_external <- df_external %>%
+    mutate(datetime = as.POSIXct(paste(df_external$sample_year, 
+                      df_external$sample_month, df_external$sample_day,
+                      df_external$sample_hour, df_external$sample_minute,
+                      df_external$sample_seconds), tz = "UTC", 
+                      format = "%Y %m %d %H %M %S")) %>%
+    {if (add_to_external != "NA") 
+      mutate(., analysis_value = analysis_value + as.numeric(add_to_external))
+    else .}
+  
+  # Modify the main dataset: Remove rows with datetimes not overlapping with
+  # the external dataset; Filter out positions to far from the external station
+  # (these filters needs to be specified in the settings)
+  df_mod_full <- df_mod_full %>%
+    {if (x_lim_min != "NA") 
+      filter(., datetime > as.POSIXct(x_lim_min)) else .} %>% 
+    {if (x_lim_max != "NA") 
+      filter(., datetime < as.POSIXct(x_lim_max)) else .} %>%
+    {if (lat_min != "NA")
+      filter(., latitude > as.numeric(lat_min)) else .} %>%
+    {if (lat_max != "NA")
+      filter(., latitude < as.numeric(lat_max)) else .} %>%
+    {if (lon_min != "NA")
+      filter(., longitude > as.numeric(lon_min)) else .} %>%
+    {if (lon_max != "NA")
+      filter(., longitude < as.numeric(lon_max)) else .}
+  
+  # Create the y limits for the plot
+  if (is.na(as.numeric(y_lim_min))){
+    y_lims <- c(
+      min(na.omit(df_mod_full$mean), na.omit(df_external$analysis_value)),
+      max(na.omit(df_mod_full$mean), na.omit(df_external$analysis_value)))
+  } else {
+    y_lims <- c(as.numeric(y_lim_min), as.numeric(y_lim_max))
+  }
+  
+  # Get the letter position details
+  letter_position <- create_letter_position(letter_position_name, 
+                      y_name = "mean", x_name = "datetime", 
+                      y_lims = c(as.numeric(y_lim_min), as.numeric(y_lim_max)),
+                      x_lims = c(NA, NA))
+  
+  # Set up the image file
+  png("output/4.external_comparison.png")
+  
+  plot_4 <- ggplot() + 
+    geom_point(data = df_mod_full, aes(x = datetime, y = mean)) + 
+    geom_point(data = df_external, aes(x = datetime, y = analysis_value),
+               color ='red', size = 4) +
+    xlab("Time") + ylab(expression("Atmospheric xCO "[2]*" [ppm]")) + 
+    ylim(y_lims) +
+    # Specify monthly ticks with short month names as label
+    scale_x_datetime(date_breaks = "1 month", date_labels = '%b') +
+    # Change plot layout to another theme and so some adjustments to the theme
+    theme_bw() +
+    theme(text = element_text(family = "Times"),
+          axis.text = element_text(size = rel(1.5)),
+          axis.title = element_text(size = rel(1.7))) +
+    # Add the plot letter string
+    annotate("text",
+             x = letter_position[[1]],
+             y = letter_position[[2]], 
+             label = letter_string,
+             hjust = letter_position[[3]],
+             vjust = letter_position[[4]],
+             size = 9)
+  
+  # Create the image
+  print(plot_4)
+  dev.off()
+}
