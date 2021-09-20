@@ -1,21 +1,21 @@
 {
 	"required_columns" : {
-		"date_colname" : "PC.Date",
-		"time_colname" : "PC.Time",
-		"co2_colname" : "CO2.um.m",
-		"run_type_colname" : "Type",
-		"lat_colname" : "latitude",
-		"lon_colname" : "longitude"
+		"date_colname" : "",
+		"time_colname" : "",
+		"co2_colname" : "",
+		"run_type_colname" : "",
+		"lat_colname" : "",
+		"lon_colname" : ""
 	},
-	"datetime_format" : "%d/%m/%y %H:%M:%S",
-	"atm_type_name" : "ATM",
+	"datetime_format" : "",
+	"atm_type_name" : "",
 	"plot_settings" : {
 		"co2_vs_time" : {
 			"y_lab" : "Atmospheric xCO₂ [ppm]",
 			"letter_string" : "f)",
 			"letter_position_name" : "topright",
-			"y_lim_min" : "395",
-			"y_lim_max" : "465"
+			"y_lim_min" : "300",
+			"y_lim_max" : "500"
 		},
 		"std_dev_map" : {
 			"letter_string" : "a)",
@@ -27,8 +27,22 @@
 		},
 		"histogram" : {
 			"letter_string" : "b)"
+		},
+		"external_plot" : {
+			"letter_string" : "c)",
+			"letter_postion_name" : "topleft",
+			"y_lim_min" : "300",
+			"y_lim_max" : "500",
+			"x_lim_min" : "NA",
+			"x_lim_max" : "NA",
+			"lat_min" : "NA",
+			"lat_max" : "NA",
+			"lon_min" : "NA",
+			"lon_max" : "NA",
+			"add_to_external": "NA"
 		}
 	},
+	"external_comparison" : true,
 	"qc_range" : {
 		"good_min" : "300",
 		"good_max" : "500"
