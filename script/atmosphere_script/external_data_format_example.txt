@@ -1,0 +1,10 @@
+sample_site_code	sample_year	sample_month	sample_day	sample_hour	sample_minute	sample_seconds	analysis_value
+MHD	2018	01	03	10	45	00	408.760
+MHD	2018	01	03	10	45	00	408.800
+MHD	2018	01	09	10	20	00	410.380
+MHD	2018	01	09	10	20	00	410.350
+MHD	2018	01	16	10	45	00	409.930
+MHD	2018	01	16	10	45	00	408.940
+MHD	2018	01	24	11	00	00	410.080
+MHD	2018	01	24	11	00	00	410.050
+MHD	2018	01	31	12	00	00	411.300
