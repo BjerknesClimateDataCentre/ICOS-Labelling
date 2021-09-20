@@ -23,7 +23,7 @@ windowsFonts(Times = windowsFont("Times New Roman"))
 
 # Remove existing files in the output directory
 if (!is.null(list.files("output"))) {
-  file.remove(dir(paste(getwd(), "/output", sep = ""),
+  file.remove(dir(paste0(getwd(), "/output"),
                   pattern = "", full.names = TRUE))
 }
 
@@ -40,8 +40,8 @@ settings <- read_json(path = "settings.json", format = "json")
 
 # Update column names related to the raw CO2
 colnames(df)[which(names(df) == settings$raw_co2_colname)] <- "raw_co2"
-colnames(df)[which(names(df) == paste(settings$raw_co2_colname, 
-                                      " QC Flag", sep = ""))] <- "raw_co2_flag"
+colnames(df)[which(names(df) == paste0(settings$raw_co2_colname, 
+                                      " QC Flag"))] <- "raw_co2_flag"
 
 
 #-------------------------------------------------------------------------------
@@ -120,8 +120,7 @@ create_plot <- function(plot_count, y_name, x_name, y_lab, x_lab, y_lims,
                         x_lims, letter_string, letter_position) {
 
   # Set up the image file
-  filename <- paste("output/", plot_count, "_", y_name, "_vs_", x_name, ".png", 
-                    sep = "")
+  filename <- paste0("output/", plot_count, "_", y_name, "_vs_", x_name, ".png")
   png(filename)
   
   # Create a ggplot and add multiple features
@@ -188,13 +187,13 @@ limit_warning <- function(param_name, given_lims, warning_lims) {
   plot_max <- min(na.omit(given_lims[2]), max(na.omit(df_to_plot[[param_name]])))
   
   if (plot_min < warning_lims[1]) {
-    cat(paste("\nWarning: The lower limit exceeds questionable/bad range ",
-              warning_lims[1], " for ", param_name, sep = ""))
+    cat(paste0("\nWarning: The lower limit exceeds questionable/bad range ",
+              warning_lims[1], " for ", param_name))
   }
   
   if (plot_max > warning_lims[2]) {
-    cat(paste("\nWarning: The higher limit exceeds questionable/bad range ",
-              warning_lims[2], " for ", param_name, sep = ""))
+    cat(paste0("\nWarning: The higher limit exceeds questionable/bad range ",
+              warning_lims[2], " for ", param_name))
   }
   
 }
@@ -231,9 +230,9 @@ for (plot_config in settings$all_plots){
     
     # Filter out rows with bad data if this is specified in the settings
     df_to_plot <- df %>%
-      {if (y_filter_bad) filter(., get(paste(y_name, "_flag", sep = "")) == 2) 
+      {if (y_filter_bad) filter(., get(paste0(y_name, "_flag")) == 2) 
         else .} %>%
-      {if (x_filter_bad) filter(., get(paste(x_name, "_flag", sep = "")) == 2)
+      {if (x_filter_bad) filter(., get(paste0(x_name, "_flag")) == 2)
         else .}
     
     # If data is stored as character, change to numeric (datetime is always 

@@ -13,7 +13,7 @@
       "x_lab": "Time",
       "y_lab": "Intake Temperature [°C]",
       "letter_string": "a)",
-      "letter_position_name": "topleft",
+      "letter_position_name": "topright",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "-5,40"
     },
@@ -28,7 +28,7 @@
       "x_lab": "Time",
       "y_lab": "Temperature at Equilibrator [°C]",
       "letter_string": "b)",
-      "letter_position_name": "topleft",
+      "letter_position_name": "topright",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "-5,40"
     },
@@ -43,7 +43,7 @@
       "x_lab": "Time",
       "y_lab": "Salinity",
       "letter_string": "c)",
-      "letter_position_name": "topleft",
+      "letter_position_name": "topright",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "0,42"
     },
@@ -58,7 +58,7 @@
       "x_lab": "Time",
       "y_lab": "Pressure at Equilibrator [hpa]",
       "letter_string": "d)",
-      "letter_position_name": "topleft",
+      "letter_position_name": "topright",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "900,1100"
     },
@@ -73,7 +73,7 @@
       "x_lab": "Time",
       "y_lab": "Sea Surface xCO₂ [ppm]",
       "letter_string": "e)",
-      "letter_position_name": "topleft",
+      "letter_position_name": "topright",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "80,1200"
     },
