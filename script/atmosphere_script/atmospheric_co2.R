@@ -21,11 +21,11 @@ Sys.setlocale("LC_ALL", "English");
 # Change the plot font (subscript 2 does not work in the png with default font)
 windowsFonts(Times = windowsFont("Times New Roman"))
 
-# Remove existing files in the output directory
-#if (!is.null(list.files("output"))) {
-#  file.remove(dir(paste0(getwd(), "/output"),
-#                  pattern = "", full.names = TRUE))
-#}
+ Remove existing files in the output directory
+if (!is.null(list.files("output"))) {
+  file.remove(dir(paste0(getwd(), "/output"),
+                  pattern = "", full.names = TRUE))
+}
 
 
 #-------------------------------------------------------------------------------
