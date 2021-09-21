@@ -229,15 +229,19 @@ dev.off()
 #-------------------------------------------------------------------------------
 
 # Set up the file for stats
-sink(file = "output/std_stats.txt")
+sink(file = "output/atmos_stats.txt")
 
-# Print number of measureents outside the plotting area
+# Write total number of measurements
+n_atmos <- length(na.omit(df_mod_full$co2))
+cat("The total number of atmospheric measurements: ", n_atmos, "\n", sep="")
+
+# Write number of measureents outside the plotting area
 n_outside_plot <- sum(df_mod_full$co2 > y_lim_max) + sum(df_mod_full$co2 < y_lim_min)
 percent_outside <- round((n_outside_plot/nrow(df_mod_full))*100, 1)
 cat("Plot 1. Measurements outside plot area (", y_lim_min, ":", y_lim_max,
     ") is: ", n_outside_plot, " (", percent_outside, "%)\n", sep = "")
 
-# Print number of bad measurements 
+# Write number of bad measurements 
 good_min <- as.numeric(settings$qc_range$good_min)
 good_max <- as.numeric(settings$qc_range$good_max)
 n_bad <- sum(df_mod_full$co2 < good_min) + sum(df_mod_full$co2 > good_max)
