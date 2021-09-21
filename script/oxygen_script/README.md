@@ -12,7 +12,9 @@ data from rds files, created in a different script).
 The script needs the following from this settings file:
 - required_columns: the name of various columns needed
 - datatime_format: The format of the date and time columns
-- plot_settings: Various informations needed for creating the plot
+- plot_settings: Various informations needed for creating the plot. Note the
+'sat_scale_coeff', which is used to edit the second y axis range. Increase the
+coefficient to get a lower y max range.
 - remove missing: a true or false if missing values should be removed from the
 data before plotting
 - missing value: the missing value that should be removed
