@@ -133,10 +133,10 @@ for (plot_key in names(settings$plot_settings)) {
 df_mod <- df %>%
   mutate(datetime = as.POSIXct(paste(df[[date_colname]], df[[time_colname]]),
                                format = settings$datetime_format)) %>%
-  {if (add_saturation) 
+  {if (add_sat) 
     select(., datetime, all_of(o2_colname), all_of(saturation_colname))
     else select(., datetime, all_of(o2_colname))} %>%
-  {if (add_saturation)
+  {if (add_sat)
     rename(., o2 = all_of(o2_colname), saturation = all_of(saturation_colname))
     else rename(., o2 = all_of(o2_colname))} %>%
   {if (settings$remove_missing)
@@ -145,12 +145,15 @@ df_mod <- df %>%
 
 
 #-------------------------------------------------------------------------------
-# PLOT ATMOSPHERIC CO2 VS TIME 
+# PLOT ATMOSPHERIC O2 VS TIME 
 #-------------------------------------------------------------------------------
 
-# Make the plot ranges numeric
+# Make the plot ranges numeric (if na: replace with max and min oxygen value)
 o2_ylims <- as.numeric(unlist(strsplit(o2_ylims, ",")))
-sat_ylims <- as.numeric(unlist(strsplit(sat_ylims, ",")))
+if (is.na(o2_ylims[1])) {
+  o2_ylims[1] <- min(na.omit(df_mod$o2))
+  o2_ylims[2] <- max(na.omit(df_mod$o2))
+}
 
 # Get the letter position details
 letter_position <- create_letter_position(letter_position_name, y_name = "o2", 
@@ -162,9 +165,9 @@ letter_position <- create_letter_position(letter_position_name, y_name = "o2",
 png("output/1.o2_vs_time.png")
 
 # Create the plot
-plot <-  ggplot(df_mod, aes(x = datetime, y = o2)) +
-  geom_point() +
-  xlab("Time") + ylab(y_lab) + 
+plot <-  ggplot(df_mod, aes(x = datetime)) +
+  geom_point(aes(y = o2)) +
+  xlab("Time") +
   # Specify monthly ticks with short month names as label
   scale_x_datetime(date_breaks = "1 month", date_labels = '%b') +
   # Change plot layout to another theme and so some adjustments to the theme
@@ -181,11 +184,50 @@ plot <-  ggplot(df_mod, aes(x = datetime, y = o2)) +
            vjust = letter_position[[4]],
            size = 9)
 
-# Change the range in plot if specified in settings
-if (!is.na(o2_ylims[1])){
-  plot <- plot + ylim(o2_ylims[1], o2_ylims[2])
+# Create the y axis(es) and its ranges
+if (add_sat) {
+  sat_scale_coeff <- as.numeric(settings$plot_settings$sat_scale_coeff)
+  plot <- plot + 
+    geom_point(aes(y = saturation*sat_scale_coeff), color = 'red') +
+    scale_y_continuous(name = y_lab, limits = c(o2_ylims[1], o2_ylims[2]),
+                       sec.axis = sec_axis(~./sat_scale_coeff,
+                                           name = "Saturation"))
+} else {
+  plot <- plot + 
+    ylab(y_lab) +
+    ylim(o2_ylims[1], o2_ylims[2])
 }
 
 # Create the image
 print(plot)
 dev.off()
+
+
+#-------------------------------------------------------------------------------
+# WRITE STATS
+#-------------------------------------------------------------------------------
+
+# Set up the file for stats
+sink(file = "output/oxygen_stats.txt")
+
+# Write total number of oxygen measurements
+n_oxygen <- length(na.omit(df_mod$o2))
+cat("The total number of oxygen measurements: ", n_oxygen, "\n", sep="")
+
+# Write number of oxygen out of plotting range
+n_outside_plot <- sum(na.omit(df_mod$o2 < o2_ylims[1])) +
+  sum(na.omit(df_mod$o2 > o2_ylims[2]))
+percent_outside <-round((n_outside_plot/n_oxygen)*100, 1)
+cat("Measurements outside plot area (", o2_ylims[1], ":", o2_ylims[2],
+    ") is: ", n_outside_plot, " (", percent_outside, "%)\n", sep = "")
+
+# Write number of oxygen out of acceptable range
+good_min <- as.numeric(settings$qc_range$umol_pr_L$good_min)
+good_max <- as.numeric(settings$qc_range$umol_pr_L$good_max)
+
+n_bad <- sum(na.omit(df_mod$o2 < good_min)) + sum(na.omit(df_mod$o2 > good_max))
+percent_bad <- round((n_bad/n_oxygen)*100, 1)
+cat("Number of bad measurements (outside the good range ", good_min,
+    ":", good_max, ") is: ", n_bad, " (", percent_bad, "%)\n", sep = "")
+
+sink()

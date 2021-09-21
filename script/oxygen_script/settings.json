@@ -1,23 +1,23 @@
 {
 	"required_columns": {
-		"date_colname" : "PC.Date",
-		"time_colname" : "PC.Time",
-		"o2_colname" : "Oxygen",
-		"saturation_colname" : "Saturation"
+		"date_colname" : "",
+		"time_colname" : "",
+		"o2_colname" : "",
+		"saturation_colname" : ""
 	},
 	"datetime_format" : "%d/%m/%y %H:%M:%S",
 	"plot_settings" : {
 		"y_lab" : "O₂ [μmol/L]",
 		"letter_string": "g)",
 		"letter_position_name" : "topleft",
-	    "add_saturation" : true,
-	    "o2_ylims" : "0,500",
-	    "sat_ylims" : "NA,NA"
+	    "add_sat" : true,
+	    "o2_ylims" : "NA,NA",
+	    "sat_scale_coeff" : "2"
 	},
-	"remove_missing" : true,
+	"remove_missing" : false,
 	"missing_value" : "0",
 	"qc_ranges" : {
-		"umol/L" : {
+		"umol_pr_L" : {
 			"good_min": "50",
 			"good_max" : "400"
 		}
