@@ -3,7 +3,7 @@
 ################################################################################
 
 # Note that this script is not complete yet. It needs to deal with raw data as
-# well...
+# well..
 
 ### Description
 # The script imports data (either raw or exported from QuinCe), refromats and
