@@ -2,48 +2,16 @@
 ### JOINING TWO DATASETS
 ################################################################################
 
-### Description:
-# This script joins two datasets together by close enough matched time stamps.
-# The allowed time difference is set in the input parameters.
-# 
-# The joining is a left-join, meaning the merged dataset contains all rows from 
-# the primary dataset (typically the CO2 dataset), and matches from the 
-# 'secondary' dataset (typically the hydrography data) are only included if rows
-# are withing the allowed time difference.
-
-### Requirements:
-# - The two input datasets must be stored in the input folder located at the 
-# same directory as this script.
-
-### Output:
-# - The merged data will be located in the output folder 
-
-
-#-------------------------------------------------------------------------------
-# INPUT PARAMETERS
-#-------------------------------------------------------------------------------
-
-# Filenames
-filename_pri <- "34FM20200815-ICOS OTC Labelling_losGatos_wDOY_2020.txt"
-filename_sec <- "mea_all_stdval_wDOY_2020.txt"
-
-# The files must contain date and time in Day-of-year (DOY) format (if they do
-# not, use the 'convert_to_doy' script). Specify which column contains the DOY.
-doy_col_pri <- c(1)
-doy_col_sec <- c(1)
-
-# Maximum allowed time difference in minutes
-max_timediff_minutes <- 1
-
-# The output filename
-output_filename <- "merged.txt"
-
-
 #-------------------------------------------------------------------------------
 # INITIAL SETTINGS
 #-------------------------------------------------------------------------------
 
+# Clean workspace
+rm(list = ls())
+
+# Load packages
 library(readr)
+library(jsonlite)
 library(dplyr)
 library(fuzzyjoin)
 
@@ -51,23 +19,104 @@ Sys.setlocale("LC_ALL", "English");
 
 
 #-------------------------------------------------------------------------------
-# IMPORT DATA 
+# IMPORT SETTINGS AND DATA
 #-------------------------------------------------------------------------------
 
-filepath_pri <- paste("input/", filename_pri, sep="")
-filepath_sec <- paste("input/", filename_sec, sep="")
+# Import settings
+settings <- read_json(path = "settings.json", format = "json")
 
-df_pri <- read_tsv(filepath_pri)
-df_sec <- read_tsv(filepath_sec)
+# Import primary data (see Readme file for description on what this means in 
+# terms of the merging)
+if (settings$read_from_data_folder$processed_data){
+  df_pri <- readRDS(file = "../data/processed_data.rds")
+} else {
+  filename_pri <- settings$read_from_input_folder$filename_pri
+  df_pri <- read_tsv(paste0("input/",filename_pri))
+  # First assume the file is tab separated, but re-import if it is comma.
+  if(ncol(df_pri)==1){
+    df_pri <- read_csv(paste0("input/",filename_pri))
+  }
+}
+
+# Import secondary data
+if (settings$read_from_data_folder$raw_data){
+  print("Cannot read raw data from the data folder, use input folder")
+} else {
+  filename_sec <- settings$read_from_input_folder$filename_sec
+  df_sec <- read_tsv(paste0("input/",filename_sec))
+  # First assume the file is tab separated, but re-import if it is comma.
+  if(ncol(df_sec)==1){
+    df_sec <- read_csv(paste0("input/",filename_sec))
+  }
+}
+
+
+#-------------------------------------------------------------------------------
+# FUNCTIONS
+#-------------------------------------------------------------------------------
+
+# Function that adds a date time column to the data. Required inputs are the
+# name of the data, its date and time colnames, and their formats.
+assign_datetime <- function(df, date_colname, time_colname, datetime_format){
+  df_datetime <- df %>%
+    mutate(datetime = case_when(
+      # ... the date and time is given in one column
+      (date_colname == time_colname) ~
+        as.POSIXct(df[[date_colname]], format = datetime_format),
+      # ... the date and time is in two columns
+      # (have not tested if this code works)
+      (length(strsplit(date_colname, ",")) == 1 & 
+         length(strsplit(time_colname, ",")) == 1) ~
+        as.POSIXct(paste(df[[date_colname]], df[[time_colname]]),
+                   format = datetime_format),
+      # ... the year, month, day, hour, minute and secon are in separate cols
+      # (have not tested if this code works)
+      (length(strsplit(date_colname, ",")) != 1) ~
+        as.POSIXct(paste(
+          strsplit(date_colname,',')[1], strsplit(date_colname,',')[2],
+          strsplit(date_colname,',')[3], strsplit(time_colname,',')[1],
+          strsplit(time_colname,',')[2], strsplit(time_colname,',')[3]),
+          format = datetime_format)
+    )
+    )
+  
+  return(df_datetime)
+}
+
+
+#-------------------------------------------------------------------------------
+# IDENTIFY DATE AND TIMES
+#-------------------------------------------------------------------------------
+
+# Extract the column names related to date and time
+for (column_key in names(settings$datetime_settings)) {
+  assign(column_key, settings$datetime_settings[[column_key]])
+}
+
+# Assign a datetime column to the datasets
+df_pri_datetime <- assign_datetime(df_pri,date_colname_pri, time_colname_pri,
+                                   datetime_format_pri)
+df_sec_datetime <- assign_datetime(df_sec,date_colname_sec,time_colname_sec,
+                                   datetime_format_sec)
 
 
 #-------------------------------------------------------------------------------
 # CHRONOLOGY CHECK
 #-------------------------------------------------------------------------------
 
+# THIS DES NOT WORK!!!
+
+chronology_check_pri <- df_pri_datetime %>%
+  rowwise() %>%
+  mutate(check = all(diff(c_across(contains('datetime'))) > 0)) %>%
+  select(check)
+
+# Get values of non-chronology rows
+which(!chronology_check_pri$check)
+
 # Create function which stops script if the date time are not chronological
 chron_check <- function(DOY_col, filetype) {
-  row_not_chron <- which(diff(DOY_col) < 0)
+  row_not_chron <- which(diff(df_sec$datetime) < 0)
   if (length(row_not_chron) != 0) {
     stop("Error: These row(s) from ", as.character(filetype),
                 " are not in chronologic order:","\n",
@@ -76,8 +125,8 @@ chron_check <- function(DOY_col, filetype) {
 }
 
 # Run check function on both datasets
-chron_check(df_pri$DOY, 'Primary')
-chron_check(df_sec$DOY, 'Secondary')
+chron_check(df_pri_datetime$datetime, 'Primary')
+chron_check(df_sec_datetime$datetime, 'Secondary')
 
 
 #-------------------------------------------------------------------------------
@@ -89,7 +138,7 @@ chron_check(df_sec$DOY, 'Secondary')
 max_timediff <- (max_timediff_minutes/60)/24
 
 # Join data together into new tibble
-df_merged <- difference_join(df_pri,
+df_merged_full <- difference_join(df_pri,
                              df_sec,
                              by=c('DOY'='DOY'),
                              max_dist=max_timediff,
@@ -98,7 +147,7 @@ df_merged <- difference_join(df_pri,
 
 # The above joining keeps all matches within the allowed difference. The 
 # following piping only keps the best match if there are duplicates.
-df_merged <- df_merged %>%
+df_merged <- df_merged_full %>%
   group_by(DOY.x) %>%
   slice_min(timediff)
 
