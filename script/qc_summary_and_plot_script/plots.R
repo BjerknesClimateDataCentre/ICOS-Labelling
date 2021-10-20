@@ -38,11 +38,6 @@ df <- readRDS(file = "../data/processed_data.rds")
 # Import the settings
 settings <- read_json(path = "settings.json", format = "json")
 
-# Update column names related to the raw CO2
-colnames(df)[which(names(df) == settings$raw_co2_colname)] <- "raw_co2"
-colnames(df)[which(names(df) == paste0(settings$raw_co2_colname, 
-                                      " QC Flag"))] <- "raw_co2_flag"
-
 
 #-------------------------------------------------------------------------------
 # FUNCTION(S)
@@ -132,15 +127,18 @@ create_plot <- function(plot_count, y_name, x_name, y_lab, x_lab, y_lims,
     theme_bw() +
     theme(text = element_text(family = "Times"),
           axis.text = element_text(size = rel(1.5)),
-          axis.title = element_text(size = rel(1.7))) +
-    # Add the plot letter string
-    annotate("text",
-             x = letter_position[[1]],
-             y = letter_position[[2]], 
-             label = letter_string,
-             hjust = letter_position[[3]],
-             vjust = letter_position[[4]],
-             size = 9)
+          axis.title = element_text(size = rel(1.7)))
+  
+  # Add the plot letter string if provided
+  if (letter_position != ""){
+    ret <- ret + annotate("text",
+                          x = letter_position[[1]],
+                          y = letter_position[[2]], 
+                          label = letter_string,
+                          hjust = letter_position[[3]],
+                          vjust = letter_position[[4]],
+                          size = 9)
+  }
   
   # Change the y and x plot range if this was specified in the settings
   if (!is.na(y_lims[1])){
@@ -183,8 +181,8 @@ out_of_range <- function(axis_name, lims) {
 # of the parameter, the given limits and the warning limits.
 limit_warning <- function(param_name, given_lims, warning_lims) {
   
-  plot_min <- max(na.omit(given_lims[1]), min(na.omit(df_to_plot[[param_name]])))
-  plot_max <- min(na.omit(given_lims[2]), max(na.omit(df_to_plot[[param_name]])))
+  plot_min <- max(na.omit(given_lims[1]),min(na.omit(df_to_plot[[param_name]])))
+  plot_max <- min(na.omit(given_lims[2]),max(na.omit(df_to_plot[[param_name]])))
   
   if (plot_min < warning_lims[1]) {
     cat(paste0("\nWarning: The lower limit exceeds questionable/bad range ",
@@ -251,8 +249,12 @@ for (plot_config in settings$all_plots){
     x_lims <- as.numeric(unlist(strsplit(x_lims, ",")))
     
     # Get the letter position details
-    letter_position <- create_letter_position(letter_position_name, 
+    if (letter_position_name != "") {
+      letter_position <- create_letter_position(letter_position_name, 
                                               y_name, x_name, y_lims, x_lims)
+    } else {
+      letter_position <- ""
+    }
     
     # Create the plot
     create_plot(plot_count, y_name, x_name, y_lab, x_lab, y_lims, x_lims,
@@ -275,10 +277,10 @@ for (plot_config in settings$all_plots){
     # If the parameter is not datetime, check if the plot limits exceeds the 
     # pre-defined questionable/bad limits. If so, the function writes a warning
     # in the sink file.
-    if (is.numeric(df_to_plot[[y_name]])) {
+    if (is.numeric(df_to_plot[[y_name]]) & !is.na(y_lims[1])) {
       limit_warning(y_name, y_lims, y_warning_lims)
     }
-    if (is.numeric(df_to_plot[[x_name]])) {
+    if (is.numeric(df_to_plot[[x_name]]) & !is.na(x_lims[1])) {
       limit_warning(x_name, x_lims, x_warning_lims)
     }
     cat("\n")
