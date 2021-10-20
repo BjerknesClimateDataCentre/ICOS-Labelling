@@ -150,8 +150,19 @@ create_plot <- function(plot_count, y_name, x_name, y_lab, x_lab, y_lims,
   
   # If x-axis is time: specify monthly ticks with short month names as label
   if (x_name == "datetime") {
-    ret <- ret + scale_x_datetime(date_breaks = "1 month", date_labels = '%b')
-  }
+    
+    # The time between ticks depends on the length of the dataset
+    timespan <- as.numeric(df$datetime[nrow(df)]-df$datetime[1])
+    if (timespan < 240) {
+      breaks = "2 months"
+    } else if (timespan > 240 & timespan < 650) {
+      breaks = "4 months"
+    } else {
+      breaks = "6 monhts"
+    }
+    
+    ret <- ret + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
+  } 
   
   # Create the plot and image file
   print(ret)
