@@ -155,7 +155,7 @@
 		"sal_vs_time" : {
 			"make_plot" : true,
 			"x_name" : "datetime",
-			"y_name" : "",
+			"y_name" : "raw_sal",
 			"x_filter_bad": false,
 			"y_filter_bad" : false,
 			"x_lims" : "NA,NA",
@@ -170,7 +170,7 @@
 		"raw_po2_vs_time" : {
 			"make_plot" : true,
 			"x_name" : "datetime",
-			"y_name" : "",
+			"y_name" : "raw_co2",
 			"x_filter_bad": false,
 			"y_filter_bad" : false,
 			"x_lims" : "NA,NA",
@@ -185,7 +185,7 @@
 		"depth_vs_time" : {
 			"make_plot" : true,
 			"x_name" : "datetime",
-			"y_name" : "",
+			"y_name" : "raw_depth",
 			"x_filter_bad": false,
 			"y_filter_bad" : false,
 			"x_lims" : "NA,NA",
@@ -200,7 +200,7 @@
 		"o2_vs_time" : {
 			"make_plot" : false,
 			"x_name" : "datetime",
-			"y_name" : "",
+			"y_name" : "raw_o2",
 			"x_filter_bad": false,
 			"y_filter_bad" : false,
 			"x_lims" : "NA,NA",
@@ -215,7 +215,7 @@
 		"o2sat_vs_time" : {
 			"make_plot" : false,
 			"x_name" : "datetime",
-			"y_name" : "",
+			"y_name" : "raw_o2sat",
 			"x_filter_bad": false,
 			"y_filter_bad" : false,
 			"x_lims" : "NA,NA",
