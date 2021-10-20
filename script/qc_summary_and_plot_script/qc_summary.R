@@ -2,6 +2,7 @@
 ### CREATE A SUMMARY OF QC MESSAGES FROM QUINCE
 ################################################################################
 
+
 #-------------------------------------------------------------------------------
 # INITIAL SETTINGS
 #-------------------------------------------------------------------------------
@@ -27,13 +28,6 @@ df <- readRDS(file = "../data/processed_data.rds")
 
 # Import the settings
 settings <- read_json(path = "settings.json", format = "json")
-
-# Update column names related to the raw CO2
-colnames(df)[which(names(df) == settings$raw_co2_colname)] <- "raw_co2"
-colnames(df)[which(names(df) == paste0(settings$raw_co2_colname,
-                                       " QC Flag"))] <- "raw_co2_flag"
-colnames(df)[which(names(df) == paste0(settings$raw_co2_colname,
-                                       " QC Comment"))] <- "raw_co2_comm"
 
 
 #-------------------------------------------------------------------------------
@@ -100,13 +94,13 @@ cat("QC SUMMARY\n", sep="")
 cat("===========\n")
 cat("Total number of rows evaluated in QuinCe: ", nrow(df), "\n\n", sep = "")
 
-# Create list of parameters to do summaries for
-if (settings$station_type == "SOOP"){
-  param_list <- c("lat", "lon", "temp", "teq", "peq")
-} else {
-  param_list <- c("lat", "lon", "temp", "sal")
+# Extract the parameter names to do QC summaries for
+param_list <- list()
+for (param in names(settings$qc_summary_params)){
+  if(settings$qc_summary_params[[param]]){
+   param_list <- append(param_list, param)
+  }
 }
-param_list <- append(param_list, c("raw_co2", "fco2"))
 
 # Create and print the QC summaries
 for (param in param_list){
