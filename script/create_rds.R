@@ -6,8 +6,8 @@
 # well..
 
 ### Description
-# The script imports data (either raw or exported from QuinCe), refromats and
-# cleans up the data, and creates .Rdata ojcets which can be used by the other
+# The script imports data (either raw or exported from QuinCe), reformats and
+# cleans up the data, and creates .Rdata objcets which can be used by the other
 # labelling scripts
 
 
@@ -19,6 +19,11 @@
 library(readr)
 library(jsonlite)
 
+# Remove existing processed rds file in the data directory
+if (file.exists("data/processed_data.rds")){
+  file.remove("data/processed_data.rds")
+}
+
 
 #-------------------------------------------------------------------------------
 # IMPORT DATA, HEADER CONFIG AND SETTINGS FILE
@@ -26,29 +31,39 @@ library(jsonlite)
 
 # Import data
 datafile_name <- list.files("data") #,pattern="csv$")
-datafile_path <- paste("data/",datafile_name, sep="")
+datafile_path <- paste("data/", datafile_name, sep = "")
 df <- read_csv(datafile_path)
 
-# Import header config file and store the header converter as data frame
-header_config <- read_json(path="header_config.json",format="json")
+# Import header config and settings file 
+header_config <- read_json(path = "header_config.json", format = "json")
+settings <- read_json(path = "settings.json", format = "json")
 
 
 #-------------------------------------------------------------------------------
 # FUNCTION(S)
 #-------------------------------------------------------------------------------
 
+# Rename columns using a converter consisting of the old and new colnames
+rename_cols <- function(converter){
+  for (new_colname in names(converter)){
+    old_colname <- converter[[new_colname]]
+    if (old_colname %in% names(df)){
+      colnames(df)[which(names(df) == old_colname)] <- new_colname
+    }
+  }
+  return(df)
+}
+
 
 #-------------------------------------------------------------------------------
 # REFORMAT DATA
 #-------------------------------------------------------------------------------
 
-# Update the column names using the names in the header config file
-for (header in names(header_config$header_converter)){
-  if (header %in% names(df)) {
-    colnames(df)[which(names(df) == header)] <- 
-      header_config$header_converter[[header]]
-  }
-}
+# Rename the fixed columns names from QuinCe
+df <- rename_cols(header_config$fixed_colname_converter)
 
-# Save the df tibble object to and rds file
+# Rename the column names from the raw file
+df <- rename_cols(settings$raw_colname_converter)
+
+# Save the df tibble object to an rds file
 saveRDS(df, file = "data/processed_data.rds")
