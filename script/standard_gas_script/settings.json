@@ -1,12 +1,12 @@
 {
 	"required_columns": {
 		"run_type_colname" : "Type",
-		"std_value_colname" : "std.val",
-		"co2_colname" : "CO2.um.m",
-		"date_colname" : "PC.Date",
-		"time_colname" : "PC.Time"
+		"std_value_colname" : "stdval",
+		"co2_colname" : "CO2umm",
+		"date_colname" : "PCDate",
+		"time_colname" : "PCTime"
 	},
-	"datetime_format" : "%d/%m/%y %H:%M:%S",
+	"datetime_format" : "%d/%m/%Y %H:%M:%S",
 	"std_names": {
 		"std1_name" : "STD1",
 		"std2_name" : "STD2",
@@ -27,11 +27,11 @@
 	},
 	"remove_flush" : false,
 	"n_rows_flush" : "5",
-	"remove_missing_value" : false,
-	"missing_value" : "999999",
+	"remove_missing_value" : true,
+	"missing_value" : "NA",
 	"y_lims" : {
-		"y_lim_min" : "-4.5",
-		"y_lim_max" : "2.5"
+		"y_lim_min" : "-5",
+		"y_lim_max" : "5"
 	},
 	"qc_ranges" : {
 		"good_min" : "-2",

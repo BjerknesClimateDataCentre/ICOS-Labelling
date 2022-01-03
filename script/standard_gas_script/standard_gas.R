@@ -59,7 +59,7 @@ for (name in settings$std_names) {
   std_names <- append(std_names, name) 
 }
 
-# Specify date/time column(s) !!M ve to read raw data script !!
+# Specify date/time column(s) !!Move to read raw data script !!
 df <- df %>%
   mutate(datetime = as.POSIXct(paste(df[[date_colname]], df[[time_colname]]),
                                format = settings$datetime_format))
@@ -90,8 +90,13 @@ if (settings$remove_flush) {
 
 # Remove missing value (!! change to allow multiple missing values !!)
 if (settings$remove_missing_value) {
-  df_mod <- df_mod %>%
-    filter(df_mod$co2 != as.numeric(settings$missing_value))
+  if (is.numeric(settings$missing_value)) {
+    df_mod <- df_mod %>%
+      filter(df_mod$co2 != as.numeric(settings$missing_value))
+  } else {
+    df_mod <- df_mod %>%
+      filter(df_mod$co2 != settings$missing_value)
+  }
 }
 
 #-------------------------------------------------------------------------------
