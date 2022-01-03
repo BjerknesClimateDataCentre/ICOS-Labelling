@@ -69,17 +69,15 @@ assign_datetime <- function(df, date_colname, time_colname, datetime_format){
          length(strsplit(time_colname, ",")) == 1) ~
         as.POSIXct(paste(df[[date_colname]], df[[time_colname]]),
                    format = datetime_format),
-      # ... the year, month, day, hour, minute and secon are in separate cols
+      # ... the year, month, day, hour, minute and seconds are in separate cols
       # (have not tested if this code works)
       (length(strsplit(date_colname, ",")) != 1) ~
         as.POSIXct(paste(
           strsplit(date_colname,',')[1], strsplit(date_colname,',')[2],
           strsplit(date_colname,',')[3], strsplit(time_colname,',')[1],
           strsplit(time_colname,',')[2], strsplit(time_colname,',')[3]),
-          format = datetime_format)
+          format = datetime_format))
     )
-    )
-  
   return(df_datetime)
 }
 
@@ -88,7 +86,7 @@ assign_datetime <- function(df, date_colname, time_colname, datetime_format){
 # IDENTIFY DATE AND TIMES
 #-------------------------------------------------------------------------------
 
-# Extract the column names related to date and time
+# Extract column names and formats related to date and time from the settings
 for (column_key in names(settings$datetime_settings)) {
   assign(column_key, settings$datetime_settings[[column_key]])
 }
@@ -104,7 +102,7 @@ df_sec_datetime <- assign_datetime(df_sec,date_colname_sec,time_colname_sec,
 # CHRONOLOGY CHECK
 #-------------------------------------------------------------------------------
 
-# THIS DES NOT WORK!!!
+# THIS DOES NOT WORK!!!
 
 chronology_check_pri <- df_pri_datetime %>%
   rowwise() %>%
