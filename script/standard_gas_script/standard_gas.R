@@ -165,7 +165,8 @@ for (i in 1:length(std_names)) {
       # Add plot label (allow annotation outside plot area with clip 'off')
       annotate("text", 
                x = min(df_std$datetime), 
-               y = as.numeric(settings$y_lims$y_lim_max) - 1,
+               #y = as.numeric(settings$y_lims$y_lim_max) - 1,
+               y = as.numeric(settings$y_lims$y_lim_max) * 0.80,
                hjust = -0.25,
                vjust = -1.3,
                label = std_labels[i],
