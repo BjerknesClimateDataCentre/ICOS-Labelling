@@ -111,7 +111,7 @@ for (value in settings$std_approx_values) {
 
 std_labels <- c()
 for (j in 1:length(std_approx_values)) {
-  std_labels <- append(std_labels, paste("STD ", j, " (~", std_approx_values[j],
+  std_labels <- append(std_labels, paste(std_names[j], " (~", std_approx_values[j],
                                          ")", sep = ""))
 }
 
