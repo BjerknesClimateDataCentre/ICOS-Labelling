@@ -165,7 +165,6 @@ for (i in 1:length(std_names)) {
       # Add plot label (allow annotation outside plot area with clip 'off')
       annotate("text", 
                x = min(df_std$datetime), 
-               #y = as.numeric(settings$y_lims$y_lim_max) - 1,
                y = as.numeric(settings$y_lims$y_lim_max) * 0.80,
                hjust = -0.25,
                vjust = -1.3,
@@ -278,9 +277,18 @@ boxplot <- ggplot(df_mod, aes(x = run_type, y = anomaly, fill = run_type)) +
         axis.title = element_text(size = rel(1.7)),
         legend.position = "none")
 
-# Compute lower and upper whiskers and use them to scale the y limits  
-ylim_box = boxplot.stats(df_mod$anomaly)$stats[c(1, 5)]
-boxplot <- boxplot + coord_cartesian(ylim = ylim_box*1.05)
+# Calculate the y limits (lowest 25 quantile and the highest 75 quantile)
+low_quantiles <- c()
+high_quantiles <- c()
+for (std in std_names) {
+  quantiles <- quantile(filter(df_mod, run_type==std)$anomaly)[c(2,4)]
+  low_quantiles <- append(low_quantiles, quantiles[1])
+  high_quantiles <- append(high_quantiles, quantiles[2])
+}
+ylims_box <- c(min(low_quantiles), max(high_quantiles))
+
+# Set the y limts to the boxplot
+boxplot <- boxplot + coord_cartesian(ylim = ylims_box)
 
 # Create the box plot image
 print(boxplot)
