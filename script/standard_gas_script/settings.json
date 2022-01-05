@@ -30,8 +30,8 @@
 	"remove_missing_value" : true,
 	"missing_value" : "NaN",
 	"y_lims" : {
-		"y_lim_min" : "-2",
-		"y_lim_max" : "2"
+		"y_lim_min" : "-5",
+		"y_lim_max" : "5"
 	},
 	"qc_ranges" : {
 		"good_min" : "-2",
