@@ -4,16 +4,16 @@
 		"raw_data" : false
 	},
 	"read_from_input_folder": {
-		"filename_pri" : "34FM20200815-ICOS OTC Labelling_losGatos_wDOY_2021_SHORT.txt",
-		"filename_sec" : "mea_all_stdval_wDOY_2021_SHORT.txt"
+		"filename_pri" : "GO_all_SHORT.txt",
+		"filename_sec" : "serial_all_SHORT.txt"
 	},
 	"datetime_settings" : {
-		"date_colname_pri" : "Date.Time",
-		"time_colname_pri" : "Date.Time",
-		"datetime_format_pri" : "%Y-%m-%dT%H:%M:%S.000Z",
-		"date_colname_sec" : "date_time",
-		"time_colname_sec" : "date_time",
-		"datetime_format_sec" : "%Y-%m-%d %H:%M"
+		"date_colname_pri" : "PC_Date",
+		"time_colname_pri" : "PC_Time",
+		"datetime_format_pri" : "%d/%m/%y %H:%M:%S",
+		"date_colname_sec" : "date",
+		"time_colname_sec" : "time",
+		"datetime_format_sec" : "%Y-%m-%d %H:%M:%S"
 	},
 	"max_timediff_minutes" : "1"
 }
