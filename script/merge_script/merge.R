@@ -110,9 +110,9 @@ for (column_key in names(settings$datetime_settings)) {
 }
 
 # Assign a datetime column to the datasets
-df_pri_datetime <- assign_datetime(df_pri,date_colname_pri, time_colname_pri,
+df_pri_datetime <- assign_datetime(df_pri, date_colname_pri, time_colname_pri,
                                    datetime_format_pri)
-df_sec_datetime <- assign_datetime(df_sec,date_colname_sec,time_colname_sec,
+df_sec_datetime <- assign_datetime(df_sec, date_colname_sec, time_colname_sec,
                                    datetime_format_sec)
 
 
@@ -125,29 +125,54 @@ check_chron(df_sec_datetime)
 
 
 #-------------------------------------------------------------------------------
-# CREATE JOINED DATA
+# CREATE DAILY JOINED DATA AND WRITE OUTPUT FILES 
 #-------------------------------------------------------------------------------
 
-# Join data together into new tibble
-df_merged_full <- difference_join(
-                    df_pri_datetime,
-                    df_sec_datetime,
-                    by = c('date__time' = 'date__time'),
-                    max_dist = (as.numeric(settings$max_timediff_minutes)*60),
-                    mode = 'left',
-                    distance_col = "timediff")
+# The merge function used below can get errors if the data tibbles are too big. 
+# Therefore split the data into daily data tibbles, run the merging, and store
+# the daily merged files to the output folder.These can be concatenated later
+# in a different software.
 
-# The above joining keeps all matches within the allowed difference. The 
-# following piping only keeps the best match if there are duplicates.
-df_merged <- df_merged_full %>%
-  group_by(date__time.x) %>%
-  slice_min(timediff)
+# For code simplicity, store the name of the date columns
+datecol_pri <- settings$datetime_settings$date_colname_pri
+datecol_sec <- settings$datetime_settings$date_colname_sec
 
+# Store the unique days in the pri data tibble
+distinct_days <- distinct(df_pri_datetime[datecol_pri])
 
-#-------------------------------------------------------------------------------
-# WRITE OUTPUT
-#-------------------------------------------------------------------------------
+# Loop through the unique days and create merged output files
+for (day in distinct_days[[datecol_pri]]){
+  
+  # Filter the pri data tibble on the day
+  df_pri_day <- df_pri_datetime %>%
+    filter(df_pri_datetime[datecol_pri] == day)
+  
+  # Convert the day format to match the format in the sec data tibble
+  date_as_date <- as.Date(day, format="%d/%m/%y")
+  date_in_sec_format <- format(date_as_date, format = 
+          strsplit(settings$datetime_settings$datetime_format_sec," ")[[1]][1])
+  
+  # Filter the sec data tibble on the day
+  df_sec_day <- df_sec_datetime %>%
+    filter(df_sec_datetime[datecol_sec] == date_in_sec_format)
+  
+  # Join data together into new tibble
+  df_merged_full <- difference_join(
+                      df_pri_day,
+                      df_sec_day,
+                      by = c('date__time' = 'date__time'),
+                      max_dist = (as.numeric(settings$max_timediff_minutes)*60),
+                      mode = 'left',
+                      distance_col = "timediff")
+  
+  # The above joining keeps all matches within the allowed difference. The 
+  # following piping only keeps the best match if there are duplicates.
+  df_merged <- df_merged_full %>%
+    group_by(date__time.x) %>%
+    slice_min(timediff)
+  
+  # Write the merged data to file
+  out_file <- paste("output/merged_", date_as_date ,".txt")
+  write_tsv(df_merged, file = out_file)
 
-# Write the new data to file
-#out_file <- paste("output/merged.txt")
-write_tsv(df_merged, file="output/merged.txt")
+}
