@@ -4,8 +4,8 @@
 		"raw_data" : false
 	},
 	"read_from_input_folder": {
-		"filename_pri" : "GO_all_SHORT.txt",
-		"filename_sec" : "serial_all_SHORT.txt"
+		"filename_pri" : "GO_all.txt",
+		"filename_sec" : "serial_all_sorted.txt"
 	},
 	"datetime_settings" : {
 		"date_colname_pri" : "PC_Date",
