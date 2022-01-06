@@ -59,7 +59,7 @@ if (settings$read_from_data_folder$raw_data){
 # name of the data, its date and time colnames, and their formats.
 assign_datetime <- function(df, date_colname, time_colname, datetime_format){
   df_datetime <- df %>%
-    mutate(datetime = case_when(
+    mutate(date__time = case_when(
       # ... the date and time is given in one column
       (date_colname == time_colname) ~
         as.POSIXct(df[[date_colname]], format = datetime_format),
@@ -79,6 +79,24 @@ assign_datetime <- function(df, date_colname, time_colname, datetime_format){
           format = datetime_format))
     )
   return(df_datetime)
+}
+
+# Function checks if a data tibble has chronologic datetime. If not, it stops 
+# the script and prints the non-chronological row numbers.
+check_chron <- function(df) {
+  not_chron <- df %>%
+    mutate(diff = c(1,diff(date__time))) %>%
+    mutate(row_nr = row_number()) %>%
+    select(row_nr, diff) %>%
+    filter(diff < 0)
+  
+  if (nrow(not_chron) > 0) {
+    stop("'", deparse(substitute(df)), "'",
+         " not chornological at row(s): ", "\n", 
+         list(not_chron$row_nr))
+  } else {
+    paste0("'", deparse(substitute(df)), "' is chornological.")
+  }
 }
 
 
@@ -102,29 +120,8 @@ df_sec_datetime <- assign_datetime(df_sec,date_colname_sec,time_colname_sec,
 # CHRONOLOGY CHECK
 #-------------------------------------------------------------------------------
 
-# THIS DOES NOT WORK!!!
-
-chronology_check_pri <- df_pri_datetime %>%
-  rowwise() %>%
-  mutate(check = all(diff(c_across(contains('datetime'))) > 0)) %>%
-  select(check)
-
-# Get values of non-chronology rows
-which(!chronology_check_pri$check)
-
-# Create function which stops script if the date time are not chronological
-chron_check <- function(DOY_col, filetype) {
-  row_not_chron <- which(diff(df_sec$datetime) < 0)
-  if (length(row_not_chron) != 0) {
-    stop("Error: These row(s) from ", as.character(filetype),
-                " are not in chronologic order:","\n",
-                list(row_not_chron),"\n")
-  }
-}
-
-# Run check function on both datasets
-chron_check(df_pri_datetime$datetime, 'Primary')
-chron_check(df_sec_datetime$datetime, 'Secondary')
+check_chron(df_pri_datetime)
+check_chron(df_sec_datetime)
 
 
 #-------------------------------------------------------------------------------
