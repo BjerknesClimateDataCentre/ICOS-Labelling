@@ -128,22 +128,19 @@ check_chron(df_sec_datetime)
 # CREATE JOINED DATA
 #-------------------------------------------------------------------------------
 
-# Convert the unit of the maximum allowed time difference from minutes to days
-# to match the unit of the DOY columns
-max_timediff <- (max_timediff_minutes/60)/24
-
 # Join data together into new tibble
-df_merged_full <- difference_join(df_pri,
-                             df_sec,
-                             by=c('DOY'='DOY'),
-                             max_dist=max_timediff,
-                             mode='left',
-                             distance_col="timediff")
+df_merged_full <- difference_join(
+                    df_pri_datetime,
+                    df_sec_datetime,
+                    by = c('date__time' = 'date__time'),
+                    max_dist = (as.numeric(settings$max_timediff_minutes)*60),
+                    mode = 'left',
+                    distance_col = "timediff")
 
 # The above joining keeps all matches within the allowed difference. The 
-# following piping only keps the best match if there are duplicates.
+# following piping only keeps the best match if there are duplicates.
 df_merged <- df_merged_full %>%
-  group_by(DOY.x) %>%
+  group_by(date__time.x) %>%
   slice_min(timediff)
 
 
@@ -152,5 +149,5 @@ df_merged <- df_merged_full %>%
 #-------------------------------------------------------------------------------
 
 # Write the new data to file
-out_file <- paste("output/", output_filename, sep="")
-write_tsv(df_merged, file=out_file)
+#out_file <- paste("output/merged.txt")
+write_tsv(df_merged, file="output/merged.txt")
