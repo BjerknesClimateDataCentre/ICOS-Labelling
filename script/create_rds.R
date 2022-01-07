@@ -7,7 +7,7 @@
 
 ### Description
 # The script imports data (either raw or exported from QuinCe), reformats and
-# cleans up the data, and creates .Rdata objcets which can be used by the other
+# cleans up the data, and creates .Rdata objects which can be used by the other
 # labelling scripts
 
 

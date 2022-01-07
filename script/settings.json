@@ -2,7 +2,7 @@
 	"raw_colname_converter": {
 		"raw_co2" : "CO2.um.m",
 		"raw_co2_flag" : "CO2.um.m QC Flag",
-		"raw_co2_comm" : "CO2.um.m Comment",
+		"raw_co2_comm" : "CO2.um.m QC Comment",
 		"raw_temp" : "IntakeTemp",
 		"raw_temp_flag" : "IntakeTemp QC Flag",
 		"raw_temp_comm" : "IntakeTemp QC Comment",
