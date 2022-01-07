@@ -1,9 +1,9 @@
 {
 	"required_columns" : {
-		"date_colname" : "",
-		"time_colname" : "",
-		"co2_colname" : "",
-		"run_type_colname" : "",
+		"date_colname" : "PC_Date",
+		"time_colname" : "PC_Time",
+		"co2_colname" : "CO2_um_pr_m",
+		"run_type_colname" : "Type",
 		"lat_colname" : "",
 		"lon_colname" : ""
 	},
