@@ -1,23 +1,14 @@
 {
 	"raw_colname_converter": {
-		"raw_co2" : "co2",
-		"raw_co2_flag" : "co2 QC Flag",
-		"raw_co2_comm" : "co2 QC Comment",
-		"raw_temp" : "temperature",
-		"raw_temp_flag" : "temperature QC Flag",
-		"raw_temp_comm" : "temperature QC Comment",
-		"raw_depth" : "Depth (m)",
-		"raw_depth_flag" : "Depth (m) QC Flag",
-		"raw_depth_comm" : "Depth (m) QC Comment",
-		"raw_sal" : "Salinity PSU",
-		"raw_sal_flag" : "Salinity PSU QC Flag",
-		"raw_sal_comm" : "Salinity PSU QC Comment",
-		"raw_o2" : "Oxygen SBE 43 [umol/l]",
-		"raw_o2_flag" : "Oxygen SBE 43 [umol/l] QC Flag",
-		"raw_o2_comm" : "Oxygen SBE 43 [umol/l] QC Comment",
-		"raw_o2sat" : "Oxygen SBE 43 [% saturation]",
-		"raw_o2sat_flag" : "Oxygen SBE 43 [% saturation] QC Flag",
-		"raw_o2sat_comm" : "Oxygen SBE 43 [% saturation] QC Comment"
+		"raw_co2" : "CO2.um.m",
+		"raw_co2_flag" : "CO2.um.m QC Flag",
+		"raw_co2_comm" : "CO2.um.m Comment",
+		"raw_temp" : "IntakeTemp",
+		"raw_temp_flag" : "IntakeTemp QC Flag",
+		"raw_temp_comm" : "IntakeTemp QC Comment",
+		"raw_sal" : "TSG.salt",
+		"raw_sal_flag" : "TSG.salt QC Flag",
+		"raw_sal_comm" : "TSG.salt QC Comment"
 	},
 	"filters": {
 		"remove_flush": false
