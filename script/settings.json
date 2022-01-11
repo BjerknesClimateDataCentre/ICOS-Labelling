@@ -1,14 +1,29 @@
 {
 	"raw_colname_converter": {
-		"raw_co2" : "CO2.um.m",
-		"raw_co2_flag" : "CO2.um.m QC Flag",
-		"raw_co2_comm" : "CO2.um.m QC Comment",
-		"raw_temp" : "IntakeTemp",
-		"raw_temp_flag" : "IntakeTemp QC Flag",
-		"raw_temp_comm" : "IntakeTemp QC Comment",
-		"raw_sal" : "TSG.salt",
-		"raw_sal_flag" : "TSG.salt QC Flag",
-		"raw_sal_comm" : "TSG.salt QC Comment"
+		"raw_co2" : "CO2_um_pr_m",
+		"raw_co2_flag" : "CO2_um_pr_m QC Flag",
+		"raw_co2_comm" : "CO2_um_pr_m QC Comment",
+		"raw_temp" : "sst",
+		"raw_temp_flag" : "sst QC Flag",
+		"raw_temp_comm" : "sst QC Comment",
+		"raw_teq" : "equ_temp",
+		"raw_teq_flag" : "equ_temp QC Flag",
+		"raw_teq_comm" : "equ_temp QC Comment",
+		"raw_sal" : "salinity",
+		"raw_sal_flag" : "salinity QC Flag",
+		"raw_sal_comm" : "salinity QC Comment",
+		"raw_peq" : "equ_press",
+		"raw_peq_flag" : "equ_press QC Flag",
+		"raw_peq_comm" : "equ_press QC Comment",
+		"raw_o2" : "O2Conc",
+		"raw_o2_flag" : "O2Conc QC Flag",
+		"raw_co2_comm" : "O2Conc QC Comment",
+		"raw_o2sat" : "AirSat",
+		"raw_o2sat_flag" : "AirSat QC Flag",
+		"raw_o2sat_comm" : "AirSat QC Comment",
+		"raw_depth" : false,
+		"raw_depth_flag" : false,
+		"raw_depth_comm" : false
 	},
 	"filters": {
 		"remove_flush": false
