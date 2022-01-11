@@ -18,6 +18,7 @@
 # Load packages
 library(readr)
 library(jsonlite)
+library(tidyverse)
 
 # Remove existing processed rds file in the data directory
 if (file.exists("data/processed_data.rds")){
@@ -32,7 +33,14 @@ if (file.exists("data/processed_data.rds")){
 # Import data
 datafile_name <- list.files("data") #,pattern="csv$")
 datafile_path <- paste("data/", datafile_name, sep = "")
-df <- read_csv(datafile_path)
+df <- read_csv(datafile_path, 
+               col_types = cols("Date/Time" = col_datetime(),
+                                .default = col_character()))
+
+# Change measurement and flag columns to type numeric
+numeric_cols <- names(df[!grepl('*Time|QC Comment|Type', names(df))])
+df <- df %>% mutate(across(all_of(numeric_cols), as.numeric))
+
 
 # Import header config and settings file 
 header_config <- read_json(path = "header_config.json", format = "json")
