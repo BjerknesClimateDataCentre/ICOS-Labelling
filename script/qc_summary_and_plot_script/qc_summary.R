@@ -12,6 +12,7 @@ library(readr)
 library(jsonlite)
 library(dplyr)
 library(tidyr)
+#library(stringr)
 
 # Remove existing files in the output directory
 if (!is.null(list.files("output"))) {
@@ -33,6 +34,30 @@ settings <- read_json(path = "settings.json", format = "json")
 #-------------------------------------------------------------------------------
 # FUNCTION(S)
 #-------------------------------------------------------------------------------
+
+# This function removes a certain comment from a parameters QC comment column. 
+remove_comment <- function(param, comment){
+  param_flag <- paste0(param, "_flag")
+  param_comm <- paste0(param, "_comm")
+  
+  for (i in 1:nrow(df)){
+    # If a row contains the comment in question, create 'new_string' where 
+    # this # is removed
+    if (grepl(comment, df[[param_comm]][i], fixed = TRUE)){
+      new_string <- paste(setdiff(strsplit(df[[param_comm]][i], ";",
+                                           fixed = TRUE)[[1]], comment),
+                          sep = "", collapse = ";")
+      # If the new string is then empty -> set comment field to NA and change
+      # QC flag to 2.
+      if (new_string == ""){
+        df[[param_comm]][i] <- NA
+        df[[param_flag]][i] <- 2
+      } else {
+        df[[param_comm]][i] <- new_string
+      }
+    }
+  }
+}
 
 # This function takes a column/parameter name and prints its QC summary
 QC_summary <- function(param_name){
@@ -94,11 +119,17 @@ cat("QC SUMMARY\n", sep="")
 cat("===========\n")
 cat("Total number of rows evaluated in QuinCe: ", nrow(df), "\n\n", sep = "")
 
-# Extract the parameter names to do QC summaries for
+# Extract the parameter names to do QC summaries for, and remove comments
+# if specified in the settings file
 param_list <- list()
 for (param in names(settings$qc_summary_params)){
-  if(settings$qc_summary_params[[param]]){
+  if(settings$qc_summary_params[[param]]$make_summary){
    param_list <- append(param_list, param)
+  } 
+  if(!is.null(settings$qc_summary_params[[param]]$remove_comment)) {
+    for (comment in settings$qc_summary_params[[param]]$remove_comment) {
+      remove_comment(param, comment)
+    }
   }
 }
 
