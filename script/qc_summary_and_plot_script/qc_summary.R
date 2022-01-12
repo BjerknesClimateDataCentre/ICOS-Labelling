@@ -2,7 +2,6 @@
 ### CREATE A SUMMARY OF QC MESSAGES FROM QUINCE
 ################################################################################
 
-
 #-------------------------------------------------------------------------------
 # INITIAL SETTINGS
 #-------------------------------------------------------------------------------
@@ -12,7 +11,6 @@ library(readr)
 library(jsonlite)
 library(dplyr)
 library(tidyr)
-#library(stringr)
 
 # Remove existing files in the output directory
 if (!is.null(list.files("output"))) {
@@ -21,7 +19,7 @@ if (!is.null(list.files("output"))) {
 
 
 #-------------------------------------------------------------------------------
-# IMPORT DATA, HEADER CONFIG AND SETTINGS FILE
+# IMPORT DAT AND SETTINGS FILE
 #-------------------------------------------------------------------------------
 
 # Import processed data
@@ -35,20 +33,21 @@ settings <- read_json(path = "settings.json", format = "json")
 # FUNCTION(S)
 #-------------------------------------------------------------------------------
 
-# This function removes a certain comment from a parameters QC comment column. 
+# This function removes a certain comment from a parameters QC comment column.
+# It returns the updated data frame
 remove_comment <- function(param, comment){
   param_flag <- paste0(param, "_flag")
   param_comm <- paste0(param, "_comm")
   
   for (i in 1:nrow(df)){
     # If a row contains the comment in question, create 'new_string' where 
-    # this # is removed
+    # this comment is removed
     if (grepl(comment, df[[param_comm]][i], fixed = TRUE)){
       new_string <- paste(setdiff(strsplit(df[[param_comm]][i], ";",
                                            fixed = TRUE)[[1]], comment),
                           sep = "", collapse = ";")
-      # If the new string is then empty -> set comment field to NA and change
-      # QC flag to 2.
+      # If the new string is empty,
+      # set comment column to NA and change QC flag to 2
       if (new_string == ""){
         df[[param_comm]][i] <- NA
         df[[param_flag]][i] <- 2
@@ -57,9 +56,10 @@ remove_comment <- function(param, comment){
       }
     }
   }
+  return(df)
 }
 
-# This function takes a column/parameter name and prints its QC summary
+# This function create and prints the QC summary of one parameter
 QC_summary <- function(param_name){
   
   # Print the parameter name as subheader
@@ -78,7 +78,7 @@ QC_summary <- function(param_name){
     group_by(flags = !!as.symbol(paste0(param_name, "_flag"))) %>%
     summarize(n = n())
   
-  for (flag in flag_counts$flags) {
+  for (flag in flag_counts$flags){
     count <- flag_counts$n[which(flag_counts$flags == flag)]
     percent <- round((count/nrow(df_filter))*100, 2)
     cat("  Rows with flag ", flag, ": ", count, " (", percent, "%)\n", sep = "")
@@ -119,23 +119,21 @@ cat("QC SUMMARY\n", sep="")
 cat("===========\n")
 cat("Total number of rows evaluated in QuinCe: ", nrow(df), "\n\n", sep = "")
 
-# Extract the parameter names to do QC summaries for, and remove comments
-# if specified in the settings file
-param_list <- list()
+# Extract the parameter(s) to create QC summaries for 
 for (param in names(settings$qc_summary_params)){
   if(settings$qc_summary_params[[param]]$make_summary){
-   param_list <- append(param_list, param)
-  } 
-  if(!is.null(settings$qc_summary_params[[param]]$remove_comment)) {
-    for (comment in settings$qc_summary_params[[param]]$remove_comment) {
-      remove_comment(param, comment)
+  
+    # Remove comment(s) if specified in the settings file
+    remove_comment_list <- settings$qc_summary_params[[param]]$remove_comment
+    if (length(remove_comment_list) > 0) {
+      for (comment in remove_comment_list) {
+        df <- remove_comment(param, comment)
+      }
     }
+    
+    # Create and print the QC summaries to output file
+    QC_summary(param)
   }
 }
-
-# Create and print the QC summaries
-for (param in param_list){
-  QC_summary(param)
-} 
 
 sink()

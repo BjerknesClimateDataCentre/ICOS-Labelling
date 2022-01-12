@@ -1,17 +1,42 @@
 {
   "station_type": "SOOP",
   "qc_summary_params": {
-    "lat": true,
-    "lon": true,
-    "raw_depth": false,
-    "temp": true,
-    "teq" : true,
-    "sal": true,
-    "peq" : true,
-    "raw_co2": true,
-    "fco2" : true,
-    "raw_o2": false,
-    "raw_o2sat": false
+    "lat": {
+      "make_summary" : true,
+      "remove_comment" : []
+    },
+    "lon": {
+      "make_summary" : true,
+      "remove_comment" : []
+    },
+    "raw_depth": {
+      "make_summary" : false,
+      "remove_comment" : []
+    },
+    "raw_temp": {
+      "make_summary" : true,
+      "remove_comment" : ["ΔT out of range"]
+    },
+    "raw_teq": {
+      "make_summary" : true,
+      "remove_comment" : []
+    },
+    "raw_sal": {
+      "make_summary" : true,
+      "remove_comment" : []
+    },
+    "peq": {
+      "make_summary" : true,
+      "remove_comment" : []
+    },
+    "raw_co2": {
+      "make_summary" : true,
+      "remove_comment" : []
+    },
+    "fco2": {
+      "make_summary" : true,
+      "remove_comment" : []
+    }
   },
   "all_plots": {
     "temp_vs_time": {
@@ -21,7 +46,7 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "14,30",
+      "y_lims": "NA,NA",
       "x_lab": "Time",
       "y_lab": "Intake Temperature [°C]",
       "letter_string": "a)",
@@ -36,7 +61,7 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "14,30",
+      "y_lims": "NA,NA",
       "x_lab": "Time",
       "y_lab": "Temperature at Equilibrator [°C]",
       "letter_string": "b)",
@@ -66,7 +91,7 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "1000,1030",
+      "y_lims": "NA,NA",
       "x_lab": "Time",
       "y_lab": "Pressure at Equilibrator [hpa]",
       "letter_string": "d)",
