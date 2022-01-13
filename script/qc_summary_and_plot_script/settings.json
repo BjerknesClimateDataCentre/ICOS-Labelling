@@ -91,7 +91,7 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "NA,NA",
+      "y_lims": "980,1030",
       "x_lab": "Time",
       "y_lab": "Pressure at Equilibrator [hpa]",
       "letter_string": "d)",
