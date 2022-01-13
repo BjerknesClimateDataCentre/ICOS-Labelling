@@ -17,6 +17,11 @@ library(fuzzyjoin)
 
 Sys.setlocale("LC_ALL", "English");
 
+# Remove existing files in the output directory
+if (!is.null(list.files("output"))) {
+  file.remove(dir(paste0(getwd(), "/output"), pattern = "", full.names = TRUE))
+}
+
 
 #-------------------------------------------------------------------------------
 # IMPORT SETTINGS AND DATA
@@ -60,23 +65,22 @@ if (settings$read_from_data_folder$raw_data){
 assign_datetime <- function(df, date_colname, time_colname, datetime_format){
   df_datetime <- df %>%
     mutate(date__time = case_when(
-      # ... the date and time is given in one column
+      # ... the date and time is given in one column:
       (date_colname == time_colname) ~
-        as.POSIXct(df[[date_colname]], format = datetime_format),
-      # ... the date and time is in two columns
-      # (have not tested if this code works)
+        as.POSIXct(df[[date_colname]], format = datetime_format, tz = "UTC"),
+      # ... the date and time is in two columns:
       (length(strsplit(date_colname, ",")) == 1 & 
          length(strsplit(time_colname, ",")) == 1) ~
         as.POSIXct(paste(df[[date_colname]], df[[time_colname]]),
-                   format = datetime_format),
-      # ... the year, month, day, hour, minute and seconds are in separate cols
-      # (have not tested if this code works)
+                   format = datetime_format, tz = "UTC"),
+      # ... the year, month, day, hour, minute and seconds are in separate cols:
+      # (have not tested if this bit works)
       (length(strsplit(date_colname, ",")) != 1) ~
         as.POSIXct(paste(
           strsplit(date_colname,',')[1], strsplit(date_colname,',')[2],
           strsplit(date_colname,',')[3], strsplit(time_colname,',')[1],
           strsplit(time_colname,',')[2], strsplit(time_colname,',')[3]),
-          format = datetime_format))
+          format = datetime_format, tz = "UTC"))
     )
   return(df_datetime)
 }
@@ -129,28 +133,17 @@ check_chron(df_sec_datetime)
 # the daily merged files to the output folder. These can be concatenated later
 # in a different software (like PanTool).
 
-# For code simplicity, store the name of the date columns
-datecol_pri <- settings$datetime_settings$date_colname_pri
-datecol_sec <- settings$datetime_settings$date_colname_sec
-
 # Store the unique days in the pri data tibble
-distinct_days <- distinct(df_pri_datetime[datecol_pri])
+distinct_days <- unique(format(df_pri_datetime$date__time, format='%Y-%m-%d'))
 
 # Loop through the unique days and create merged output files
-for (day in distinct_days[[datecol_pri]]){
+for (day in distinct_days){
   
-  # Filter the pri data tibble on the day
+  # Filter the pri and sec data tibble on the day
   df_pri_day <- df_pri_datetime %>%
-    filter(df_pri_datetime[datecol_pri] == day)
-  
-  # Convert the day format to match the format in the sec data tibble
-  date_as_date <- as.Date(day, format="%d/%m/%y")
-  date_in_sec_format <- format(date_as_date, format = 
-          strsplit(settings$datetime_settings$datetime_format_sec," ")[[1]][1])
-  
-  # Filter the sec data tibble on the day
+    filter(format(date__time, format='%Y-%m-%d') == day)
   df_sec_day <- df_sec_datetime %>%
-    filter(df_sec_datetime[datecol_sec] == date_in_sec_format)
+    filter(format(date__time, format='%Y-%m-%d') == day)
   
   # Join data together into new tibble
   df_merged_full <- difference_join(
@@ -168,7 +161,6 @@ for (day in distinct_days[[datecol_pri]]){
     slice_min(timediff)
   
   # Write the merged data to file
-  out_file <- paste("output/merged_", date_as_date ,".txt")
+  out_file <- paste("output/merged_", day ,".txt")
   write_tsv(df_merged, file = out_file)
-
 }
