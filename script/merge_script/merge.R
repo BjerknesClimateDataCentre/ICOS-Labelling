@@ -33,7 +33,7 @@ if (settings$read_from_data_folder$processed_data){
   filename_pri <- settings$read_from_input_folder$filename_pri
   df_pri <- read_tsv(paste0("input/",filename_pri))
   # First assume the file is tab separated, but re-import if it is comma.
-  if(ncol(df_pri)==1){
+  if(ncol(df_pri) == 1){
     df_pri <- read_csv(paste0("input/",filename_pri))
   }
 }
@@ -45,7 +45,7 @@ if (settings$read_from_data_folder$raw_data){
   filename_sec <- settings$read_from_input_folder$filename_sec
   df_sec <- read_tsv(paste0("input/",filename_sec))
   # First assume the file is tab separated, but re-import if it is comma.
-  if(ncol(df_sec)==1){
+  if(ncol(df_sec) == 1){
     df_sec <- read_csv(paste0("input/",filename_sec))
   }
 }
@@ -81,7 +81,7 @@ assign_datetime <- function(df, date_colname, time_colname, datetime_format){
   return(df_datetime)
 }
 
-# Function checks if a data tibble has chronologic datetime. If not, it stops 
+# Function checks if a data tibble has chronological datetime. If not, it stops 
 # the script and prints the non-chronological row numbers.
 check_chron <- function(df) {
   not_chron <- df %>%
@@ -101,7 +101,7 @@ check_chron <- function(df) {
 
 
 #-------------------------------------------------------------------------------
-# IDENTIFY DATE AND TIMES
+# IDENTIFY DATETIME AND RUN CHRONOLOGY CHECK
 #-------------------------------------------------------------------------------
 
 # Extract column names and formats related to date and time from the settings
@@ -115,23 +115,19 @@ df_pri_datetime <- assign_datetime(df_pri, date_colname_pri, time_colname_pri,
 df_sec_datetime <- assign_datetime(df_sec, date_colname_sec, time_colname_sec,
                                    datetime_format_sec)
 
-
-#-------------------------------------------------------------------------------
-# CHRONOLOGY CHECK
-#-------------------------------------------------------------------------------
-
+# Check if chronological
 check_chron(df_pri_datetime)
 check_chron(df_sec_datetime)
 
 
 #-------------------------------------------------------------------------------
-# CREATE DAILY JOINED DATA AND WRITE OUTPUT FILES 
+# CREATE DAILY MERGED DATA AND WRITE OUTPUT FILES 
 #-------------------------------------------------------------------------------
 
-# The merge function used below can get errors if the data tibbles are too big. 
-# Therefore split the data into daily data tibbles, run the merging, and store
-# the daily merged files to the output folder.These can be concatenated later
-# in a different software.
+# The merge function used can get errors if the data tibbles are too big. 
+# Therefore: split the data into daily data tibbles, run the merging, and store
+# the daily merged files to the output folder. These can be concatenated later
+# in a different software (like PanTool).
 
 # For code simplicity, store the name of the date columns
 datecol_pri <- settings$datetime_settings$date_colname_pri
@@ -166,7 +162,7 @@ for (day in distinct_days[[datecol_pri]]){
                       distance_col = "timediff")
   
   # The above joining keeps all matches within the allowed difference. The 
-  # following piping only keeps the best match if there are duplicates.
+  # following piping only keeps the best match.
   df_merged <- df_merged_full %>%
     group_by(date__time.x) %>%
     slice_min(timediff)
