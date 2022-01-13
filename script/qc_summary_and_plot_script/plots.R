@@ -59,7 +59,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   if (positions_template$ypos[position_index] > 0) {
     
     if (is.na(y_lims[2])){
-      ypos <- max(na.omit(as.numeric(df_to_plot[[y_name]])))
+      ypos <- max(as.numeric(na.omit(df_to_plot[[y_name]])))
     } else {
       ypos <- na.omit(y_lims[2])
     }
@@ -67,7 +67,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   } else {
   
     if (is.na(y_lims[1])) {
-      ypos <- min(na.omit(as.numeric(df_to_plot[[y_name]])))
+      ypos <- min(as.numeric(na.omit(df_to_plot[[y_name]])))
     } else {
       ypos <- na.omit(y_lims[1])
     }
@@ -107,6 +107,20 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   return(letter_position)
 }
 
+# Function creating vector of limits given in character format "x,y" in the 
+# settings file. ( If only lower or upper limit is provided, this will result 
+# in both limits being NA)
+lim_string_to_vector <- function(lim_string) {
+  lim_vector <- unlist(strsplit(lim_string, ","))
+  if (lim_vector[1] == "NA") {
+    lim_vector[1] = NA
+    lim_vector[2] = NA
+  } else {
+    lim_vector <- as.numeric(lim_vector)
+  }
+  return(lim_vector)
+}
+
 # This function creates a plot and store it in the output folder. Required 
 # inputs are which parameter to plot (param), the number of the plot (used in 
 # the png filename), the parameters label and plotting range, a letter string 
@@ -130,7 +144,7 @@ create_plot <- function(plot_count, y_name, x_name, y_lab, x_lab, y_lims,
           axis.title = element_text(size = rel(1.7)))
   
   # Add the plot letter string if provided
-  if (letter_position != ""){
+  if (letter_string != ""){
     ret <- ret + annotate("text",
                           x = letter_position[[1]],
                           y = letter_position[[2]], 
@@ -227,7 +241,7 @@ positions_template <- data.frame(
 sink(file = "output/out_of_range.txt")
 sink_file_empty <- TRUE
 
-# Create a loop counter and create plots in a loop (one plot per iteration)
+# Create a loop counter and create one plot per iteration
 plot_count <- 1
 for (plot_config in settings$all_plots){
   if (plot_config$make_plot) {
@@ -253,19 +267,13 @@ for (plot_config in settings$all_plots){
       df_to_plot[[x_name]] <- as.numeric(df_to_plot[[x_name]])
     } 
     
-    # Create a vector of the axis limits. (The limits are given in the settings
-    # file as string containing min and max. This is to ensure that either none
-    # or both are given - only giving one limit does not work.)
-    y_lims <- as.numeric(unlist(strsplit(y_lims, ",")))
-    x_lims <- as.numeric(unlist(strsplit(x_lims, ",")))
+    # Create a vector of the axis limits string
+    x_lims <- lim_string_to_vector(x_lims)
+    y_lims <- lim_string_to_vector(y_lims)
     
     # Get the letter position details
-    if (letter_position_name != "") {
-      letter_position <- create_letter_position(letter_position_name, 
+    letter_position <- create_letter_position(letter_position_name, 
                                               y_name, x_name, y_lims, x_lims)
-    } else {
-      letter_position <- ""
-    }
     
     # Create the plot
     create_plot(plot_count, y_name, x_name, y_lab, x_lab, y_lims, x_lims,
@@ -282,8 +290,8 @@ for (plot_config in settings$all_plots){
     }
     
     # Create a vector of the pre-defined axis warning limits
-    y_warning_lims <- as.numeric(unlist(strsplit(y_warning_lims, ",")))
-    x_warning_lims <- as.numeric(unlist(strsplit(x_warning_lims, ",")))
+    y_warning_lims <- lim_string_to_vector(y_warning_lims)
+    x_warning_lims <- lim_string_to_vector(x_warning_lims)
     
     # If the parameter is not datetime, check if the plot limits exceeds the 
     # pre-defined questionable/bad limits. If so, the function writes a warning
