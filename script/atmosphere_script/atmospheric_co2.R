@@ -23,8 +23,7 @@ windowsFonts(Times = windowsFont("Times New Roman"))
 
 # Remove existing files in the output directory
 if (!is.null(list.files("output"))) {
-  file.remove(dir(paste0(getwd(), "/output"),
-                  pattern = "", full.names = TRUE))
+  file.remove(dir(paste0(getwd(), "/output"), pattern = "", full.names = TRUE))
 }
 
 
@@ -44,7 +43,9 @@ settings <- read_json(path = "settings.json", format = "json")
 if (settings$external_comparison) {
   external_datafile_name <- list.files("input/external")
   external_datafile_path <- paste0("input/external/", external_datafile_name)
-  df_external <- read_csv(external_datafile_path)
+  df_external <- read_csv(external_datafile_path, 
+                          col_types = cols("sample_site_code" = col_character(),
+                                           .default = col_number()))
 }
 
 
@@ -78,7 +79,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   if (positions_template$ypos[position_index] > 0) {
     
     if (is.na(y_lims[2])){
-      ypos <- max(na.omit(as.numeric(df_mod_full[[y_name]])))
+      ypos <- max(as.numeric(na.omit(df_mod_full[[y_name]])))
     } else {
       ypos <- na.omit(y_lims[2])
     }
@@ -86,7 +87,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   } else {
     
     if (is.na(y_lims[1])) {
-      ypos <- min(na.omit(as.numeric(df_mod_full[[y_name]])))
+      ypos <- min(as.numeric(na.omit(df_mod_full[[y_name]])))
     } else {
       ypos <- na.omit(y_lims[1])
     }
@@ -96,7 +97,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   if (positions_template$xpos[position_index] > 0){
     
     if (is.na(x_lims[2])) {
-      xpos <- max(na.omit(as.numeric(df_mod_full[[x_name]])))
+      xpos <- max(as.numeric(na.omit(df_mod_full[[x_name]])))
     } else {
       xpos <- na.omit(x_lims[2])
     }
@@ -104,7 +105,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   } else {
     
     if (is.na(x_lims[1])) {
-      xpos <- min(na.omit(as.numeric(df_mod_full[[x_name]])))
+      xpos <- min(as.numeric(na.omit(df_mod_full[[x_name]])))
     } else {
       xpos <- na.omit(x_lims[1])
     }
@@ -249,8 +250,6 @@ percent_bad <- round((n_bad/nrow(df_mod_full))*100, 1)
 cat("Plot 1. Number of bad measurements (outside the good range ", good_min,
     ":", good_max, ") is: ", n_bad, " (", percent_bad, "%)\n", sep = "")
 
-sink()
-
 
 #-------------------------------------------------------------------------------
 # CREATE STANDARD DEVIATION 'MAP'
@@ -358,19 +357,24 @@ if (settings$external_comparison) {
     assign(plot_key, settings$plot_settings$external_plot[[plot_key]])
   }
   
-  # Modify the external dataset: Create datetime column and (if specified in 
-  # the settings) add a value to the co2 measurements (applied if the external
-  # data is from an earlier year)
+  # Modify the external dataset if the data to compare does not overlap in time:
+  # add a value to the co2 measurements (typically 3 ppm per year mismatch); and
+  # add to the year column so that the years in the two datasets are the same. 
+  # The numbers to be added are extracted from the settings file.
+  df_external <- df_external %>%
+    {if (add_to_external_value != "NA")
+      mutate(., analysis_value = analysis_value + as.numeric(add_to_external_value)) %>%
+      mutate(., sample_year = sample_year + as.numeric(add_to_external_year))
+    else .} 
+  
+  # Specify a datetime column
   df_external <- df_external %>%
     mutate(datetime = as.POSIXct(paste(df_external$sample_year, 
                       df_external$sample_month, df_external$sample_day,
                       df_external$sample_hour, df_external$sample_minute,
                       df_external$sample_seconds), tz = "UTC", 
-                      format = "%Y %m %d %H %M %S")) %>%
-    {if (add_to_external != "NA") 
-      mutate(., analysis_value = analysis_value + as.numeric(add_to_external))
-    else .}
-  
+                      format = "%Y %m %d %H %M %S"))
+
   # Modify the main dataset: Remove rows with datetimes not overlapping with
   # the external dataset; Filter out positions to far from the external station
   # (these filters needs to be specified in the settings)
@@ -432,3 +436,12 @@ if (settings$external_comparison) {
   print(plot_4)
   dev.off()
 }
+
+# Write number of measurements (not external) outside of the plot range
+n_outside_plot_ext <- sum(df_mod_full$co2 > y_lim_max) + sum(df_mod_full$co2 < y_lim_min)
+percent_outside_ext <- round((n_outside_plot_ext/nrow(df_mod_full))*100, 1)
+cat("Plot 4. Measurements (not external) outside plot area (", y_lim_min, ":",
+    y_lim_max, ") is: ", n_outside_plot_ext, " (", percent_outside_ext, "%)\n",
+    sep = "")
+
+sink()

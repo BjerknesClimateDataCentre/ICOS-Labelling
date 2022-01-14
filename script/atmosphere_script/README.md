@@ -10,8 +10,9 @@ from stations undergoing labelling.
 data from rds files, created in a different script).
 2. If relevant for labelling, there must be an external dataset in the input/
 external directory. The data can be found here: Station map:
-https://www.esrl.noaa.gov/gmd/dv/iadv/. See example of data format in the file
-external_data_format_example.txt (in same directory as this file).
+https://www.esrl.noaa.gov/gmd/dv/iadv/ (download the discrete data format).
+See example of data format in the file external_data_format_example.txt (in
+same directory as this file).
 3. There must be a 'settings.json' file in the same directory as this script.
 The script needs the following from this settings file:
 - required_columns: the name of various columns needed
