@@ -23,8 +23,7 @@ windowsFonts(Times = windowsFont("Times New Roman"))
 
 # Remove existing files in the output directory
 if (!is.null(list.files("output"))) {
-  file.remove(dir(paste0(getwd(), "/output"),
-                  pattern = "", full.names = TRUE))
+  file.remove(dir(paste0(getwd(), "/output"), pattern = "", full.names = TRUE))
 }
 
 

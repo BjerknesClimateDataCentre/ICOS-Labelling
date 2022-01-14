@@ -43,7 +43,7 @@
 			"add_to_external_year": "1"
 		}
 	},
-	"external_comparison" : true,
+	"external_comparison" : false,
 	"qc_range" : {
 		"good_min" : "300",
 		"good_max" : "500"
