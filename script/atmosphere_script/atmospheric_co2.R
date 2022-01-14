@@ -139,7 +139,7 @@ for (column_key in names(settings$required_columns)) {
   assign(column_key, settings$required_columns[[column_key]])
 }
 
-# Specify date/time column(s) !!M ve to read raw data script !!
+# Specify date/time column(s) !!Move to read raw data script !!
 df <- df %>%
   mutate(datetime = as.POSIXct(paste(df[[date_colname]], df[[time_colname]]),
                                format = settings$datetime_format))
@@ -199,8 +199,6 @@ png("output/1.atmpspheric_co2_vs_time.png")
 plot_1 <-  ggplot(df_mod_full, aes(x = datetime, y = co2)) +
   geom_point() +
   xlab("Time") + ylab(y_lab) + 
-  # Specify monthly ticks with short month names as label
-  scale_x_datetime(date_breaks = "1 month", date_labels = '%b') +
   # Change plot layout to another theme and so some adjustments to the theme
   theme_bw() +
   theme(text = element_text(family = "Times"),
@@ -214,6 +212,18 @@ plot_1 <-  ggplot(df_mod_full, aes(x = datetime, y = co2)) +
            hjust = letter_position[[3]],
            vjust = letter_position[[4]],
            size = 9)
+
+# Specify y tick labels format and their spacing
+timespan <- as.numeric(df_mod_full$datetime[nrow(df_mod_full)] - 
+                         df_mod_full$datetime[1])
+if (timespan < 240) {
+  breaks = "2 months"
+} else if (timespan > 240 & timespan < 650) {
+  breaks = "4 months"
+} else {
+  breaks = "6 monhts"
+}
+plot_1 <- plot_1 + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
 
 # Change the range in plot if specified in settings
 if (!is.na(y_lim_min)){

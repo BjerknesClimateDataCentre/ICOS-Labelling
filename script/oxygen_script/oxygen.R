@@ -169,7 +169,7 @@ plot <-  ggplot(df_mod, aes(x = datetime)) +
   geom_point(aes(y = o2)) +
   xlab("Time") +
   # Specify monthly ticks with short month names as label
-  scale_x_datetime(date_breaks = "1 month", date_labels = '%b') +
+  #scale_x_datetime(date_breaks = "1 month", date_labels = '%b') +
   # Change plot layout to another theme and so some adjustments to the theme
   theme_bw() +
   theme(text = element_text(family = "Times"),
@@ -183,6 +183,18 @@ plot <-  ggplot(df_mod, aes(x = datetime)) +
            hjust = letter_position[[3]],
            vjust = letter_position[[4]],
            size = 9)
+
+# Specify y tick labels format and their spacing
+timespan <- as.numeric(df_mod$datetime[nrow(df_mod)]-df_mod$datetime[1])
+if (timespan < 240) {
+  breaks = "2 months"
+} else if (timespan > 240 & timespan < 650) {
+  breaks = "4 months"
+} else {
+  breaks = "6 monhts"
+}
+plot <- plot + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
+
 
 # Create the y axis(es) and its ranges
 if (add_sat) {
