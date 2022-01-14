@@ -444,4 +444,13 @@ cat("Plot 4. Measurements (not external) outside plot area (", y_lim_min, ":",
     y_lim_max, ") is: ", n_outside_plot_ext, " (", percent_outside_ext, "%)\n",
     sep = "")
 
+# Write to output file if dummy values were added to the external data
+if (settings$external_comparison){
+  cat("4. Note: Since the datasets did not overlap in time, dummy value ", 
+      add_to_external_value, " were added to the external co2 data (to account 
+      for the increase in co2 over time), and value ", add_to_external_year,
+      " were added to the external year (in order to make a plot where data can
+      be easily compared).")
+}
+
 sink()
