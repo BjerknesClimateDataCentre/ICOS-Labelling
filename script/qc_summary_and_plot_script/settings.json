@@ -23,7 +23,9 @@
     },
     "raw_sal": {
       "make_summary" : true,
-      "remove_comment" : []
+      "remove_comment" : [
+        "Climatological value from World Ocean Atlas",
+        "Position QC:Missing"]
     },
     "peq": {
       "make_summary" : true,
@@ -46,7 +48,7 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "NA,NA",
+      "y_lims": "14,30",
       "x_lab": "Time",
       "y_lab": "Intake Temperature [°C]",
       "letter_string": "a)",
@@ -61,7 +63,7 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "NA,NA",
+      "y_lims": "14,30",
       "x_lab": "Time",
       "y_lab": "Temperature at Equilibrator [°C]",
       "letter_string": "b)",
@@ -91,7 +93,7 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "980,1030",
+      "y_lims": "1000,1030",
       "x_lab": "Time",
       "y_lab": "Pressure at Equilibrator [hpa]",
       "letter_string": "d)",
