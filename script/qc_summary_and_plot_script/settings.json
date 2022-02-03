@@ -1,43 +1,45 @@
 {
-  "station_type": "SOOP",
+  "station_type": "FOS",
   "qc_summary_params": {
     "lat": {
-      "make_summary" : true,
-      "remove_comment" : []
+      "make_summary": false,
+      "remove_comment": []
     },
     "lon": {
-      "make_summary" : true,
-      "remove_comment" : []
+      "make_summary": false,
+      "remove_comment": []
     },
     "raw_depth": {
-      "make_summary" : false,
-      "remove_comment" : []
+      "make_summary": false,
+      "remove_comment": []
     },
     "raw_temp": {
-      "make_summary" : true,
-      "remove_comment" : ["ΔT out of range"]
+      "make_summary": true,
+      "remove_comment": []
     },
     "raw_teq": {
-      "make_summary" : true,
-      "remove_comment" : []
+      "make_summary": false,
+      "remove_comment": []
     },
     "raw_sal": {
-      "make_summary" : true,
-      "remove_comment" : [
-        "Climatological value from World Ocean Atlas",
-        "Position QC:Missing"]
+      "make_summary": true,
+      "remove_comment": []
     },
     "peq": {
-      "make_summary" : true,
-      "remove_comment" : []
+      "make_summary": false,
+      "remove_comment": []
+    },
+    "pfos": {
+      "make_summary": true,
+      "remove_comment": []
     },
     "raw_co2": {
-      "make_summary" : true,
-      "remove_comment" : []
+      "make_summary": true,
+      "remove_comment": []
     },
     "fco2": {
-      "make_summary" : true,
-      "remove_comment" : []
+      "make_summary": true,
+      "remove_comment": []
     }
   },
   "all_plots": {
@@ -48,25 +50,10 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "14,30",
+      "y_lims": "NA,NA",
       "x_lab": "Time",
-      "y_lab": "Intake Temperature [°C]",
+      "y_lab": "Sea Surface Temperature [°C]",
       "letter_string": "a)",
-      "letter_position_name": "topleft",
-      "x_warning_lims": "NA,NA",
-      "y_warning_lims": "-5,40"
-    },
-    "teq_vs_time": {
-      "make_plot": true,
-      "x_name": "datetime",
-      "y_name": "teq",
-      "x_filter_bad": false,
-      "y_filter_bad": false,
-      "x_lims": "NA,NA",
-      "y_lims": "14,30",
-      "x_lab": "Time",
-      "y_lab": "Temperature at Equilibrator [°C]",
-      "letter_string": "b)",
       "letter_position_name": "topleft",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "-5,40"
@@ -74,32 +61,17 @@
     "sal_vs_time": {
       "make_plot": true,
       "x_name": "datetime",
-      "y_name": "sal",
+      "y_name": "raw_sal",
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "NA,NA",
+      "y_lims": "6,8",
       "x_lab": "Time",
       "y_lab": "Salinity [PSU]",
-      "letter_string": "c)",
+      "letter_string": "b)",
       "letter_position_name": "topleft",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "0,42"
-    },
-    "peq_vs_time": {
-      "make_plot": true,
-      "x_name": "datetime",
-      "y_name": "peq",
-      "x_filter_bad": false,
-      "y_filter_bad": false,
-      "x_lims": "NA,NA",
-      "y_lims": "1000,1030",
-      "x_lab": "Time",
-      "y_lab": "Pressure at Equilibrator [hpa]",
-      "letter_string": "d)",
-      "letter_position_name": "topleft",
-      "x_warning_lims": "NA,NA",
-      "y_warning_lims": "900,1100"
     },
     "raw_co2_vs_time": {
       "make_plot": true,
@@ -108,73 +80,88 @@
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
-      "y_lims": "NA,NA",
+      "y_lims": "0,5000",
       "x_lab": "Time",
-      "y_lab": "Sea Surface xCO₂ [ppm]",
-      "letter_string": "e)",
+      "y_lab": "Sea Surface pCO₂ [ppm]",
+      "letter_string": "c)",
       "letter_position_name": "topleft",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "80,1200"
     },
-    "deltaT_vs_time": {
-      "make_plot": true,
+    "depth_vs_time": {
+      "make_plot": false,
       "x_name": "datetime",
-      "y_name": "deltaT",
+      "y_name": "raw_depth",
       "x_filter_bad": false,
       "y_filter_bad": false,
       "x_lims": "NA,NA",
       "y_lims": "NA,NA",
       "x_lab": "Time",
-      "y_lab": "Abs. ΔTemperature [°C]",
-      "letter_string": "a)",
+      "y_lab": "Depth [m]",
+      "letter_string": "d)",
       "letter_position_name": "topleft",
       "x_warning_lims": "NA,NA",
-      "y_warning_lims": "0,999"
+      "y_warning_lims": "0,5"
     },
-    "teq_vs_temp": {
-      "make_plot": true,
-      "x_name": "temp",
-      "y_name": "teq",
-      "x_filter_bad": true,
-      "y_filter_bad": true,
-      "x_lims": "NA,NA",
-      "y_lims": "NA,NA",
-      "x_lab": "Intake Temperature [°C]",
-      "y_lab": "Equilibrator Temperature [°C]",
-      "letter_string": "b)",
-      "letter_position_name": "topleft",
-      "x_warning_lims": "-5,40",
-      "y_warning_lims": "-5,40"
-    },
-    "fco2_vs_time": {
+    "pfos_vs_time": {
       "make_plot": true,
       "x_name": "datetime",
-      "y_name": "fco2",
+      "y_name": "raw_pfos",
       "x_filter_bad": false,
-      "y_filter_bad": true,
+      "y_filter_bad": false,
+      "x_lims": "NA,NA",
+      "y_lims": "965,1050",
+      "x_lab": "Time",
+      "y_lab": "Atmospheric Pressure [hpa]",
+      "letter_string": "d)",
+      "letter_position_name": "topleft",
+      "x_warning_lims": "NA,NA",
+      "y_warning_lims": "900,1100"
+    },
+    "o2_vs_time": {
+      "make_plot": true,
+      "x_name": "datetime",
+      "y_name": "raw_o2",
+      "x_filter_bad": false,
+      "y_filter_bad": false,
       "x_lims": "NA,NA",
       "y_lims": "NA,NA",
       "x_lab": "Time",
-      "y_lab": "fCO₂ [μatm]",
-      "letter_string": "a)",
+      "y_lab": "O₂ [μmol/l]",
+      "letter_string": "e)",
       "letter_position_name": "topleft",
       "x_warning_lims": "NA,NA",
-      "y_warning_lims": "80,1200"
+      "y_warning_lims": "50,400"
     },
-    "fco2_vs_xco2": {
+    "o2sat_vs_time": {
       "make_plot": true,
-      "x_name": "raw_co2",
-      "y_name": "fco2",
-      "x_filter_bad": true,
-      "y_filter_bad": true,
+      "x_name": "datetime",
+      "y_name": "raw_o2sat",
+      "x_filter_bad": false,
+      "y_filter_bad": false,
       "x_lims": "NA,NA",
       "y_lims": "NA,NA",
-      "x_lab": "xCO₂ [ppm]",
-      "y_lab": "fCO₂ [μatm]",
-      "letter_string": "b)",
+      "x_lab": "Time",
+      "y_lab": "O₂ Saturation [%]",
+      "letter_string": "f)",
       "letter_position_name": "topleft",
-      "x_warning_lims": "80,1200",
-      "y_warning_lims": "80,1200"
+      "x_warning_lims": "NA,NA",
+      "y_warning_lims": "NA,NA"
+    },
+    "temp_vs_temp": {
+      "make_plot": false,
+      "x_name": "",
+      "y_name": "",
+      "x_filter_bad": false,
+      "y_filter_bad": false,
+      "x_lims": "NA,NA",
+      "y_lims": "NA,NA",
+      "x_lab": "x Temperature [°C]",
+      "y_lab": "y Temperature [°C]",
+      "letter_string": "",
+      "letter_position_name": "",
+      "x_warning_lims": "-5,40",
+      "y_warning_lims": "-5,40"
     }
   }
 }
