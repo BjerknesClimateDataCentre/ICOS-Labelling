@@ -167,7 +167,7 @@
 			"x_warning_lims": "NA,NA",
 			"y_warning_lims": "0,42"
 		},
-		"raw_po2_vs_time" : {
+		"raw_co2_vs_time" : {
 			"make_plot" : true,
 			"x_name" : "datetime",
 			"y_name" : "raw_co2",
@@ -197,6 +197,21 @@
 			"x_warning_lims": "NA,NA",
 			"y_warning_lims": "0,5"
 		},
+		"pfos_vs_time": {
+			"make_plot": true,
+			"x_name": "datetime",
+			"y_name": "raw_pfos",
+			"x_filter_bad": false,
+			"y_filter_bad": false,
+			"x_lims": "NA,NA",
+			"y_lims": "NA,NA",
+			"x_lab": "Time",
+			"y_lab": "Atmospheric Pressure [hpa]",
+			"letter_string": "e)",
+			"letter_position_name": "topleft",
+			"x_warning_lims": "NA,NA",
+			"y_warning_lims": "900,1100"
+		},
 		"o2_vs_time" : {
 			"make_plot" : false,
 			"x_name" : "datetime",
@@ -207,7 +222,7 @@
 			"y_lims": "NA,NA",
 			"x_lab" : "Time",
 			"y_lab" : "O\u2082 [\u03BCmol/l]",
-			"letter_string" : "e)",
+			"letter_string" : "f)",
 			"letter_position_name" : "topleft",
 			"x_warning_lims": "NA,NA",
 			"y_warning_lims": "50,400"
@@ -222,25 +237,10 @@
 			"y_lims": "NA,NA",
 			"x_lab" : "Time",
 			"y_lab" : "O\u2082 Saturation [%]",
-			"letter_string" : "f)",
+			"letter_string" : "g)",
 			"letter_position_name" : "topleft",
 			"x_warning_lims": "NA,NA",
 			"y_warning_lims": "NA,NA"
-		},
-		"temp_vs_temp" : {
-			"make_plot" : false,
-			"x_name" : "",
-			"y_name" : "",
-			"x_filter_bad": false,
-			"y_filter_bad" : false,
-			"x_lims" : "NA,NA",
-			"y_lims": "NA,NA",
-			"x_lab" : "x Temperature [\u00B0C]",
-			"y_lab" : "y Temperature [\u00B0C]",
-			"letter_string" : "",
-			"letter_position_name" : "",
-			"x_warning_lims": "-5,40",
-			"y_warning_lims": "-5,40"
 		}
 	}
 }
