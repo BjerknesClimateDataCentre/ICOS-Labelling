@@ -168,10 +168,10 @@ create_plot <- function(plot_count, y_name, x_name, y_lab, x_lab, y_lims,
     timespan <- as.numeric(df$datetime[nrow(df)]-df$datetime[1])
     if (timespan < 240) {
       breaks = "2 months"
-    } else if (timespan > 240 & timespan < 650) {
+    } else if (timespan > 240 & timespan < 750) {
       breaks = "4 months"
     } else {
-      breaks = "6 monhts"
+      breaks = "6 months"
     }
     
     ret <- ret + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
@@ -256,15 +256,6 @@ for (plot_config in settings$all_plots){
         else .} %>%
       {if (x_filter_bad) filter(., get(paste0(x_name, "_flag")) == 2)
         else .}
-    
-    # If data is stored as character, change to numeric (datetime is always 
-    # read correctly as date class)
-    if (is.character(df_to_plot[[y_name]])) {
-      df_to_plot[[y_name]] <- as.numeric(df_to_plot[[y_name]])
-    } 
-    if (is.character(df_to_plot[[x_name]])) {
-      df_to_plot[[x_name]] <- as.numeric(df_to_plot[[x_name]])
-    } 
     
     # Create a vector of the axis limits string
     x_lims <- lim_string_to_vector(x_lims)
