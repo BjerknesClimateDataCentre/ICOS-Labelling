@@ -4,16 +4,16 @@
 		"raw_data" : false
 	},
 	"read_from_input_folder": {
-		"filename_pri" : "GO_all.txt",
-		"filename_sec" : "serial_all_sorted.txt"
+		"filename_pri" : "PALOMA_CO2_Oct19-Oct20.txt",
+		"filename_sec" : "PALOMA CTD 26jan2019-20oct2020.txt"
 	},
 	"datetime_settings" : {
-		"date_colname_pri" : "PC_Date",
-		"time_colname_pri" : "PC_Time",
-		"datetime_format_pri" : "%d/%m/%y %H:%M:%S",
-		"date_colname_sec" : "date",
-		"time_colname_sec" : "time",
+		"date_colname_pri" : "Datetime",
+		"time_colname_pri" : "Datetime",
+		"datetime_format_pri" : "%Y-%m-%d %H:%M:%S",
+		"date_colname_sec" : "datetime",
+		"time_colname_sec" : "datetime",
 		"datetime_format_sec" : "%Y-%m-%d %H:%M:%S"
 	},
-	"max_timediff_minutes" : "1"
+	"max_timediff_minutes" : "2"
 }
