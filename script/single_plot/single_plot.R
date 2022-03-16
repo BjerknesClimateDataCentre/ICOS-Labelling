@@ -2,24 +2,10 @@
 ### MAKE SINGLE PLOT (ALWAYS VS TIME)                                        ###
 ################################################################################
 
-#------------------------------------------------------------------------------
-# INPUT PARAMETERS
-
-input_filename <- "input/GO_all.txt"
-letter_corner <- "topleft"
-y_colname <- "H2O_flow"
-date_colname <- "PC_Date"
-time_colname <- "PC_Time"
-datetime_format <- "%d/%m/%y %H:%M:%S"
-y_label <- "Water Flow (L/min)"
-plot_letter <- "h)"
-output_filename <- "output/waterflow_vs_time.png"
-y_lims <- c(NA,NA)
-x_lims <- c(NA,NA)
-
 
 #-------------------------------------------------------------------------------
 # INITIAL SETTINGS
+#-------------------------------------------------------------------------------
 
 # Load packages
 library(readr)
@@ -38,8 +24,26 @@ if (!is.null(list.files("output"))) {
   file.remove(dir(paste0(getwd(), "/output"), pattern = "", full.names = TRUE))
 }
 
+
+#-------------------------------------------------------------------------------
+# IMPORT DATA AND SETTINGS
+#-------------------------------------------------------------------------------
+
+# Import data
+dataname <- list.files("input", pattern = ".txt")
+datapath <- paste0("input/", dataname)
+df <- read_tsv(datapath)
+
+# Import and extract settings
+settings <- read_json(path = "settings.json", format = "json")
+for (key in names(settings)) {
+  assign(key, settings[[key]])
+}
+
+
 #-------------------------------------------------------------------------------
 # FUNCTIONS
+#-------------------------------------------------------------------------------
 
 # Function that adds a date time column to the data. Required inputs are the
 # name of the data, its date and time colnames, and their formats.
@@ -133,9 +137,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
 
 #-------------------------------------------------------------------------------
 # CREATE PLOT
-
-# Import data
-df <- read_tsv(input_filename)
+#-------------------------------------------------------------------------------
 
 # Create datetime column
 df_to_plot <- assign_datetime(df, date_colname, time_colname, datetime_format)
@@ -150,9 +152,19 @@ positions_template <- data.frame(
   vjustvar = c(-1, 1, -1, 1),
   location = c("bottomleft", "topleft", "bottomright", "topright"))
 
+# Make the plot ranges numeric (if na: replace with max and min value)
+y_lims <- as.numeric(unlist(strsplit(y_lims, ",")))
+if (is.na(y_lims[1])) {
+  y_lims[1] <- min(na.omit(df_to_plot[[y_colname]]))
+  y_lims[2] <- max(na.omit(df_to_plot[[y_colname]]))
+}
+x_lims <- c(NA,NA) # Always datetime on x axis in this script!
+
 # Create letter position
-letter_position <- create_letter_position(letter_corner, y_colname, "datetime",
-                                          y_lims, x_lims)
+if (add_letter){
+  letter_position <- create_letter_position(letter_corner, y_colname,
+                                            "datetime", y_lims, x_lims)
+}
 
 # Set up the image file
 png(output_filename)
@@ -166,14 +178,17 @@ ret <- ggplot(df_to_plot,
   theme_bw() +
   theme(text = element_text(family = "Times"),
         axis.text = element_text(size = rel(1.5)),
-        axis.title = element_text(size = rel(1.7))) +
-  annotate("text",
-           x = letter_position[[1]],
-           y = letter_position[[2]], 
-           label = plot_letter,
-           hjust = letter_position[[3]],
-           vjust = letter_position[[4]],
-           size = 9)
+        axis.title = element_text(size = rel(1.7)))
+
+if (add_letter){
+  ret <- ret + annotate("text", 
+                        x = letter_position[[1]],
+                        y = letter_position[[2]], 
+                        label = plot_letter,
+                        hjust = letter_position[[3]],
+                        vjust = letter_position[[4]],
+                        size = 9)
+}
 
 # Specify monthly ticks with short month names as label
 # The time between ticks depends on the length of the dataset
