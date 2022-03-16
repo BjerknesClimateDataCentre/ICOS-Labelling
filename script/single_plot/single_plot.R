@@ -1,5 +1,5 @@
 ################################################################################
-### MAKE SINGLE PLOT (ALWAYS VS TIME)                                        ###
+### MAKE PLOT OF SINGLE VARIABLE VS TIME, AND FILTER DATA IF NEEDED          ###
 ################################################################################
 
 
@@ -22,22 +22,6 @@ windowsFonts(Times = windowsFont("Times New Roman"))
 # Remove existing files in the output directory
 if (!is.null(list.files("output"))) {
   file.remove(dir(paste0(getwd(), "/output"), pattern = "", full.names = TRUE))
-}
-
-
-#-------------------------------------------------------------------------------
-# IMPORT DATA AND SETTINGS
-#-------------------------------------------------------------------------------
-
-# Import data
-dataname <- list.files("input", pattern = ".txt")
-datapath <- paste0("input/", dataname)
-df <- read_tsv(datapath)
-
-# Import and extract settings
-settings <- read_json(path = "settings.json", format = "json")
-for (key in names(settings)) {
-  assign(key, settings[[key]])
 }
 
 
@@ -136,11 +120,22 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
 
 
 #-------------------------------------------------------------------------------
-# CREATE PLOT
+# CREATE PLOT(S) AND RUN FILTER(S)
 #-------------------------------------------------------------------------------
 
-# Create datetime column
-df_to_plot <- assign_datetime(df, date_colname, time_colname, datetime_format)
+# Import and extract settings
+settings <- read_json(path = "settings.json", format = "json")
+for (key in names(settings)) {
+  assign(key, settings[[key]])
+}
+
+# Make the plot ranges numeric (if na: replace with max and min value)
+y_lims <- as.numeric(unlist(strsplit(y_lims, ",")))
+if (is.na(y_lims[1])) {
+  y_lims[1] <- min(na.omit(df_to_plot[[y_colname]]))
+  y_lims[2] <- max(na.omit(df_to_plot[[y_colname]]))
+}
+x_lims <- c(NA,NA) # Always datetime on x axis in this script!
 
 # Create a data frame with location information about each corner in a
 # plot. This data frame is later used to determine where to place the letter 
@@ -152,56 +147,60 @@ positions_template <- data.frame(
   vjustvar = c(-1, 1, -1, 1),
   location = c("bottomleft", "topleft", "bottomright", "topright"))
 
-# Make the plot ranges numeric (if na: replace with max and min value)
-y_lims <- as.numeric(unlist(strsplit(y_lims, ",")))
-if (is.na(y_lims[1])) {
-  y_lims[1] <- min(na.omit(df_to_plot[[y_colname]]))
-  y_lims[2] <- max(na.omit(df_to_plot[[y_colname]]))
+# Loop through input files and make plots (and filter if)
+data_files <- list.files("input", pattern = ".txt")
+for (file in data_files){
+  
+  # Import data and assign datetime
+  file_path <- paste0("input/", file)
+  df <- read_tsv(file_path)
+  df_to_plot <- assign_datetime(df, date_colname, time_colname, datetime_format)
+  
+  # Create letter position
+  if (add_letter){
+    letter_position <- create_letter_position(letter_corner, y_colname,
+                                              "datetime", y_lims, x_lims)
+  }
+  
+  # Set up the image file
+  output_filename <- paste0("output/", y_colname, "_vs_time_", file, ".png") 
+  png(output_filename)
+  
+  # Create a ggplot and add multiple features
+  ret <- ggplot(df_to_plot, 
+                aes(x = df_to_plot$datetime, y = df_to_plot[[y_colname]])) +
+    geom_point() +
+    xlab("Time") + ylab(y_label) + 
+    # Change plot layout to another theme and so some adjustments $o the theme
+    theme_bw() +
+    theme(text = element_text(family = "Times"),
+          axis.text = element_text(size = rel(1.5)),
+          axis.title = element_text(size = rel(1.7))) +
+    ylim(y_lims[1], y_lims[2])
+  
+  if (add_letter){
+    ret <- ret + annotate("text", 
+                          x = letter_position[[1]],
+                          y = letter_position[[2]], 
+                          label = plot_letter,
+                          hjust = letter_position[[3]],
+                          vjust = letter_position[[4]],
+                          size = 9)
+  }
+  
+  # Specify monthly ticks with short month names as label
+  # The time between ticks depends on the length of the dataset
+  timespan <- as.numeric(df_to_plot$datetime[nrow(df)]-df_to_plot$datetime[1])
+  if (timespan < 240) {
+    breaks = "2 months"
+  } else if (timespan > 240 & timespan < 750) {
+    breaks = "4 months"
+  } else {
+    breaks = "6 months"
+  }
+  ret <- ret + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
+  
+  # Create the plot and image file
+  print(ret)
+  dev.off()
 }
-x_lims <- c(NA,NA) # Always datetime on x axis in this script!
-
-# Create letter position
-if (add_letter){
-  letter_position <- create_letter_position(letter_corner, y_colname,
-                                            "datetime", y_lims, x_lims)
-}
-
-# Set up the image file
-png(output_filename)
-
-# Create a ggplot and add multiple features
-ret <- ggplot(df_to_plot, 
-              aes(x = df_to_plot$datetime, y = df_to_plot[[y_colname]])) +
-  geom_point() +
-  xlab("Time") + ylab(y_label) + 
-  # Change plot layout to another theme and so some adjustments $o the theme
-  theme_bw() +
-  theme(text = element_text(family = "Times"),
-        axis.text = element_text(size = rel(1.5)),
-        axis.title = element_text(size = rel(1.7)))
-
-if (add_letter){
-  ret <- ret + annotate("text", 
-                        x = letter_position[[1]],
-                        y = letter_position[[2]], 
-                        label = plot_letter,
-                        hjust = letter_position[[3]],
-                        vjust = letter_position[[4]],
-                        size = 9)
-}
-
-# Specify monthly ticks with short month names as label
-# The time between ticks depends on the length of the dataset
-timespan <- as.numeric(df_to_plot$datetime[nrow(df)]-df_to_plot$datetime[1])
-if (timespan < 240) {
-  breaks = "2 months"
-} else if (timespan > 240 & timespan < 750) {
-  breaks = "4 months"
-} else {
-  breaks = "6 months"
-}
-ret <- ret + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
-
-# Create the plot and image file
-print(ret)
-dev.off()
