@@ -1,0 +1,14 @@
+{
+  "y_colname" : "Sal",
+  "date_colname" : "Date",
+  "time_colname" : "Time",
+  "datetime_format" : "%Y-%m-%d %H:%M:%S",
+  "y_lims" : "NA,NA",
+  "y_label" : "Salinity",
+  "add_letter": false,
+  "letter_corner": "bottomleft",
+  "plot_letter" : "a)",
+  "output_filename" : "output/sal_vs_time.png",
+  "add_filter": false,
+  "filter_lims": "NA,NA"
+}
