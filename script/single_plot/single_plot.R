@@ -137,6 +137,12 @@ if (is.na(y_lims[1])) {
 }
 x_lims <- c(NA,NA) # Always datetime on x axis in this script!
 
+# Make filter limits numeric if needed
+if (add_filter){
+  filter_lim_low <- as.numeric(filter_lim_low)
+  filter_lim_high <- as.numeric(filter_lim_high)
+}
+
 # Create a data frame with location information about each corner in a
 # plot. This data frame is later used to determine where to place the letter 
 # string in plots.
@@ -147,7 +153,7 @@ positions_template <- data.frame(
   vjustvar = c(-1, 1, -1, 1),
   location = c("bottomleft", "topleft", "bottomright", "topright"))
 
-# Loop through input files and make plots (and filter if)
+# Loop through input files and make plots (and filter if specified)
 data_files <- list.files("input", pattern = ".txt")
 for (file in data_files){
   
@@ -156,6 +162,8 @@ for (file in data_files){
   df <- read_tsv(file_path)
   df_to_plot <- assign_datetime(df, date_colname, time_colname, datetime_format)
   
+  # --------------------------------
+  # PLOT:
   # Create letter position
   if (add_letter){
     letter_position <- create_letter_position(letter_corner, y_colname,
@@ -163,7 +171,8 @@ for (file in data_files){
   }
   
   # Set up the image file
-  output_filename <- paste0("output/", y_colname, "_vs_time_", file, ".png") 
+  output_filename <- paste0("output/", y_colname, "_vs_time_",
+                            strsplit(file, '.txt'), ".png") 
   png(output_filename)
   
   # Create a ggplot and add multiple features
@@ -203,4 +212,27 @@ for (file in data_files){
   # Create the plot and image file
   print(ret)
   dev.off()
+  
+  #-------------------------
+  # FILTER
+  if (add_filter){
+    
+    # Filter out data below and above the thresholds
+    if (!is.na(filter_lim_low) & !is.na(filter_lim_high)){
+      df_to_output <- df_to_plot %>%
+        filter(., !!as.symbol(y_colname) > filter_lim_low) %>%
+        filter(., !!as.symbol(y_colname) < filter_lim_high)
+    } else if (is.na(filter_lim_low) & !is.na(filter_lim_high)) {
+      df_to_output <- df_to_plot %>%
+        filter(., !!as.symbol(y_colname) < filter_lim_high)
+    } else {
+      df_to_output <- df_to_plot %>%
+        filter(., !!as.symbol(y_colname) > filter_lim_low)
+    }
+    
+    # Write the filtered data to file
+    out_file <- paste0("output/", strsplit(file, '.txt'), "_FILTERED.txt")
+    write_tsv(df_to_output, file = out_file)
+  }
+
 }

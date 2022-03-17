@@ -8,6 +8,7 @@
   "add_letter": false,
   "letter_corner": "bottomleft",
   "plot_letter" : "a)",
-  "add_filter": false,
-  "filter_lims": "NA,NA"
+  "add_filter": true,
+  "filter_lim_low": "2.5",
+  "filter_lim_high" : "NA"
 }
