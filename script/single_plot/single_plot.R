@@ -230,6 +230,10 @@ for (file in data_files){
         filter(., !!as.symbol(y_colname) > filter_lim_low)
     }
     
+    # Remove the final datatime column before output the data
+    df_to_output <- df_to_output %>%
+      select(-datetime)
+    
     # Write the filtered data to file
     out_file <- paste0("output/", strsplit(file, '.txt'), "_FILTERED.txt")
     write_tsv(df_to_output, file = out_file)
