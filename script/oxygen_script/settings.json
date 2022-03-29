@@ -13,10 +13,11 @@
 		"saturation_colname" : false
 	},
 	"convert_settings": {
-		"do_convertion": true
+		"do_convertion": true,
+		"using_sigma_theta": false
 	},
 	"filter_settings": {
-		"remove_missing" : true,
+		"remove_missing" : false,
 		"missing_value" : "0"
 	},
 	"plot_settings" : {
@@ -29,7 +30,7 @@
 	    "sat_scale_coeff" : "2"
 	},
 	"range_settings": {
-		"check_range" : true,
+		"check_range" : false,
 		"qc_ranges" : {
 			"umol_pr_L" : {
 				"good_min": "50",
