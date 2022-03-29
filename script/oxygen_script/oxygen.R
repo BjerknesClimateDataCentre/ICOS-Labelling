@@ -165,18 +165,19 @@ write_tsv(df_to_output, file = out_file)
 # PLOT 
 #-------------------------------------------------------------------------------
 
+# Simplify data before plot and range check: only keep needed data and rename
+if (saturation_colname & add_sat) {
+  df_simple <- df_datetime %>%
+    select(datetime, all_of(o2_colname), all_of(saturation_colname)) %>%
+    rename(o2=all_of(o2_colname), saturation=all_of(saturation_colname))
+} else {
+  df_simple <- df_datetime %>%
+    select(datetime, all_of(o2_colname)) %>%
+    rename(o2=all_of(o2_colname))
+}
+
 if (make_plot) {
-  # Simplify data: only keep needed data and rename
-  if (saturation_colname & add_sat) {
-    df_simple <- df_datetime %>%
-      select(datetime, all_of(o2_colname), all_of(saturation_colname)) %>%
-      rename(o2=all_of(o2_colname), saturation=all_of(saturation_colname))
-  } else {
-    df_simple <- df_datetime %>%
-      select(datetime, all_of(o2_colname)) %>%
-      rename(o2=all_of(o2_colname))
-  }
-  
+
   # Make the plot ranges numeric (if na: replace with max and min oxygen value)
   o2_ylims <- as.numeric(unlist(strsplit(o2_ylims, ",")))
   if (is.na(o2_ylims[1])) {
@@ -251,21 +252,24 @@ if (make_plot) {
 if (check_range) {
   # Set up the file for stats
   sink(file = "output/oxygen_stats.txt")
-
+  
   # Write total number of oxygen measurements
   n_oxygen <- length(na.omit(df_simple$o2))
   cat("The total number of oxygen measurements: ", n_oxygen, "\n", sep="")
 
   # Write number of oxygen out of plotting range
-  n_outside_plot <- sum(na.omit(df_simple$o2 < o2_ylims[1])) +
-    sum(na.omit(df_simple$o2 > o2_ylims[2]))
-  percent_outside <-round((n_outside_plot/n_oxygen)*100, 1)
-  cat("Measurements outside plot area (", o2_ylims[1], ":", o2_ylims[2],
-      ") is: ", n_outside_plot, " (", percent_outside, "%)\n", sep = "")
+  if (make_plot){
+    n_outside_plot <- sum(na.omit(df_simple$o2 < o2_ylims[1])) +
+      sum(na.omit(df_simple$o2 > o2_ylims[2]))
+    percent_outside <-round((n_outside_plot/n_oxygen)*100, 1)
+    cat("Measurements outside plot area (", o2_ylims[1], ":", o2_ylims[2],
+        ") is: ", n_outside_plot, " (", percent_outside, "%)\n", sep = "")
+  }
 
   # Write number of oxygen out of acceptable range
-  good_min <- as.numeric(settings$qc_range$umol_pr_L$good_min)
-  good_max <- as.numeric(settings$qc_range$umol_pr_L$good_max)
+  qc_ranges_num <- as.numeric(unlist(strsplit(qc_ranges, ",")))
+  good_min <- qc_ranges_num[1]
+  good_max <- qc_ranges_num[2]
 
   n_bad <- sum(na.omit(df_simple$o2 < good_min)) + sum(na.omit(df_simple$o2 > good_max))
   percent_bad <- round((n_bad/n_oxygen)*100, 1)
