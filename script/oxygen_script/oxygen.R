@@ -23,21 +23,14 @@ windowsFonts(Times = windowsFont("Times New Roman"))
 
 
 #-------------------------------------------------------------------------------
-# IMPORT DATA AND SETTINGS
-#-------------------------------------------------------------------------------
-
-# Import data
-dataname <- list.files("input", pattern = ".txt")
-datapath <- paste0("input/", dataname)
-df <- read_tsv(datapath)
-
-# Import settings
-settings <- read_json(path = "settings.json", format = "json")
-
-
-#-------------------------------------------------------------------------------
 # FUNCTIONS
 #-------------------------------------------------------------------------------
+
+extract_settings <- function(settings){
+  for (key in names(settings)) {
+    assign(key, settings[[key]], envir = .GlobalEnv)
+  }
+}
 
 # This function returns information about where in the plot to put the letter
 # string. Required inputs are the name of the parameter, and in which corner
@@ -65,7 +58,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   if (positions_template$ypos[position_index] > 0) {
     
     if (is.na(y_lims[2])){
-      ypos <- max(na.omit(as.numeric(df_mod[[y_name]])))
+      ypos <- max(na.omit(as.numeric(df_simple[[y_name]])))
     } else {
       ypos <- na.omit(y_lims[2])
     }
@@ -73,7 +66,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   } else {
     
     if (is.na(y_lims[1])) {
-      ypos <- min(na.omit(as.numeric(df_mod[[y_name]])))
+      ypos <- min(na.omit(as.numeric(df_simple[[y_name]])))
     } else {
       ypos <- na.omit(y_lims[1])
     }
@@ -83,7 +76,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   if (positions_template$xpos[position_index] > 0){
     
     if (is.na(x_lims[2])) {
-      xpos <- max(na.omit(as.numeric(df_mod[[x_name]])))
+      xpos <- max(na.omit(as.numeric(df_simple[[x_name]])))
     } else {
       xpos <- na.omit(x_lims[2])
     }
@@ -91,7 +84,7 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
   } else {
     
     if (is.na(x_lims[1])) {
-      xpos <- min(na.omit(as.numeric(df_mod[[x_name]])))
+      xpos <- min(na.omit(as.numeric(df_simple[[x_name]])))
     } else {
       xpos <- na.omit(x_lims[1])
     }
@@ -115,131 +108,161 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
 
 
 #-------------------------------------------------------------------------------
-# MODIFY THE DATA 
+# IMPORT DATA AND SETTINGS
 #-------------------------------------------------------------------------------
 
-# Extract the column names from the settings
-for (column_key in names(settings$required_columns)) {
-  assign(column_key, settings$required_columns[[column_key]])
+dataname <- list.files("input", pattern = ".txt")
+datapath <- paste0("input/", dataname)
+df <- read_tsv(datapath)
+
+# Store settings in variables
+settings <- read_json(path = "settings.json", format = "json")
+for (setting_name in names(settings)){
+  extract_settings(settings[[setting_name]])
 }
 
-# Extract the plot settings
-for (plot_key in names(settings$plot_settings)) {
-  assign(plot_key, settings$plot_settings[[plot_key]])
-}
-
-# Create a datetime column; only select and rename the required columns; remove
-# rows with missing value
-df_mod <- df %>%
-  mutate(datetime = as.POSIXct(paste(df[[date_colname]], df[[time_colname]]),
-                               format = settings$datetime_format)) %>%
-  {if (add_sat) 
-    select(., datetime, all_of(o2_colname), all_of(saturation_colname))
-    else select(., datetime, all_of(o2_colname))} %>%
-  {if (add_sat)
-    rename(., o2 = all_of(o2_colname), saturation = all_of(saturation_colname))
-    else rename(., o2 = all_of(o2_colname))} %>%
-  {if (settings$remove_missing)
-    filter(., o2 != as.numeric(settings$missing_value)) 
-    else .}
-
-
-#-------------------------------------------------------------------------------
-# PLOT OXYGEN VS TIME 
-#-------------------------------------------------------------------------------
-
-# Make the plot ranges numeric (if na: replace with max and min oxygen value)
-o2_ylims <- as.numeric(unlist(strsplit(o2_ylims, ",")))
-if (is.na(o2_ylims[1])) {
-  o2_ylims[1] <- min(na.omit(df_mod$o2))
-  o2_ylims[2] <- max(na.omit(df_mod$o2))
-}
-
-# Get the letter position details
-letter_position <- create_letter_position(letter_position_name, y_name = "o2", 
-                                          x_name = "datetime", 
-                                          y_lims = c(o2_ylims[1], o2_ylims[2]),
-                                          x_lims = c(NA, NA))
-
-# Set up the image file
-png("output/1.o2_vs_time.png")
-
-# Create the plot
-plot <-  ggplot(df_mod, aes(x = datetime)) +
-  geom_point(aes(y = o2)) +
-  xlab("Time") +
-  # Specify monthly ticks with short month names as label
-  #scale_x_datetime(date_breaks = "1 month", date_labels = '%b') +
-  # Change plot layout to another theme and so some adjustments to the theme
-  theme_bw() +
-  theme(text = element_text(family = "Times"),
-        axis.text = element_text(size = rel(1.5)),
-        axis.title = element_text(size = rel(1.7))) +
-  # Add the plot letter string
-  annotate("text",
-           x = letter_position[[1]],
-           y = letter_position[[2]], 
-           label = letter_string,
-           hjust = letter_position[[3]],
-           vjust = letter_position[[4]],
-           size = 9)
-
-# Specify y tick labels format and their spacing
-timespan <- as.numeric(df_mod$datetime[nrow(df_mod)]-df_mod$datetime[1])
-if (timespan < 240) {
-  breaks = "2 months"
-} else if (timespan > 240 & timespan < 650) {
-  breaks = "4 months"
+# Create a datetime column
+if (date_colname & time_colname){
+  df_datetime <- df %>%
+    mutate(datetime = as.POSIXct(paste(df[[date_colname]], df[[time_colname]]),
+                                 format = settings$datetime_format))
 } else {
-  breaks = "6 monhts"
-}
-plot <- plot + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
-
-
-# Create the y axis(es) and its ranges
-if (add_sat) {
-  sat_scale_coeff <- as.numeric(settings$plot_settings$sat_scale_coeff)
-  plot <- plot + 
-    geom_point(aes(y = saturation*sat_scale_coeff), color = 'red') +
-    scale_y_continuous(name = y_lab, limits = c(o2_ylims[1], o2_ylims[2]),
-                       sec.axis = sec_axis(~./sat_scale_coeff,
-                                           name = "Saturation"))
-} else {
-  plot <- plot + 
-    ylab(y_lab) +
-    ylim(o2_ylims[1], o2_ylims[2])
+  df_datetime <- df %>%
+    mutate(datetime = as.POSIXct(paste0(
+      df[[year_colname]], "-", df[[month_colname]], "-", df[[day_colname]], " ",
+      df[[hour_colname]], ":", df[[minute_colname]], ":", df[[second_colname]]),
+      format = "%Y-%m-%d %H:%M:%S"))
 }
 
-# Create the image
-print(plot)
-dev.off()
+
+#-------------------------------------------------------------------------------
+# CONVERT 
+#-------------------------------------------------------------------------------
+
+if (do_convertion) {
+  
+}
+
+#-------------------------------------------------------------------------------
+# FILTER(S)
+#-------------------------------------------------------------------------------
+
+if (remove_missing) {
+  df_datetime <- df_datetime %>%
+    filter(df_datetime[[o2_colname]] != missing_value)
+}
+
+
+#-------------------------------------------------------------------------------
+# PLOT 
+#-------------------------------------------------------------------------------
+
+if (make_plot) {
+  # Simplify data: only keep needed data and rename
+  if (saturation_colname & add_sat) {
+    df_simple <- df_datetime %>%
+      select(datetime, all_of(o2_colname), all_of(saturation_colname)) %>%
+      rename(o2=all_of(o2_colname), saturation=all_of(saturation_colname))
+  } else {
+    df_simple <- df_datetime %>%
+      select(datetime, all_of(o2_colname)) %>%
+      rename(o2=all_of(o2_colname))
+  }
+  
+  # Make the plot ranges numeric (if na: replace with max and min oxygen value)
+  o2_ylims <- as.numeric(unlist(strsplit(o2_ylims, ",")))
+  if (is.na(o2_ylims[1])) {
+    o2_ylims[1] <- min(na.omit(df_simple$o2))
+    o2_ylims[2] <- max(na.omit(df_simple$o2))
+  }
+
+  # Get the letter position details
+  letter_position <- create_letter_position(letter_position_name, y_name = "o2", 
+                                            x_name = "datetime", 
+                                            y_lims = c(o2_ylims[1], o2_ylims[2]),
+                                            x_lims = c(NA, NA))
+
+  # Set up the image file
+  png("output/1.o2_vs_time.png")
+
+  # Create the plot
+  plot <-  ggplot(df_simple, aes(x = datetime)) +
+    geom_point(aes(y = o2)) +
+    xlab("Time") +
+    # Specify monthly ticks with short month names as label
+    #scale_x_datetime(date_breaks = "1 month", date_labels = '%b') +
+    # Change plot layout to another theme and so some adjustments to the theme
+    theme_bw() +
+    theme(text = element_text(family = "Times"),
+          axis.text = element_text(size = rel(1.5)),
+          axis.title = element_text(size = rel(1.7))) +
+    # Add the plot letter string
+    annotate("text",
+             x = letter_position[[1]],
+             y = letter_position[[2]], 
+             label = letter_string,
+             hjust = letter_position[[3]],
+             vjust = letter_position[[4]],
+             size = 9)
+
+  # Specify y tick labels format and their spacing
+  timespan <- as.numeric(df_simple$datetime[nrow(df_simple)]-df_simple$datetime[1])
+  if (timespan < 240) {
+    breaks = "2 months"
+  } else if (timespan > 240 & timespan < 650) {
+    breaks = "4 months"
+  } else {
+    breaks = "6 monhts"
+  }
+  plot <- plot + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
+
+  # Create the y axis(es) and its ranges
+  if (add_sat) {
+    sat_scale_coeff <- as.numeric(settings$plot_settings$sat_scale_coeff)
+    plot <- plot + 
+      geom_point(aes(y = saturation*sat_scale_coeff), color = 'red') +
+      scale_y_continuous(name = y_lab, limits = c(o2_ylims[1], o2_ylims[2]),
+                         sec.axis = sec_axis(~./sat_scale_coeff,
+                                             name = "Saturation"))
+  } else {
+    plot <- plot + 
+      ylab(y_lab) +
+      ylim(o2_ylims[1], o2_ylims[2])
+  }
+
+  # Create the image file
+  print(plot)
+  dev.off()
+}
 
 
 #-------------------------------------------------------------------------------
 # WRITE STATS
 #-------------------------------------------------------------------------------
 
-# Set up the file for stats
-sink(file = "output/oxygen_stats.txt")
+if (check_range) {
+  # Set up the file for stats
+  sink(file = "output/oxygen_stats.txt")
 
-# Write total number of oxygen measurements
-n_oxygen <- length(na.omit(df_mod$o2))
-cat("The total number of oxygen measurements: ", n_oxygen, "\n", sep="")
+  # Write total number of oxygen measurements
+  n_oxygen <- length(na.omit(df_simple$o2))
+  cat("The total number of oxygen measurements: ", n_oxygen, "\n", sep="")
 
-# Write number of oxygen out of plotting range
-n_outside_plot <- sum(na.omit(df_mod$o2 < o2_ylims[1])) +
-  sum(na.omit(df_mod$o2 > o2_ylims[2]))
-percent_outside <-round((n_outside_plot/n_oxygen)*100, 1)
-cat("Measurements outside plot area (", o2_ylims[1], ":", o2_ylims[2],
-    ") is: ", n_outside_plot, " (", percent_outside, "%)\n", sep = "")
+  # Write number of oxygen out of plotting range
+  n_outside_plot <- sum(na.omit(df_simple$o2 < o2_ylims[1])) +
+    sum(na.omit(df_simple$o2 > o2_ylims[2]))
+  percent_outside <-round((n_outside_plot/n_oxygen)*100, 1)
+  cat("Measurements outside plot area (", o2_ylims[1], ":", o2_ylims[2],
+      ") is: ", n_outside_plot, " (", percent_outside, "%)\n", sep = "")
 
-# Write number of oxygen out of acceptable range
-good_min <- as.numeric(settings$qc_range$umol_pr_L$good_min)
-good_max <- as.numeric(settings$qc_range$umol_pr_L$good_max)
+  # Write number of oxygen out of acceptable range
+  good_min <- as.numeric(settings$qc_range$umol_pr_L$good_min)
+  good_max <- as.numeric(settings$qc_range$umol_pr_L$good_max)
 
-n_bad <- sum(na.omit(df_mod$o2 < good_min)) + sum(na.omit(df_mod$o2 > good_max))
-percent_bad <- round((n_bad/n_oxygen)*100, 1)
-cat("Number of bad measurements (outside the good range ", good_min,
-    ":", good_max, ") is: ", n_bad, " (", percent_bad, "%)\n", sep = "")
+  n_bad <- sum(na.omit(df_simple$o2 < good_min)) + sum(na.omit(df_simple$o2 > good_max))
+  percent_bad <- round((n_bad/n_oxygen)*100, 1)
+  cat("Number of bad measurements (outside the good range ", good_min,
+      ":", good_max, ") is: ", n_bad, " (", percent_bad, "%)\n", sep = "")
 
-sink()
+  sink()
+}
