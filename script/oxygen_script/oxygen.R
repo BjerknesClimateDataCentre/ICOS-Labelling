@@ -136,21 +136,29 @@ if (date_colname & time_colname){
 
 
 #-------------------------------------------------------------------------------
-# CONVERT 
+# CONVERT, FILTER AND WRITE DATA
 #-------------------------------------------------------------------------------
 
 if (do_convertion) {
-  
-}
-
-#-------------------------------------------------------------------------------
-# FILTER(S)
-#-------------------------------------------------------------------------------
+  if (!using_sigma_theta) {
+    df_datetime <- df_datetime %>%
+      mutate(df_datetime, {{o2_colname}} := round(df_datetime[[o2_colname]]*44.6,3))
+  }
+} #else {
+#}
 
 if (remove_missing) {
   df_datetime <- df_datetime %>%
     filter(df_datetime[[o2_colname]] != missing_value)
 }
+
+# Remove the final datatime column before output the data
+df_to_output <- df_datetime %>%
+  select(-datetime)
+
+# Write the filtered data to file
+out_file <- paste0("output/", strsplit(dataname, '.txt'), "_O2-converted.txt")
+write_tsv(df_to_output, file = out_file)
 
 
 #-------------------------------------------------------------------------------
