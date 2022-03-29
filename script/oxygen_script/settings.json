@@ -1,25 +1,40 @@
 {
 	"required_columns": {
-		"date_colname" : "PCDate",
-		"time_colname" : "PCTime",
-		"o2_colname" : "Oxygen",
-		"saturation_colname" : "Saturation"
+		"date_colname" : false,
+		"time_colname" : false,
+		"datetime_format" : "%d/%m/%Y %H:%M:%S",
+		"year_colname" : "Year",
+		"month_colname" : "Month",
+		"day_colname" : "Day",
+		"hour_colname" : "Hour UTC",
+		"minute_colname" : "Minute",
+		"second_colname" : "Second",
+		"o2_colname" : "Dissolved oxygen [mL/L]",
+		"saturation_colname" : false
 	},
-	"datetime_format" : "%d/%m/%Y %H:%M:%S",
+	"convert_settings": {
+		"do_convertion": true
+	},
+	"filter_settings": {
+		"remove_missing" : true,
+		"missing_value" : "0"
+	},
 	"plot_settings" : {
+		"make_plot" : false,
 		"y_lab" : "O₂ [μmol/L]",
-		"letter_string": "g)",
+		"letter_string": "a)",
 		"letter_position_name" : "topleft",
 	    "add_sat" : true,
 	    "o2_ylims" : "0,500",
 	    "sat_scale_coeff" : "2"
 	},
-	"remove_missing" : false,
-	"missing_value" : "0",
-	"qc_ranges" : {
-		"umol_pr_L" : {
-			"good_min": "50",
-			"good_max" : "400"
+	"range_settings": {
+		"check_range" : true,
+		"qc_ranges" : {
+			"umol_pr_L" : {
+				"good_min": "50",
+				"good_max" : "400"
+			}
 		}
 	}
 }
