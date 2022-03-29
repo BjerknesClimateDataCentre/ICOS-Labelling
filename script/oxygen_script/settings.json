@@ -30,12 +30,7 @@
 	    "sat_scale_coeff" : "2"
 	},
 	"range_settings": {
-		"check_range" : false,
-		"qc_ranges" : {
-			"umol_pr_L" : {
-				"good_min": "50",
-				"good_max" : "400"
-			}
-		}
+		"check_range" : true,
+		"qc_ranges" : "50,400"
 	}
 }

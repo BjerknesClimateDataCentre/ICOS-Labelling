@@ -20,7 +20,7 @@ value before making an output file and plot
 'sat_scale_coeff', which is used to edit the second y axis range. Increase the
 coefficient to get a lower y max range.
 - range_settings: Boolean for wether the range check should be perfomed and
-its limits (do not change these)
+its limits (do not change these). Range check unit is for umol/kg only!
 
 ### Output ###
 Depending on the settings, the script produce an output file with converted,
