@@ -1,0 +1,31 @@
+{
+	"required_columns": {
+		"date_colname" : false,
+		"time_colname" : false,
+		"datetime_format" : "%d/%m/%Y %H:%M:%S",
+		"year_colname" : "Year",
+		"month_colname" : "Month",
+		"day_colname" : "Day",
+		"hour_colname" : "Hour UTC",
+		"minute_colname" : "Minute",
+		"second_colname" : "Second",
+		"co2_colname" : "CO2 [ppm]"
+	},
+	"sequence_settings" : {
+		"check_whole_sequence" : true,
+		"check_last_n" : "3",
+		"max_timediff" : "3600"
+	},
+	"visual_settings" : {
+		"fig1_n_random_plots" : "4",
+		"fig1_ylab" : "xCO₂ [ppm]",
+		"fig2_letter_position" : "topright"
+	},
+	"extract_settings": {
+		"extract_whole_sequence": true,
+		"extract_last_n" : "1",
+		"average_other_cols" : [
+			"Gas stream pressure [mbar]"
+		]
+	}
+}
