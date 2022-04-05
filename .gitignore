@@ -44,3 +44,6 @@ diverse/
 
 # Ignore data folder
 script/data
+
+# Ignore manual folder
+script/*/manual
