@@ -89,7 +89,7 @@
       "y_warning_lims": "80,1200"
     },
     "depth_vs_time": {
-      "make_plot": false,
+      "make_plot": true,
       "x_name": "datetime",
       "y_name": "raw_depth",
       "x_filter_bad": false,
@@ -97,9 +97,9 @@
       "x_lims": "NA,NA",
       "y_lims": "NA,NA",
       "x_lab": "Time",
-      "y_lab": "Depth [m]",
+      "y_lab": "Depth [dbar]",
       "letter_string": "d)",
-      "letter_position_name": "topleft",
+      "letter_position_name": "bottomleft",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "0,5"
     },
@@ -113,7 +113,7 @@
       "y_lims": "NA,NA",
       "x_lab": "Time",
       "y_lab": "Membrane Pressure [hpa]",
-      "letter_string": "d)",
+      "letter_string": "e)",
       "letter_position_name": "bottomleft",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "900,1100"
@@ -127,11 +127,11 @@
       "x_lims": "NA,NA",
       "y_lims": "NA,NA",
       "x_lab": "Time",
-      "y_lab": "O₂ [ml/L]",
-      "letter_string": "e)",
+      "y_lab": "Dissolved Oxygen [μmol/kg]",
+      "letter_string": "f)",
       "letter_position_name": "bottomleft",
       "x_warning_lims": "NA,NA",
-      "y_warning_lims": "50,400"
+      "y_warning_lims": "NA,NA"
     },
     "o2sat_vs_time": {
       "make_plot": false,
@@ -144,12 +144,12 @@
       "x_lab": "Time",
       "y_lab": "O₂ Saturation [%]",
       "letter_string": "g)",
-      "letter_position_name": "topleft",
+      "letter_position_name": "bottomleft",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "NA,NA"
     },
     "temp_vs_alttemp": {
-      "make_plot": false,
+      "make_plot": true,
       "x_name": "raw_temp",
       "y_name": "raw_alternative_temp",
       "x_filter_bad": true,
@@ -157,7 +157,7 @@
       "x_lims": "NA,NA",
       "y_lims": "NA,NA",
       "x_lab": "Seabird Temperature [°C]",
-      "y_lab": "SAMI Temperature [°C]",
+      "y_lab": "Humidity Sensor Temperature [°C]",
       "letter_string": "",
       "letter_position_name": "topleft",
       "x_warning_lims": "-5,40",
@@ -174,7 +174,7 @@
       "x_lab": "Time",
       "y_lab": "fCO₂ [μatm]",
       "letter_string": "a)",
-      "letter_position_name": "topleft",
+      "letter_position_name": "topright",
       "x_warning_lims": "NA,NA",
       "y_warning_lims": "80,1200"
     },

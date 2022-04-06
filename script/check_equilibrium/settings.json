@@ -14,7 +14,9 @@
 	"sequence_settings" : {
 		"check_whole_sequence" : true,
 		"check_last_n" : "3",
-		"max_timediff" : "3600"
+		"max_timediff" : "3600",
+		"remove_outlier" : false,
+		"outlier_cutoff" : 2
 	},
 	"visual_settings" : {
 		"fig1_n_random_plots" : "4",
