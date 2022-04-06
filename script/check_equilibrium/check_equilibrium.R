@@ -225,7 +225,7 @@ letter_position <- create_letter_position(df_stats, fig2_letter_position, y_name
 png("output/2.plot_std_vs_time.png")
 plot_2 <-  ggplot(df_stats, aes(x = seqnum, y = std)) +
   geom_point() +
-  xlab("Sequence Number") + ylab("Standard Deviation") + 
+  xlab("Sequence Number") + ylab("Standard Deviation [ppm]") + 
   # Change plot layout to another theme and so some adjustments to the theme
   theme_bw() +
   theme(text = element_text(family = "Times"),
@@ -252,7 +252,7 @@ plot_3 <- ggplot(df_stats, aes(x = std_hist)) +
                      labels = c("> 0.5", "> 1", "> 1.5", "> 2", "< 2")) +
   stat_bin(binwidth = 0.5, geom = "text", aes(label = ..count..), vjust = -0.5,
            size = 5, family = "Times") + 
-  labs(x = "Standard deviation [ppm]", y = "Measurement sequences") +
+  labs(x = "Standard Deviation [ppm]", y = "Measurement Sequence Frequency") +
   theme_bw() +
   theme(text = element_text(family = "Times"),
         axis.text = element_text(size = rel(1.5)),
