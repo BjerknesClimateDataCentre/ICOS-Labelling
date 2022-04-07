@@ -111,22 +111,28 @@ create_letter_position <- function(letter_position_name, y_name, x_name,
 # IMPORT DATA AND SETTINGS
 #-------------------------------------------------------------------------------
 
-dataname <- list.files("input", pattern = ".txt")
-datapath <- paste0("input/", dataname)
-df <- read_tsv(datapath)
-
 # Store settings in variables
 settings <- read_json(path = "settings.json", format = "json")
 for (setting_name in names(settings)){
   extract_settings(settings[[setting_name]])
 }
 
+# Import data
+file_list <- list.files("input",
+                        recursive = TRUE,
+                        pattern = paste0("\\.",settings$input_file_format,"$"),
+                        full.names = TRUE)
+df <- readr::read_csv(file_list)
+
 # Create a datetime column
-if (date_colname & time_colname){
+if (date_colname == time_colname & is.character(date_colname)) {
+  df_datetime <- df %>%
+    mutate(datetime = as.POSIXct(df[[date_colname]], format = datetime_format))
+} else if (date_colname != time_colname & is.character(date_colname)) {
   df_datetime <- df %>%
     mutate(datetime = as.POSIXct(paste(df[[date_colname]], df[[time_colname]]),
-                                 format = settings$datetime_format))
-} else {
+                                 format = datetime_format))
+} else {  # Case of 6 separate date time columns
   df_datetime <- df %>%
     mutate(datetime = as.POSIXct(paste0(
       df[[year_colname]], "-", df[[month_colname]], "-", df[[day_colname]], " ",
@@ -141,8 +147,19 @@ if (date_colname & time_colname){
 
 if (do_convertion) {
   if (!using_sigma_theta) {
+    
+    # Convert the existing column to umol/l
     df_datetime <- df_datetime %>%
       mutate(df_datetime, {{o2_colname}} := round(df_datetime[[o2_colname]]*44.6,3))
+    
+    # Remove the final datatime column before output the data
+    df_to_output <- df_datetime %>%
+      select(-datetime)
+    
+    # Write the converted data to file
+    out_file <- paste0("output/", strsplit(dataname, '.txt'), "_O2-converted.txt")
+    write_tsv(df_to_output, file = out_file)
+    
   }
 } #else {
 #}
@@ -152,28 +169,20 @@ if (remove_missing) {
     filter(df_datetime[[o2_colname]] != missing_value)
 }
 
-# Remove the final datatime column before output the data
-df_to_output <- df_datetime %>%
-  select(-datetime)
-
-# Write the filtered data to file
-out_file <- paste0("output/", strsplit(dataname, '.txt'), "_O2-converted.txt")
-write_tsv(df_to_output, file = out_file)
-
 
 #-------------------------------------------------------------------------------
 # PLOT 
 #-------------------------------------------------------------------------------
 
 # Simplify data before plot and range check: only keep needed data and rename
-if (saturation_colname & add_sat) {
+if (is.character(saturation_colname) & add_sat) {
   df_simple <- df_datetime %>%
     select(datetime, all_of(o2_colname), all_of(saturation_colname)) %>%
-    rename(o2=all_of(o2_colname), saturation=all_of(saturation_colname))
+    rename(o2 = all_of(o2_colname), saturation = all_of(saturation_colname))
 } else {
   df_simple <- df_datetime %>%
     select(datetime, all_of(o2_colname)) %>%
-    rename(o2=all_of(o2_colname))
+    rename(o2 = all_of(o2_colname))
 }
 
 if (make_plot) {
@@ -221,7 +230,7 @@ if (make_plot) {
   } else if (timespan > 240 & timespan < 650) {
     breaks = "4 months"
   } else {
-    breaks = "6 monhts"
+    breaks = "6 months"
   }
   plot <- plot + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
 
@@ -232,7 +241,7 @@ if (make_plot) {
       geom_point(aes(y = saturation*sat_scale_coeff), color = 'red') +
       scale_y_continuous(name = y_lab, limits = c(o2_ylims[1], o2_ylims[2]),
                          sec.axis = sec_axis(~./sat_scale_coeff,
-                                             name = "Saturation"))
+                                             name = "Saturation [%]"))
   } else {
     plot <- plot + 
       ylab(y_lab) +
