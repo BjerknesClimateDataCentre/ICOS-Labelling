@@ -127,7 +127,7 @@
       "x_lims": "NA,NA",
       "y_lims": "NA,NA",
       "x_lab": "Time",
-      "y_lab": "Dissolved Oxygen [μmol/kg]",
+      "y_lab": "Dissolved Oxygen [μmol/l]",
       "letter_string": "f)",
       "letter_position_name": "bottomleft",
       "x_warning_lims": "NA,NA",
