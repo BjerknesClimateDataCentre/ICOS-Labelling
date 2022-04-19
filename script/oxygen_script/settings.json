@@ -1,19 +1,20 @@
 {
+	"input_file_format": "csv",
 	"required_columns": {
-		"date_colname" : false,
-		"time_colname" : false,
-		"datetime_format" : "%d/%m/%Y %H:%M:%S",
+		"date_colname" : "Date/Time",
+		"time_colname" : "Date/Time",
+		"datetime_format" : "%Y-%m-%dT%H:%M:%S.000Z",
 		"year_colname" : "Year",
 		"month_colname" : "Month",
 		"day_colname" : "Day",
 		"hour_colname" : "Hour UTC",
 		"minute_colname" : "Minute",
 		"second_colname" : "Second",
-		"o2_colname" : "Dissolved oxygen [mL/L]",
-		"saturation_colname" : false
+		"o2_colname" : "Oxygen_umol_pr_l",
+		"saturation_colname" : "Oxygen_Sat_percent"
 	},
 	"convert_settings": {
-		"do_convertion": true,
+		"do_convertion": false,
 		"using_sigma_theta": false
 	},
 	"filter_settings": {
@@ -21,12 +22,12 @@
 		"missing_value" : "0"
 	},
 	"plot_settings" : {
-		"make_plot" : false,
-		"y_lab" : "O₂ [μmol/L]",
-		"letter_string": "a)",
+		"make_plot" : true,
+		"y_lab" : "O₂ [μmol/l]",
+		"letter_string": "f)",
 		"letter_position_name" : "topleft",
 	    "add_sat" : true,
-	    "o2_ylims" : "0,500",
+	    "o2_ylims" : "100,500",
 	    "sat_scale_coeff" : "2"
 	},
 	"range_settings": {
