@@ -249,7 +249,7 @@ png("output/3.histogram.png")
 plot_3 <- ggplot(df_stats, aes(x = std_hist)) +
   geom_histogram(binwidth = 0.5, color = "black", fill = "grey") +
   scale_x_continuous(breaks = seq(0, 2, 0.5),
-                     labels = c("> 0.5", "> 1", "> 1.5", "> 2", "< 2")) +
+                     labels = c("< 0.5", "< 1", "< 1.5", "< 2", "< 2")) +
   stat_bin(binwidth = 0.5, geom = "text", aes(label = ..count..), vjust = -0.5,
            size = 5, family = "Times") + 
   labs(x = "Standard Deviation [ppm]", y = "Measurement Sequence Frequency") +
