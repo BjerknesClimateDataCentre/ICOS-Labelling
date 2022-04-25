@@ -151,8 +151,7 @@ df <- df %>%
                                       lag(df$datetime),
                                       units = "secs")) > as.numeric(max_timediff), TRUE,
                          FALSE))) %>%
-  mutate(seqnum = cumsum(new_sequence)) #%>%
-  #rename(co2 = all_of(co2_colname))
+  mutate(seqnum = cumsum(new_sequence))
 
 # If specified in settings, only keep the final n measurements per sequence
 if (check_whole_sequence){
@@ -282,6 +281,9 @@ if (extract_whole_sequence){  # This means calculate average from whole sequence
   # Loop though list of columns and replace data with sequence-vise averages
   colnames_average <- append(list(co2_colname), average_other_cols)
   for (col in colnames_average){
+    if (is.character(df_to_write[[col]])){   # Make sure class is numeric
+     df_to_write[[col]] <-  as.numeric(df_to_write[[col]])
+    }
     df_to_write <- df_to_write %>%
       group_by(seqnum) %>%
       mutate({{col}} := round(mean(!!as.symbol(col)),2))
