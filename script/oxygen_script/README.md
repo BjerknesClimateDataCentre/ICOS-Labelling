@@ -13,7 +13,9 @@ The script needs the following from this settings file:
 - required_columns: the name of various columns needed and the datetime format
 (not needed if the date and times are in 6 individual columns)
 - convert_settings: These are boolean variables explaining if/how a unit
-conversion should be performed
+conversion should be performed. The script does not yet include calculation
+using sigm_theta! If sigma_theta is provide in the data set this
+setting to 'true' and add this calculation to the script.
 - filter_settings: For now the only filter feature added is removal of missing
 value before making an output file and plot
 - plot_settings: Various informations needed for creating the plot. Note the
