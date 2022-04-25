@@ -37,7 +37,9 @@ per sequence. Alternatively...
 the averaging calulcations (this would then be clear from the visualisations:
 how many measurements are done after the measurements seem to have reached an
 equilibrium). If this number is set to 1, this means only the final measurement
-per sequence is included in the output file.
+per sequence is included in the output file. Note that this section of the script
+is not written yet, the script will only work with extracting of the whole
+sequence.
 - 'average_other_cols': List of other column names, besides co2, where sequence
  vise averages must be calculated.
 
