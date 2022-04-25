@@ -119,10 +119,10 @@ for (setting_name in names(settings)){
 
 # Import data
 file_list <- list.files("input",
-                        recursive = TRUE,
-                        pattern = paste0("\\.",settings$input_file_format,"$"),
-                        full.names = TRUE)
-df <- readr::read_csv(file_list)
+                      recursive = TRUE,
+                      pattern = paste0("\\.", settings$input_file_format, "$"),
+                      full.names = TRUE)
+df <- readr::read_delim(file_list, delim = settings$input_file_delim)
 
 # Create a datetime column
 if (date_colname == time_colname & is.character(date_colname)) {
@@ -148,7 +148,7 @@ if (date_colname == time_colname & is.character(date_colname)) {
 if (do_convertion) {
   if (!using_sigma_theta) {
     
-    # Convert the existing column to umol/l
+    # Convert the existing column to umol/kg
     df_datetime <- df_datetime %>%
       mutate(df_datetime, {{o2_colname}} := round(df_datetime[[o2_colname]]*44.6,3))
     
@@ -157,7 +157,7 @@ if (do_convertion) {
       select(-datetime)
     
     # Write the converted data to file
-    out_file <- paste0("output/", strsplit(dataname, '.txt'), "_O2-converted.txt")
+    out_file <- paste0("output/input_data_O2-converted.txt")
     write_tsv(df_to_output, file = out_file)
     
   }
