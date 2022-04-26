@@ -26,9 +26,9 @@
 		"make_plot" : true,
 		"y_lab" : "O₂ [μmol/kg]",
 		"letter_string": "e)",
-		"letter_position_name" : "topleft",
+		"letter_position_name" : "bottomleft",
 	    "add_sat" : false,
-	    "o2_ylims" : "175,350",
+	    "o2_ylims" : "150,300",
 	    "sat_scale_coeff" : "2"
 	},
 	"range_settings": {
