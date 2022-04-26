@@ -225,15 +225,20 @@ if (make_plot) {
 
   # Specify y tick labels format and their spacing
   timespan <- as.numeric(df_simple$datetime[nrow(df_simple)]-df_simple$datetime[1])
-  if (timespan < 240) {
+  if (timespan < 75) {
+    breaks = "2 weeks"
+    plot <- plot + scale_x_datetime(date_breaks = breaks, date_labels = '%d-%b-%y')
+  } else if (timespan < 240 & timespan >= 75) {
     breaks = "2 months"
+    plot <- plot + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
   } else if (timespan > 240 & timespan < 650) {
     breaks = "4 months"
+    plot <- plot + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
   } else {
     breaks = "6 months"
+    plot <- plot + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
   }
-  plot <- plot + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
-
+  
   # Create the y axis(es) and its ranges
   if (add_sat) {
     sat_scale_coeff <- as.numeric(settings$plot_settings$sat_scale_coeff)

@@ -24,11 +24,11 @@
 	},
 	"plot_settings" : {
 		"make_plot" : true,
-		"y_lab" : "O₂ [μmol/kg]",
+		"y_lab" : "O₂ [μmol/l]",
 		"letter_string": "e)",
-		"letter_position_name" : "bottomleft",
+		"letter_position_name" : "bottomright",
 	    "add_sat" : false,
-	    "o2_ylims" : "150,300",
+	    "o2_ylims" : "175,350",
 	    "sat_scale_coeff" : "2"
 	},
 	"range_settings": {
