@@ -120,6 +120,7 @@ lim_string_to_vector <- function(lim_string) {
   return(lim_vector)
 }
 
+
 # This function creates a plot and store it in the output folder. Required 
 # inputs are which parameter to plot (param), the number of the plot (used in 
 # the png filename), the parameters label and plotting range, a letter string 
@@ -166,15 +167,20 @@ create_plot <- function(plot_count, y_name, x_name, y_lab, x_lab, y_lims,
     
     # The time between ticks depends on the length of the dataset
     timespan <- as.numeric(df$datetime[nrow(df)]-df$datetime[1])
-    if (timespan < 240) {
+    if (timespan < 75) {
+      breaks = "2 weeks"
+      ret <- ret + scale_x_datetime(date_breaks = breaks, date_labels = '%d-%b-%y')
+    } else if (timespan < 240 & timespan >= 75) {
       breaks = "2 months"
-    } else if (timespan > 240 & timespan < 750) {
+      ret <- ret + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
+    } else if (timespan > 240 & timespan <= 750) {
       breaks = "4 months"
+      ret <- ret + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
     } else {
       breaks = "6 months"
+      ret <- ret + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
     }
     
-    ret <- ret + scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y')
   } 
   
   # Create the plot and image file
