@@ -24,41 +24,18 @@ if (!is.null(list.files("output"))) {
 
 
 #-------------------------------------------------------------------------------
-# IMPORT SETTINGS AND DATA
-#-------------------------------------------------------------------------------
-
-# Import settings
-settings <- read_json(path = "settings.json", format = "json")
-
-# Import primary data (see Readme file for description on what this means in 
-# terms of the merging)
-if (settings$read_from_data_folder$processed_data){
-  df_pri <- readRDS(file = "../data/processed_data.rds")
-} else {
-  filename_pri <- settings$read_from_input_folder$filename_pri
-  df_pri <- read_tsv(paste0("input/",filename_pri))
-  # First assume the file is tab separated, but re-import if it is comma.
-  if(ncol(df_pri) == 1){
-    df_pri <- read_csv(paste0("input/",filename_pri))
-  }
-}
-
-# Import secondary data
-if (settings$read_from_data_folder$raw_data){
-  print("Cannot read raw data from the data folder, use input folder")
-} else {
-  filename_sec <- settings$read_from_input_folder$filename_sec
-  df_sec <- read_tsv(paste0("input/",filename_sec))
-  # First assume the file is tab separated, but re-import if it is comma.
-  if(ncol(df_sec) == 1){
-    df_sec <- read_csv(paste0("input/",filename_sec))
-  }
-}
-
-
-#-------------------------------------------------------------------------------
 # FUNCTIONS
 #-------------------------------------------------------------------------------
+
+# Function adds a tag to the end of all column names
+add_tag <- function(df, tag){
+  for (old_name in names(df)){
+    new_name <- paste(old_name, tag, sep = "_") 
+    df <- df %>%
+      rename({{new_name}} := all_of(old_name))
+  }
+  return(df)
+}
 
 # Function that adds a date time column to the data. Required inputs are the
 # name of the data, its date and time colnames, and their formats.
@@ -105,6 +82,42 @@ check_chron <- function(df) {
 
 
 #-------------------------------------------------------------------------------
+# IMPORT SETTINGS AND DATA
+#-------------------------------------------------------------------------------
+
+settings <- read_json(path = "settings.json", format = "json")
+
+# Import primary data (see Readme file for description on what this means in 
+# terms of the merging)
+if (settings$read_from_data_folder$processed_data){
+  df_pri <- readRDS(file = "../data/processed_data.rds")
+} else {
+  filename_pri <- settings$read_from_input_folder$filename_pri
+  df_pri <- read_tsv(paste0("input/",filename_pri))
+  # First assume the file is tab separated, but re-import if it is comma.
+  if(ncol(df_pri) == 1){
+    df_pri <- read_csv(paste0("input/",filename_pri))
+  }
+}
+
+# Import secondary data
+if (settings$read_from_data_folder$raw_data){
+  print("Cannot read raw data from the data folder, use input folder")
+} else {
+  filename_sec <- settings$read_from_input_folder$filename_sec
+  df_sec <- read_csv(paste0("input/",filename_sec))
+  # First assume the file is tab separated, but re-import if it is comma.
+  if(ncol(df_sec) == 1){
+    df_sec <- read_csv(paste0("input/",filename_sec))
+  }
+}
+
+# Add source tag to the column names
+df_pri <- add_tag(df_pri, settings$col_tag_settings$pri_col_tag)
+df_sec <- add_tag(df_sec, settings$col_tag_settings$sec_col_tag)
+
+
+#-------------------------------------------------------------------------------
 # IDENTIFY DATETIME AND RUN CHRONOLOGY CHECK
 #-------------------------------------------------------------------------------
 
@@ -113,7 +126,11 @@ for (column_key in names(settings$datetime_settings)) {
   assign(column_key, settings$datetime_settings[[column_key]])
 }
 
-# Assign a datetime column to the datasets
+# Update the names related to date/time and assign datetime cols to the datasets
+date_colname_pri <- paste(date_colname_pri, settings$col_tag_settings$pri_col_tag, sep="_")
+time_colname_pri <- paste(time_colname_pri, settings$col_tag_settings$pri_col_tag, sep="_")
+date_colname_sec <- paste(date_colname_sec, settings$col_tag_settings$sec_col_tag, sep="_")
+time_colname_sec <- paste(time_colname_sec, settings$col_tag_settings$sec_col_tag, sep="_")
 df_pri_datetime <- assign_datetime(df_pri, date_colname_pri, time_colname_pri,
                                    datetime_format_pri)
 df_sec_datetime <- assign_datetime(df_sec, date_colname_sec, time_colname_sec,

@@ -4,16 +4,20 @@
 		"raw_data" : false
 	},
 	"read_from_input_folder": {
-		"filename_pri" : "PALOMA_CO2_Oct19-Oct20.txt",
-		"filename_sec" : "PALOMA CTD 26jan2019-20oct2020.txt"
+		"filename_pri" : "OES_Seabird_2021_SHORT.txt",
+		"filename_sec" : "KorEXO_SHORT.txt"
+	},
+	"col_tag_settings": {
+		"pri_col_tag" : "Seabird",
+		"sec_col_tag" : "EXO"
 	},
 	"datetime_settings" : {
-		"date_colname_pri" : "Datetime",
-		"time_colname_pri" : "Datetime",
-		"datetime_format_pri" : "%Y-%m-%d %H:%M:%S",
-		"date_colname_sec" : "datetime",
-		"time_colname_sec" : "datetime",
-		"datetime_format_sec" : "%Y-%m-%d %H:%M:%S"
+		"date_colname_pri" : "Date",
+		"time_colname_pri" : "Time",
+		"datetime_format_pri" : "%m/%d/%Y %H:%M:%S",
+		"date_colname_sec" : "Date",
+		"time_colname_sec" : "Time",
+		"datetime_format_sec" : "%d/%m/%Y %H:%M:%S"
 	},
-	"max_timediff_minutes" : "2"
+	"max_timediff_minutes" : "10"
 }
