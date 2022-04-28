@@ -4,20 +4,20 @@
 		"raw_data" : false
 	},
 	"read_from_input_folder": {
-		"filename_pri" : "OES_Seabird_2021_SHORT.txt",
-		"filename_sec" : "KorEXO_SHORT.txt"
+		"filename_pri" : "SAMI_2021_0608_C0212_Data_Export.txt",
+		"filename_sec" : "SAMI_2021_1022_C0019_Data_Export.txt"
 	},
 	"col_tag_settings": {
-		"pri_col_tag" : "Seabird",
-		"sec_col_tag" : "EXO"
+		"pri_col_tag" : "_SAMI-C0212",
+		"sec_col_tag" : "_SAMI-C0019"
 	},
 	"datetime_settings" : {
-		"date_colname_pri" : "Date",
-		"time_colname_pri" : "Time",
-		"datetime_format_pri" : "%m/%d/%Y %H:%M:%S",
-		"date_colname_sec" : "Date",
-		"time_colname_sec" : "Time",
-		"datetime_format_sec" : "%d/%m/%Y %H:%M:%S"
+		"date_colname_pri" : "DateTime",
+		"time_colname_pri" : "DateTime",
+		"datetime_format_pri" : "%Y-%m-%d %H:%M:%S",
+		"date_colname_sec" : "DateTime",
+		"time_colname_sec" : "DateTime",
+		"datetime_format_sec" : "%Y-%m-%d %H:%M:%S"
 	},
 	"max_timediff_minutes" : "10"
 }
