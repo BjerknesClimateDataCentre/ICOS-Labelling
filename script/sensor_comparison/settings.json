@@ -1,5 +1,6 @@
 {
 	"input_file_format": "csv",
+	"input_file_delim" : ",",
 	"required_columns": {
 		"date_colname" : "Date/Time",
 		"time_colname" : "Date/Time",
@@ -11,7 +12,7 @@
 		"minute_colname" : "Minute",
 		"second_colname" : "Second",
 		"sensor_colnames" : {
-			"sensor1" : "Temp",
+			"sensor1" : "Temp [degC]",
 			"sensor2" : "Temperature C"
 		}
 	},
@@ -21,20 +22,21 @@
 			"x_lims" : "NA,NA",
 			"y_lims" : "NA,NA",
 			"x_lab" : "Time",
-			"y_lab" : "Temperature [°C]",
+			"y_lab" : "Temperature",
 			"legends" : {
-				"sensor1" : "Seabird/EXO",
-				"sensor2" : "SAMI"
+				"sensor1" : "Seabird Temp",
+				"sensor2" : "SAMI Temp"
 			},
 			"legend_height" : "0.8"
 		},
 		"sensor1_vs_sensor2" : {
 			"make_plot" : true,
+			"rows_are_aligned": false,
 			"time_diff_cutoff" : "300",
 			"x_lims" : "NA,NA",
 			"y_lims" : "NA,NA",
-			"x_lab" : "Seabird/EXO Temperature [°C]",
-			"y_lab" : "SAMI Temperature [°C]"
+			"x_lab" : "Seabird Temp",
+			"y_lab" : "SAMI Temp"
 		}
 	}
 }
