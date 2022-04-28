@@ -60,7 +60,7 @@ file_list <- list.files("input",
                         recursive = TRUE,
                         pattern = paste0("\\.",settings$input_file_format,"$"),
                         full.names = TRUE)
-df <- readr::read_csv(file_list)
+df <- readr::read_delim(file_list, delim = settings$input_file_delim)
 
 # Create a datetime column
 if (date_colname == time_colname & is.character(date_colname)) {
@@ -87,8 +87,7 @@ df_simple <- df %>%
   rename(sensor1 = all_of(sensor_colnames[[1]]),
          sensor2 = all_of(sensor_colnames[[2]])) %>%
   filter(!is.na(sensor1) | !is.na(sensor2))
-  
-  
+
 
 #-------------------------------------------------------------------------------
 # PLOT 1: BOTH SENSORS VS TIME
@@ -103,12 +102,18 @@ if (make_plot) {
   # The time between ticks depends on the length of the dataset
   timespan <- as.numeric(
     df_simple$datetime[nrow(df_simple)] - df_simple$datetime[1])
-  if (timespan < 240) {
+  if (timespan < 75) {
+    breaks = "2 weeks"
+    label_format = '%d-%b-%y'
+  } else if (timespan < 240 & timespan >= 75) {
     breaks = "2 months"
+    label_format = '%b-%y'
   } else if (timespan > 240 & timespan < 750) {
     breaks = "4 months"
+    label_format = '%b-%y'
   } else {
     breaks = "6 months"
+    label_format = '%b-%y'
   }
   
   # Make the plot y-axis limits numeric
@@ -123,9 +128,8 @@ if (make_plot) {
     }
   }
   
-  png("output/1.sensors_vs_time.png")
-  
   # Create the plot objects in a loop
+  png("output/1.sensors_vs_time.png")
   plot_list <- list()
   count <- 1
   for (sensor in names(df_simple)) {
@@ -137,7 +141,7 @@ if (make_plot) {
         # Hide axis labels - will be added later
         xlab("") + ylab("") + 
         ylim(y_lims[1], y_lims[2]) +
-        scale_x_datetime(date_breaks = breaks, date_labels = '%b-%y') +
+        scale_x_datetime(date_breaks = breaks, date_labels = label_format) +
         # Change to another layout theme
         theme_bw() +
         # Add axis label text and edit size of axis texts
@@ -187,33 +191,35 @@ if (make_plot) {
 extract_settings(settings$plot_settings$sensor1_vs_sensor2)
 
 if (make_plot) {
+  if (!rows_are_aligned) {
+    # In order to make scatter plot, must have the sensor data on the same row
+    # Create a data frame with a column for time difference. When the time 
+    # difference is below the selected cut off, use the sensor data from those 
+    # rows.
+    df_simple <- df_simple %>%
+      mutate(time_diff = 
+               difftime(df_simple$datetime, lag(df_simple$datetime, unit="s"))) %>%
+      mutate(sensor2_shifted = 
+               case_when((time_diff < as.numeric(time_diff_cutoff)) & (!is.na(sensor2)) ~ sensor2,
+                         (time_diff < as.numeric(time_diff_cutoff)) & (is.na(sensor2)) ~ lag(sensor2)
+               )) %>%
+      mutate(sensor1_shifted = 
+               case_when((time_diff < as.numeric(time_diff_cutoff)) & (!is.na(sensor1)) ~ sensor1,
+                         (time_diff < as.numeric(time_diff_cutoff)) & (is.na(sensor1)) ~ lag(sensor1)
+               ))
+    
+    # Cleanup the scatter data frame before plotting
+    df_simple <- df_simple %>%
+      filter(time_diff < as.numeric(time_diff_cutoff)) %>%
+      select(datetime, sensor1_shifted, sensor2_shifted) %>%
+      rename(sensor1 = sensor1_shifted, sensor2 = sensor2_shifted)
+  }
   
-  # In order to make scatter plot, must have the sensor data on the same row
-  # Create a data frame with a column for time difference. When the time 
-  # difference is below the selected cut off, use the sensor data from those 
-  # rows.
-  df_scatter_full <- df_simple %>%
-    mutate(time_diff = 
-            difftime(df_simple$datetime, lag(df_simple$datetime, unit="s"))) %>%
-    mutate(sensor2_shifted = 
-            case_when((time_diff < as.numeric(time_diff_cutoff)) & (!is.na(sensor2)) ~ sensor2,
-                      (time_diff < as.numeric(time_diff_cutoff)) & (is.na(sensor2)) ~ lag(sensor2)
-                      )) %>%
-    mutate(sensor1_shifted = 
-             case_when((time_diff < as.numeric(time_diff_cutoff)) & (!is.na(sensor1)) ~ sensor1,
-                       (time_diff < as.numeric(time_diff_cutoff)) & (is.na(sensor1)) ~ lag(sensor1)
-             ))
-  
-  # Cleanup the scatter data frame before plotting
-  df_scatter <- df_scatter_full %>%
-    filter(time_diff < as.numeric(time_diff_cutoff)) %>%
-    select(sensor1_shifted, sensor2_shifted)
-  
-  x_lims <- get_lims(x_lims, df_scatter$sensor1_shifted)
-  y_lims <- get_lims(y_lims, df_scatter$sensor2_shifted)
+  x_lims <- get_lims(x_lims, df_simple$sensor1)
+  y_lims <- get_lims(y_lims, df_simple$sensor2)
   
   png("output/2.sensor1_vs_sensor2.png")
-  plot2 <- ggplot(df_scatter, aes(x = sensor1_shifted, y = sensor2_shifted)) +
+  plot2 <- ggplot(df_simple, aes(x = sensor1, y = sensor2)) +
     geom_point() +
     xlab(x_lab) + ylab(y_lab) + 
     ylim(y_lims[1], y_lims[2]) +
@@ -224,5 +230,4 @@ if (make_plot) {
           axis.title = element_text(size = rel(1.7)))
   print(plot2)
   dev.off()
-  
 }
