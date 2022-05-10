@@ -31,7 +31,7 @@
     },
     "raw_pfos": {
       "make_summary": true,
-      "remove_comment": []
+      "remove_comment": ["Constant for too long"]
     },
     "raw_co2": {
       "make_summary": true,
@@ -39,7 +39,7 @@
     },
     "fco2": {
       "make_summary": true,
-      "remove_comment": []
+      "remove_comment": ["Membrane Pressure Constant for too long"]
     }
   },
   "all_plots": {
